@@ -39,33 +39,9 @@ Player
 └── Camera2D
 ```
 
-O jogador alterna entre `idle`, `walk`, `attack_1` e `attack_2`. O `FacingComponent` mantém a última direção cardinal observada: `up`, `down`, `left` ou `right`.
+O jogador alterna entre `idle`, `walk`, `attack_1` e `attack_2`. O `FacingComponent` acompanha imediatamente a direção de movimento, inclusive durante ataques.
 
-O `PlayerAnimationController` utiliza a convenção:
-
-```text
-idle_up
-idle_down
-idle_left
-idle_right
-
-walk_up
-walk_down
-walk_left
-walk_right
-
-attack_1_up
-attack_1_down
-attack_1_left
-attack_1_right
-
-attack_2_up
-attack_2_down
-attack_2_left
-attack_2_right
-```
-
-As animações de movimento e ataque usam spritesheets locais ignorados pelo Git por conterem recursos de terceiros.
+Cada soco, porém, guarda sua própria direção dentro do `MeleeCombatComponent`. Isso impede que a hitbox gire no meio de um golpe, mas permite que o próximo soco da sequência saia na nova direção sem o atraso de esperar toda a animação anterior terminar.
 
 ## Combate corpo a corpo
 
@@ -76,10 +52,13 @@ attack (Input)
       ↓
 PlayerInputController
       ↓
+FacingComponent atualiza direção desejada
+      ↓
 MeleeCombatComponent
       ├── alterna attack_1 / attack_2
-      ├── mantém uma janela de input buffer
-      ├── controla duração do golpe
+      ├── guarda direção do golpe atual
+      ├── possui janela de combo/cancel
+      ├── possui input buffer
       └── ativa/desativa AttackHitbox
                        ↓
                 HitboxComponent
@@ -89,9 +68,9 @@ MeleeCombatComponent
                 HealthComponent
 ```
 
-Cada pressionamento de ataque corresponde a um único soco. Os golpes alternam entre duas animações e o personagem continua se movimentando durante o ataque com velocidade reduzida.
+Cada pressionamento corresponde a um soco. Se o próximo ataque for pedido cedo, ele fica no buffer. Assim que a janela de encadeamento abre, esse input é consumido imediatamente. Se o botão for pressionado depois que a janela já abriu, o próximo soco começa na hora.
 
-O input buffer mantém por um curto intervalo um comando de ataque feito perto do final do golpe atual. Se ainda estiver válido quando o golpe termina, o próximo soco começa imediatamente, evitando a necessidade de apertar o botão em um frame exato.
+Isso mantém o ataque atual coerente, permite trocar de direção rapidamente entre socos e evita a sensação de atraso ao alternar lados durante uma sequência.
 
 ## Dano, vida e hurtbox
 
