@@ -46,7 +46,7 @@ var charge_ki_sheet_path: String = "res://assets/sprites/characters/goku/process
 @export var hurt_fps: float = 10.0
 @export var ki_blast_fps: float = 10.0
 @export var kick_fps: float = 7.0
-@export var charge_ki_fps: float = 6.0
+@export var charge_ki_fps: float = 5.0
 @export var walk_bob_amplitude: float = 1.0
 @export var walk_bob_speed: float = 12.0
 
@@ -61,7 +61,11 @@ func _ready() -> void:
 	_try_build_sprite_frames()
 
 func update_visual(state: StringName, facing: StringName, delta: float) -> void:
-	var animation_name := StringName("%s_%s" % [state, facing])
+	var animation_name := (
+		&"charge_ki"
+		if state == &"charge_ki"
+		else StringName("%s_%s" % [state, facing])
+	)
 
 	if _has_animation(animation_name):
 		_show_sprite_animation(animation_name, state)
@@ -160,18 +164,18 @@ func _try_build_sprite_frames() -> void:
 		)
 		built_any_animation = true
 
-	var charge_ki_sheet := _load_valid_sheet(
+	var charge_ki_sheet := _load_valid_single_row_sheet(
 		charge_ki_sheet_path,
 		_required_columns(-1, charge_ki_columns)
 	)
 	if charge_ki_sheet != null:
-		_add_directional_animation(
+		_add_single_row_animation(
 			frames,
 			charge_ki_sheet,
 			&"charge_ki",
 			charge_ki_columns,
 			charge_ki_fps,
-			true
+			false
 		)
 		built_any_animation = true
 
@@ -214,6 +218,45 @@ func _add_directional_animation(
 
 		for column in columns:
 			frames.add_frame(animation_name, _atlas_frame(sheet, column, row))
+
+func _add_single_row_animation(
+	frames: SpriteFrames,
+	sheet: Texture2D,
+	animation_name: StringName,
+	columns: PackedInt32Array,
+	fps: float,
+	loop: bool
+) -> void:
+	frames.add_animation(animation_name)
+	frames.set_animation_loop(animation_name, loop)
+	frames.set_animation_speed(animation_name, fps)
+
+	for column in columns:
+		frames.add_frame(animation_name, _atlas_frame(sheet, column, 0))
+
+func _load_valid_single_row_sheet(path: String, required_columns: int) -> Texture2D:
+	if not ResourceLoader.exists(path):
+		return null
+
+	var sheet := load(path) as Texture2D
+	if sheet == null:
+		return null
+
+	var required_width := required_columns * frame_size.x
+	if sheet.get_width() < required_width or sheet.get_height() < frame_size.y:
+		push_warning(
+			"Sprite sheet de carga inesperado em %s. Esperado ao menos %dx%d, recebido %dx%d."
+			% [
+				path,
+				required_width,
+				frame_size.y,
+				sheet.get_width(),
+				sheet.get_height(),
+			]
+		)
+		return null
+
+	return sheet
 
 func _load_valid_sheet(path: String, required_columns: int) -> Texture2D:
 	if not ResourceLoader.exists(path):
@@ -272,6 +315,7 @@ func _is_one_shot_state(state: StringName) -> bool:
 		or String(state).begins_with("kick_")
 		or state == &"hurt"
 		or state == &"ki_blast"
+		or state == &"charge_ki"
 	)
 
 func _update_placeholder_motion(state: StringName, delta: float) -> void:
