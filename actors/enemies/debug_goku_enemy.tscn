@@ -20,7 +20,7 @@ size = Vector2(14, 18)
 [sub_resource type="RectangleShape2D" id="AttackShape"]
 size = Vector2(16, 14)
 
-[node name="DebugGokuEnemy" type="CharacterBody2D"]
+[node name="DebugGokuEnemy" type="CharacterBody2D" groups=["enemy"]]
 collision_layer = 4
 collision_mask = 3
 script = ExtResource("1_enemy")
