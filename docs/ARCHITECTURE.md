@@ -78,6 +78,18 @@ J → J → I
 I → I → J
 ```
 
+A cadência agora diferencia ataques repetidos de trocas de tipo. Soco → soco e chute → chute continuam responsivos, enquanto soco → chute e chute → soco esperam um pouco mais da recuperação visual antes de trocar. O input buffer foi ampliado para preservar comandos feitos antecipadamente.
+
+Janelas iniciais de encadeamento:
+
+- soco → soco: 0,27 s;
+- chute → chute: 0,34 s;
+- soco → chute: 0,34 s;
+- chute → soco: 0,40 s;
+- input buffer: 0,30 s.
+
+Os chutes também usam uma pose de recuperação (`0 → 1 → 0` e `2 → 3 → 2`) a 7 FPS para evitar uma troca visual brusca entre perna e soco.
+
 Parâmetros iniciais:
 
 - soco: 10 de dano, alcance de hitbox 12 px;
