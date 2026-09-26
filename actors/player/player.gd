@@ -14,9 +14,6 @@ var attack_move_speed_scale: float = 0.85
 @export_range(0.0, 1.0, 0.05)
 var kick_move_speed_scale: float = 0.70
 
-@export_range(0.0, 1.0, 0.05)
-var block_move_speed_scale: float = 0.35
-
 @export var hurt_duration: float = 0.24
 @export var ki_charge_per_second: float = 28.0
 
@@ -170,11 +167,16 @@ func _get_current_melee_speed_scale() -> float:
 
 	return attack_move_speed_scale
 
-func _process_block(move_intent: Vector2, delta: float) -> void:
+func _process_block(_move_intent: Vector2, delta: float) -> void:
 	charge_aura.visible = false
 	guard_component.set_guarding(true)
 	state_machine.change_state(STATE_BLOCK)
-	movement_component.move(self, move_intent, block_move_speed_scale)
+
+	# Defender trava completamente o deslocamento.
+	# A direção ainda pode mudar porque o FacingComponent é atualizado
+	# antes de entrar neste estado.
+	movement_component.stop(self)
+
 	animation_controller.update_visual(
 		STATE_BLOCK,
 		facing_component.current_facing,
