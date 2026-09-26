@@ -1,23 +1,25 @@
-extends StaticBody2D
-
-@export var max_health: int = 30
+extends Node2D
 
 @onready var visual: Polygon2D = $Visual
+@onready var health_component: HealthComponent = $Components/HealthComponent
+@onready var hurtbox: HurtboxComponent = $Hurtbox
 
-var current_health: int
 var _flash_tween: Tween
 
 func _ready() -> void:
-	current_health = max_health
+	health_component.damaged.connect(_on_damaged)
+	health_component.died.connect(_on_died)
 
-func receive_hit(damage: int, _source_position: Vector2 = Vector2.ZERO) -> void:
-	current_health = maxi(0, current_health - damage)
-	print("DebugTarget recebeu %d de dano. HP: %d/%d" % [damage, current_health, max_health])
+func _on_damaged(damage: int, current_health: int, max_health: int) -> void:
+	print(
+		"DebugTarget recebeu %d de dano. HP: %d/%d"
+		% [damage, current_health, max_health]
+	)
 	_flash()
 
-	if current_health <= 0:
-		print("DebugTarget derrotado. HP restaurado para continuar os testes.")
-		current_health = max_health
+func _on_died() -> void:
+	print("DebugTarget derrotado. HP restaurado para continuar os testes.")
+	health_component.restore_full()
 
 func _flash() -> void:
 	if _flash_tween != null and _flash_tween.is_valid():
