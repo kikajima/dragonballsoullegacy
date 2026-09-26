@@ -23,6 +23,12 @@ var block_sheet_path: String = "res://assets/sprites/characters/goku/processed/g
 @export_file("*.png")
 var ki_blast_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_ki_blast.png"
 
+@export_file("*.png")
+var kick_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_kick.png"
+
+@export_file("*.png")
+var charge_ki_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_charge_ki.png"
+
 @export var frame_size: Vector2i = Vector2i(32, 32)
 @export var idle_column: int = 0
 @export var walk_columns: PackedInt32Array = PackedInt32Array([2, 3, 4, 5])
@@ -31,11 +37,15 @@ var ki_blast_sheet_path: String = "res://assets/sprites/characters/goku/processe
 @export var hurt_columns: PackedInt32Array = PackedInt32Array([0, 1])
 @export var block_columns: PackedInt32Array = PackedInt32Array([0])
 @export var ki_blast_columns: PackedInt32Array = PackedInt32Array([0, 1, 2, 3])
+@export var kick_columns: PackedInt32Array = PackedInt32Array([0, 1, 2, 3])
+@export var charge_ki_columns: PackedInt32Array = PackedInt32Array([0, 1])
 
 @export var walk_fps: float = 8.0
 @export var attack_fps: float = 10.0
 @export var hurt_fps: float = 10.0
 @export var ki_blast_fps: float = 10.0
+@export var kick_fps: float = 9.0
+@export var charge_ki_fps: float = 6.0
 @export var walk_bob_amplitude: float = 1.0
 @export var walk_bob_speed: float = 12.0
 
@@ -136,6 +146,36 @@ func _try_build_sprite_frames() -> void:
 		)
 		built_any_animation = true
 
+	var kick_sheet := _load_valid_sheet(
+		kick_sheet_path,
+		_required_columns(-1, kick_columns)
+	)
+	if kick_sheet != null:
+		_add_directional_animation(
+			frames,
+			kick_sheet,
+			&"kick",
+			kick_columns,
+			kick_fps,
+			false
+		)
+		built_any_animation = true
+
+	var charge_ki_sheet := _load_valid_sheet(
+		charge_ki_sheet_path,
+		_required_columns(-1, charge_ki_columns)
+	)
+	if charge_ki_sheet != null:
+		_add_directional_animation(
+			frames,
+			charge_ki_sheet,
+			&"charge_ki",
+			charge_ki_columns,
+			charge_ki_fps,
+			true
+		)
+		built_any_animation = true
+
 	if built_any_animation:
 		sprite.sprite_frames = frames
 
@@ -232,6 +272,7 @@ func _is_one_shot_state(state: StringName) -> bool:
 		String(state).begins_with("attack_")
 		or state == &"hurt"
 		or state == &"ki_blast"
+		or state == &"kick"
 	)
 
 func _update_placeholder_motion(state: StringName, delta: float) -> void:
