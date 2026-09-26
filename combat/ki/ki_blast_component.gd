@@ -1,0 +1,95 @@
+class_name KiBlastComponent
+extends Node
+
+signal cast_started(facing: StringName)
+signal projectile_fired
+signal cast_finished
+
+@export var projectile_scene: PackedScene
+@export var ki_component_path: NodePath
+@export var ki_cost: float = 12.0
+@export var cast_duration: float = 0.42
+@export var fire_at: float = 0.18
+@export var spawn_distance: float = 18.0
+
+@onready var ki_component: KiComponent = get_node(ki_component_path) as KiComponent
+
+var _casting: bool = false
+var _elapsed: float = 0.0
+var _fired: bool = false
+var _cast_facing: StringName = &"down"
+
+func start_cast(facing: StringName) -> bool:
+	if _casting or projectile_scene == null or ki_component == null:
+		return false
+
+	if not ki_component.consume(ki_cost):
+		return false
+
+	_casting = true
+	_elapsed = 0.0
+	_fired = false
+	_cast_facing = facing
+	cast_started.emit(_cast_facing)
+	return true
+
+func tick_cast(caster: Node2D, delta: float) -> void:
+	if not _casting:
+		return
+
+	_elapsed += delta
+
+	if not _fired and _elapsed >= fire_at:
+		_fire(caster)
+
+	if _elapsed >= cast_duration:
+		_finish_cast()
+
+func cancel_cast() -> void:
+	if not _casting:
+		return
+
+	_finish_cast()
+
+func is_casting() -> bool:
+	return _casting
+
+func get_cast_facing() -> StringName:
+	return _cast_facing
+
+func _fire(caster: Node2D) -> void:
+	_fired = true
+
+	var projectile := projectile_scene.instantiate() as KiBlastProjectile
+	if projectile == null:
+		return
+
+	var direction := _facing_vector(_cast_facing)
+	var parent := caster.get_tree().current_scene
+
+	if parent == null:
+		parent = caster.get_parent()
+
+	parent.add_child(projectile)
+	projectile.global_position = caster.global_position + direction * spawn_distance
+	projectile.setup(direction)
+	projectile_fired.emit()
+
+func _finish_cast() -> void:
+	_casting = false
+	_elapsed = 0.0
+	_fired = false
+	cast_finished.emit()
+
+func _facing_vector(facing: StringName) -> Vector2:
+	match facing:
+		&"up":
+			return Vector2.UP
+		&"down":
+			return Vector2.DOWN
+		&"left":
+			return Vector2.LEFT
+		&"right":
+			return Vector2.RIGHT
+
+	return Vector2.DOWN
