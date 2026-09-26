@@ -8,7 +8,7 @@
 [ext_resource type="Script" path="res://actors/player/player_animation_controller.gd" id="6_animation"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
-size = Vector2(12, 14)
+size = Vector2(10, 8)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_player"]
 
@@ -37,6 +37,7 @@ color = Color(1, 1, 1, 1)
 script = ExtResource("6_animation")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 8)
 shape = SubResource("RectangleShape2D_player")
 
 [node name="Components" type="Node" parent="."]
