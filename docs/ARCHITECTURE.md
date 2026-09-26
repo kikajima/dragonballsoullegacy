@@ -105,6 +105,8 @@ O `GuardComponent` mantém o estado de defesa separado da lógica do Player. A d
 
 Golpes recebidos pela frente são reduzidos para 25% do dano original no protótipo. Golpes por trás ignoram a defesa. Um golpe bloqueado não coloca o jogador no estado `hurt` nem aplica knockback.
 
+Enquanto o estado `block` está ativo, o personagem fica completamente imóvel. O input direcional continua alimentando o `FacingComponent`, permitindo apenas girar a guarda para `up`, `down`, `left` ou `right` sem deslocar o corpo.
+
 ## Ki e técnicas
 
 `KiComponent` concentra o recurso de Ki e expõe consumo, recuperação e sinais de mudança.
