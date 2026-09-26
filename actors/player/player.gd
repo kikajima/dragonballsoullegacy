@@ -3,7 +3,9 @@ extends CharacterBody2D
 
 const STATE_IDLE: StringName = &"idle"
 const STATE_WALK: StringName = &"walk"
-const STATE_ATTACK: StringName = &"attack"
+
+@export_range(0.0, 1.0, 0.05)
+var attack_move_speed_scale: float = 0.85
 
 @onready var input_controller: PlayerInputController = $Controllers/PlayerInputController
 @onready var movement_component: MovementComponent = $Components/MovementComponent
@@ -16,10 +18,11 @@ func _physics_process(delta: float) -> void:
 	var move_intent := input_controller.get_move_intent()
 
 	if melee_combat_component.is_attacking():
-		movement_component.stop(self)
+		movement_component.move(self, move_intent, attack_move_speed_scale)
 		melee_combat_component.tick_attack(delta)
 
 		if not melee_combat_component.is_attacking():
+			facing_component.update_from_direction(move_intent)
 			_update_movement_state(move_intent)
 
 		animation_controller.update_visual(
@@ -33,8 +36,8 @@ func _physics_process(delta: float) -> void:
 
 	if input_controller.is_attack_pressed():
 		if melee_combat_component.start_attack(facing_component.current_facing):
-			state_machine.change_state(STATE_ATTACK)
-			movement_component.stop(self)
+			state_machine.change_state(melee_combat_component.get_attack_state())
+			movement_component.move(self, move_intent, attack_move_speed_scale)
 			animation_controller.update_visual(
 				state_machine.current_state,
 				facing_component.current_facing,
