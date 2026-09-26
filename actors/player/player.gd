@@ -17,9 +17,6 @@ var kick_move_speed_scale: float = 0.70
 @export_range(0.0, 1.0, 0.05)
 var block_move_speed_scale: float = 0.35
 
-@export_range(0.0, 1.0, 0.05)
-var ki_blast_move_speed_scale: float = 0.45
-
 @export var hurt_duration: float = 0.24
 @export var ki_charge_per_second: float = 28.0
 
@@ -84,7 +81,7 @@ func _physics_process(delta: float) -> void:
 	if input_controller.is_ki_blast_pressed():
 		if ki_blast_component.start_cast(facing_component.current_facing):
 			state_machine.change_state(STATE_KI_BLAST)
-			movement_component.move(self, move_intent, ki_blast_move_speed_scale)
+			movement_component.stop(self)
 			animation_controller.update_visual(
 				STATE_KI_BLAST,
 				ki_blast_component.get_cast_facing(),
@@ -186,21 +183,42 @@ func _process_block(move_intent: Vector2, delta: float) -> void:
 
 func _process_charge_ki(delta: float) -> void:
 	guard_component.set_guarding(false)
-	charge_aura.visible = true
-	state_machine.change_state(STATE_CHARGE_KI)
 	movement_component.stop(self)
-	ki_component.restore(ki_charge_per_second * delta)
+
+	var ki_is_full := ki_component.current_ki >= ki_component.max_ki - 0.001
+
+	# Se o Ki já estava cheio antes de iniciar o carregamento, não entra na pose.
+	if ki_is_full and not state_machine.is_state(STATE_CHARGE_KI):
+		charge_aura.visible = false
+		state_machine.change_state(STATE_IDLE)
+		animation_controller.update_visual(
+			STATE_IDLE,
+			facing_component.current_facing,
+			delta
+		)
+		return
+
+	state_machine.change_state(STATE_CHARGE_KI)
+
+	if not ki_is_full:
+		charge_aura.visible = true
+		ki_component.restore(ki_charge_per_second * delta)
+	else:
+		# Ao completar o Ki, mantém o segundo quadro estático e desliga a aura.
+		charge_aura.visible = false
+
 	animation_controller.update_visual(
 		STATE_CHARGE_KI,
 		facing_component.current_facing,
 		delta
 	)
 
-func _process_ki_blast(move_intent: Vector2, delta: float) -> void:
+func _process_ki_blast(_move_intent: Vector2, delta: float) -> void:
 	guard_component.set_guarding(false)
 	charge_aura.visible = false
 
-	movement_component.move(self, move_intent, ki_blast_move_speed_scale)
+	# Técnicas de Ki travam o deslocamento enquanto a animação é executada.
+	movement_component.stop(self)
 	ki_blast_component.tick_cast(self, delta)
 
 	if ki_blast_component.is_casting():
