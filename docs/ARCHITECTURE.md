@@ -23,8 +23,6 @@ O projeto é organizado para manter lógica, dados, apresentação e rede desaco
 Player
 ├── Visuals
 │   ├── AnimatedSprite2D
-│   ├── Placeholder
-│   │   └── FacingMarker
 │   └── AnimationController
 ├── CollisionShape2D
 ├── Combat
@@ -34,30 +32,72 @@ Player
 │   ├── FacingComponent
 │   ├── StateMachine
 │   ├── MeleeCombatComponent
-│   └── HitStopComponent
+│   ├── HitStopComponent
+│   ├── HealthComponent
+│   └── KnockbackComponent
+├── Hurtbox
 ├── Controllers
 │   └── PlayerInputController
 └── Camera2D
 ```
 
-O jogador alterna entre `idle`, `walk`, `attack_1` e `attack_2`. O `FacingComponent` acompanha imediatamente a direção de movimento, inclusive durante ataques.
-
-Cada soco guarda sua própria direção dentro do `MeleeCombatComponent`, evitando que a hitbox gire no meio do golpe e permitindo mudar a direção do próximo soco da sequência.
+O jogador possui `idle`, `walk`, `attack_1`, `attack_2` e `hurt`. Ao receber um golpe, o ataque atual é cancelado, a direção vira para a origem do impacto, a animação `hurt` é executada e o knockback assume o movimento por um curto período.
 
 ## Combate corpo a corpo
 
-Cada pressionamento corresponde a um soco. O combo usa input buffer e janela de encadeamento com cadência mais legível:
+Cada pressionamento corresponde a um soco. O combo usa input buffer e janela de encadeamento com cadência legível:
 
-- animação de ataque: 10 FPS;
+- animação de ataque do jogador: 10 FPS;
 - duração aproximada do golpe: 0,40 s;
 - hitbox ativa entre 0,11 s e 0,29 s;
 - próximo soco pode encadear a partir de 0,26 s.
 
 O jogador continua podendo se deslocar durante o golpe com velocidade reduzida.
 
+## Inimigo de teste e IA
+
+O `DebugGokuEnemy` agora é um inimigo funcional de curto alcance. Ele procura um nó no grupo `player`, detecta o jogador dentro do raio configurado, persegue usando a animação de caminhada e inicia um ataque quando chega ao alcance.
+
+```text
+DebugGokuEnemy
+├── Visuals
+│   └── AnimatedSprite2D
+├── CollisionShape2D
+├── Combat
+│   └── AttackHitbox
+├── Components
+│   ├── HealthComponent
+│   ├── MovementComponent
+│   ├── KnockbackComponent
+│   ├── StateMachine
+│   └── MeleeCombatComponent
+└── Hurtbox
+```
+
+Estados usados atualmente:
+
+```text
+idle
+walk
+attack_1
+attack_2
+hurt
+```
+
+A lógica de combate do inimigo respeita o estado `hurt`: enquanto sofre dano e knockback, ele não persegue nem ataca. Depois da reação, volta a avaliar a posição do jogador.
+
+Parâmetros iniciais do protótipo:
+
+- raio de detecção: 170 px;
+- alcance de ataque: 25 px;
+- velocidade de perseguição: 55 px/s;
+- dano por soco: 8;
+- intervalo após um ataque: 0,55 s;
+- animação de ataque do inimigo: 8 FPS.
+
 ## Impacto, dano e reação
 
-O fluxo de dano atual é:
+O mesmo fluxo de componentes vale nos dois sentidos:
 
 ```text
 AttackHitbox
@@ -73,18 +113,17 @@ estado hurt
     └── KnockbackComponent
 ```
 
-Quando um golpe é confirmado, o `HitStopComponent` reduz o tempo global por alguns milissegundos para dar sensação de impacto.
+O jogador agora também possui `HealthComponent`, `HurtboxComponent` e `KnockbackComponent`, portanto o inimigo pode realmente causar dano. Para facilitar os testes, se o HP do jogador ou do inimigo chegar a zero, HP e posição são restaurados.
 
-O inimigo de teste é outro Goku e utiliza os mesmos assets locais do jogador. Além do sprite de idle, ele agora carrega `goku_buus_fury_hurt.png` com duas poses de reação para cada direção:
+Os sprites locais utilizados continuam sendo:
 
 ```text
-hurt_down
-hurt_left
-hurt_right
-hurt_up
+goku_buus_fury_base.png
+goku_buus_fury_attack.png
+goku_buus_fury_hurt.png
 ```
 
-Ao ser atingido, o inimigo olha para a origem do golpe, toca a animação de dano, pisca brevemente e sofre knockback. Ao perder todo o HP, sua vida e posição são restauradas para continuar os testes.
+Esses assets permanecem fora do Git público.
 
 ## Princípios
 
