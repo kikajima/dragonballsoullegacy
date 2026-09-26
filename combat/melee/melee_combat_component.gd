@@ -5,7 +5,7 @@ signal attack_started(facing: StringName, variant: int)
 signal attack_finished
 signal attack_buffered
 
-@export var attack_duration: float = 0.40
+@export var attack_duration: float = 0.40\n@export var damage: int = 10
 @export var hitbox_active_from: float = 0.11
 @export var hitbox_active_until: float = 0.29
 @export var combo_chain_from: float = 0.26
