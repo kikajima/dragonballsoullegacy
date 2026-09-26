@@ -20,7 +20,7 @@ var attack_sheet_path: String = "res://assets/sprites/characters/goku/processed/
 @export var attack_1_columns: PackedInt32Array = PackedInt32Array([0, 1, 2, 3])
 @export var attack_2_columns: PackedInt32Array = PackedInt32Array([4, 5, 6, 7])
 @export var walk_fps: float = 8.0
-@export var attack_fps: float = 13.0
+@export var attack_fps: float = 10.0
 @export var walk_bob_amplitude: float = 1.0
 @export var walk_bob_speed: float = 12.0
 
