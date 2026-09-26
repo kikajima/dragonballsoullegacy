@@ -7,13 +7,12 @@ const STATE_HURT: StringName = &"hurt"
 const STATE_BLOCK: StringName = &"block"
 const STATE_KI_BLAST: StringName = &"ki_blast"
 const STATE_CHARGE_KI: StringName = &"charge_ki"
-const STATE_KICK: StringName = &"kick"
 
 @export_range(0.0, 1.0, 0.05)
 var attack_move_speed_scale: float = 0.85
 
 @export_range(0.0, 1.0, 0.05)
-var kick_move_speed_scale: float = 0.65
+var kick_move_speed_scale: float = 0.70
 
 @export_range(0.0, 1.0, 0.05)
 var block_move_speed_scale: float = 0.35
@@ -29,7 +28,6 @@ var ki_blast_move_speed_scale: float = 0.45
 @onready var facing_component: FacingComponent = $Components/FacingComponent
 @onready var state_machine: StateMachine = $Components/StateMachine
 @onready var melee_combat_component: MeleeCombatComponent = $Components/MeleeCombatComponent
-@onready var kick_combat_component: KickCombatComponent = $Components/KickCombatComponent
 @onready var hit_stop_component: HitStopComponent = $Components/HitStopComponent
 @onready var health_component: HealthComponent = $Components/HealthComponent
 @onready var knockback_component: KnockbackComponent = $Components/KnockbackComponent
@@ -67,10 +65,6 @@ func _physics_process(delta: float) -> void:
 		_process_ki_blast(move_intent, delta)
 		return
 
-	if kick_combat_component.is_kicking():
-		_process_kick(move_intent, delta)
-		return
-
 	if melee_combat_component.is_attacking():
 		_process_melee(move_intent, delta)
 		return
@@ -99,25 +93,19 @@ func _physics_process(delta: float) -> void:
 			return
 
 	if input_controller.is_kick_pressed():
-		if kick_combat_component.start_kick(facing_component.current_facing):
-			state_machine.change_state(STATE_KICK)
-			movement_component.move(self, move_intent, kick_move_speed_scale)
-			animation_controller.update_visual(
-				STATE_KICK,
-				kick_combat_component.get_kick_facing(),
-				delta
-			)
+		if melee_combat_component.start_attack(
+			facing_component.current_facing,
+			MeleeCombatComponent.ATTACK_KICK
+		):
+			_update_active_melee(move_intent, delta)
 			return
 
 	if input_controller.is_attack_pressed():
-		if melee_combat_component.start_attack(facing_component.current_facing):
-			state_machine.change_state(melee_combat_component.get_attack_state())
-			movement_component.move(self, move_intent, attack_move_speed_scale)
-			animation_controller.update_visual(
-				state_machine.current_state,
-				melee_combat_component.get_attack_facing(),
-				delta
-			)
+		if melee_combat_component.start_attack(
+			facing_component.current_facing,
+			MeleeCombatComponent.ATTACK_PUNCH
+		):
+			_update_active_melee(move_intent, delta)
 			return
 
 	_update_movement_state(move_intent)
@@ -132,10 +120,22 @@ func _process_melee(move_intent: Vector2, delta: float) -> void:
 	guard_component.set_guarding(false)
 	charge_aura.visible = false
 
-	movement_component.move(self, move_intent, attack_move_speed_scale)
+	movement_component.move(
+		self,
+		move_intent,
+		_get_current_melee_speed_scale()
+	)
 
-	if input_controller.is_attack_pressed():
-		melee_combat_component.buffer_attack(facing_component.current_facing)
+	if input_controller.is_kick_pressed():
+		melee_combat_component.buffer_attack(
+			facing_component.current_facing,
+			MeleeCombatComponent.ATTACK_KICK
+		)
+	elif input_controller.is_attack_pressed():
+		melee_combat_component.buffer_attack(
+			facing_component.current_facing,
+			MeleeCombatComponent.ATTACK_PUNCH
+		)
 
 	melee_combat_component.tick_attack(delta)
 
@@ -154,27 +154,24 @@ func _process_melee(move_intent: Vector2, delta: float) -> void:
 			delta
 		)
 
-func _process_kick(move_intent: Vector2, delta: float) -> void:
-	guard_component.set_guarding(false)
-	charge_aura.visible = false
+func _update_active_melee(move_intent: Vector2, delta: float) -> void:
+	state_machine.change_state(melee_combat_component.get_attack_state())
+	movement_component.move(
+		self,
+		move_intent,
+		_get_current_melee_speed_scale()
+	)
+	animation_controller.update_visual(
+		state_machine.current_state,
+		melee_combat_component.get_attack_facing(),
+		delta
+	)
 
-	movement_component.move(self, move_intent, kick_move_speed_scale)
-	kick_combat_component.tick_kick(delta)
+func _get_current_melee_speed_scale() -> float:
+	if melee_combat_component.get_attack_kind() == MeleeCombatComponent.ATTACK_KICK:
+		return kick_move_speed_scale
 
-	if kick_combat_component.is_kicking():
-		state_machine.change_state(STATE_KICK)
-		animation_controller.update_visual(
-			STATE_KICK,
-			kick_combat_component.get_kick_facing(),
-			delta
-		)
-	else:
-		_update_movement_state(move_intent)
-		animation_controller.update_visual(
-			state_machine.current_state,
-			facing_component.current_facing,
-			delta
-		)
+	return attack_move_speed_scale
 
 func _process_block(move_intent: Vector2, delta: float) -> void:
 	charge_aura.visible = false
@@ -225,7 +222,6 @@ func _process_hurt(delta: float) -> void:
 	guard_component.set_guarding(false)
 	charge_aura.visible = false
 	ki_blast_component.cancel_cast()
-	kick_combat_component.cancel_kick()
 
 	if knockback_component.is_active():
 		knockback_component.tick(self, delta)
@@ -259,7 +255,6 @@ func _on_hit_received(_damage: int, source_position: Vector2) -> void:
 		return
 
 	melee_combat_component.cancel_attack()
-	kick_combat_component.cancel_kick()
 	ki_blast_component.cancel_cast()
 
 	var toward_source := source_position - global_position
@@ -293,7 +288,6 @@ func _reset_after_defeat() -> void:
 	health_component.restore_full()
 	ki_component.restore_full()
 	melee_combat_component.cancel_attack()
-	kick_combat_component.cancel_kick()
 	ki_blast_component.cancel_cast()
 	knockback_component.stop(self)
 	guard_component.set_guarding(false)
