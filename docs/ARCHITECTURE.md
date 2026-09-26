@@ -46,7 +46,7 @@ Cada soco guarda sua própria direção dentro do `MeleeCombatComponent`, evitan
 
 ## Combate corpo a corpo
 
-Cada pressionamento corresponde a um soco. O combo usa input buffer e janela de encadeamento, mas a cadência foi ajustada para ficar mais legível:
+Cada pressionamento corresponde a um soco. O combo usa input buffer e janela de encadeamento com cadência mais legível:
 
 - animação de ataque: 10 FPS;
 - duração aproximada do golpe: 0,40 s;
@@ -68,26 +68,23 @@ HurtboxComponent
     ↓
 HealthComponent
     ↓
-estado hurt + KnockbackComponent
+estado hurt
+    ├── animação hurt direcional
+    └── KnockbackComponent
 ```
 
 Quando um golpe é confirmado, o `HitStopComponent` reduz o tempo global por alguns milissegundos para dar sensação de impacto.
 
-O inimigo de teste agora é outro Goku e utiliza o mesmo spritesheet local do jogador:
+O inimigo de teste é outro Goku e utiliza os mesmos assets locais do jogador. Além do sprite de idle, ele agora carrega `goku_buus_fury_hurt.png` com duas poses de reação para cada direção:
 
 ```text
-DebugGokuEnemy
-├── Visuals
-│   └── AnimatedSprite2D
-├── CollisionShape2D
-├── Components
-│   ├── HealthComponent
-│   ├── KnockbackComponent
-│   └── StateMachine
-└── Hurtbox
+hurt_down
+hurt_left
+hurt_right
+hurt_up
 ```
 
-Ao ser atingido ele entra brevemente no estado `hurt`, pisca em vermelho e sofre knockback. Ao perder todo o HP, sua vida e posição são restauradas para continuar os testes.
+Ao ser atingido, o inimigo olha para a origem do golpe, toca a animação de dano, pisca brevemente e sofre knockback. Ao perder todo o HP, sua vida e posição são restauradas para continuar os testes.
 
 ## Princípios
 
