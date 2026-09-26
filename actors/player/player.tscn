@@ -1,8 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://actors/player/player_input_controller.gd" id="2_input"]
 [ext_resource type="Script" path="res://components/movement/movement_component.gd" id="3_movement"]
+[ext_resource type="Script" path="res://components/state_machine/state_machine.gd" id="4_state"]
+[ext_resource type="Script" path="res://components/facing/facing_component.gd" id="5_facing"]
+[ext_resource type="Script" path="res://actors/player/player_animation_controller.gd" id="6_animation"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(12, 14)
@@ -24,6 +27,15 @@ sprite_frames = SubResource("SpriteFrames_player")
 polygon = PackedVector2Array(-6, -7, 6, -7, 6, 7, -6, 7)
 color = Color(0.3, 0.65, 1, 1)
 
+[node name="FacingMarker" type="Polygon2D" parent="Visuals/Placeholder"]
+position = Vector2(0, 10)
+rotation = 3.14159
+polygon = PackedVector2Array(-2, 2, 2, 2, 0, -2)
+color = Color(1, 1, 1, 1)
+
+[node name="AnimationController" type="Node" parent="Visuals"]
+script = ExtResource("6_animation")
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_player")
 
@@ -31,6 +43,12 @@ shape = SubResource("RectangleShape2D_player")
 
 [node name="MovementComponent" type="Node" parent="Components"]
 script = ExtResource("3_movement")
+
+[node name="FacingComponent" type="Node" parent="Components"]
+script = ExtResource("5_facing")
+
+[node name="StateMachine" type="Node" parent="Components"]
+script = ExtResource("4_state")
 
 [node name="Controllers" type="Node" parent="."]
 
