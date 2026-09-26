@@ -14,13 +14,18 @@ var sprite_sheet_path: String = "res://assets/sprites/characters/goku/processed/
 @export_file("*.png")
 var attack_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_attack.png"
 
+@export_file("*.png")
+var hurt_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_hurt.png"
+
 @export var frame_size: Vector2i = Vector2i(32, 32)
 @export var idle_column: int = 0
 @export var walk_columns: PackedInt32Array = PackedInt32Array([2, 3, 4, 5])
 @export var attack_1_columns: PackedInt32Array = PackedInt32Array([0, 1, 2, 3])
 @export var attack_2_columns: PackedInt32Array = PackedInt32Array([4, 5, 6, 7])
+@export var hurt_columns: PackedInt32Array = PackedInt32Array([0, 1])
 @export var walk_fps: float = 8.0
 @export var attack_fps: float = 10.0
+@export var hurt_fps: float = 10.0
 @export var walk_bob_amplitude: float = 1.0
 @export var walk_bob_speed: float = 12.0
 
@@ -44,7 +49,7 @@ func update_visual(state: StringName, facing: StringName, delta: float) -> void:
 
 		if sprite.animation != animation_name:
 			sprite.play(animation_name)
-		elif not _is_attack_state(state) and not sprite.is_playing():
+		elif not _is_one_shot_state(state) and not sprite.is_playing():
 			sprite.play(animation_name)
 		return
 
@@ -78,8 +83,37 @@ func _try_build_sprite_frames() -> void:
 		_required_columns(-1, max_attack_columns)
 	)
 	if attack_sheet != null:
-		_add_attack_animations(frames, attack_sheet, &"attack_1", attack_1_columns)
-		_add_attack_animations(frames, attack_sheet, &"attack_2", attack_2_columns)
+		_add_directional_animation(
+			frames,
+			attack_sheet,
+			&"attack_1",
+			attack_1_columns,
+			attack_fps,
+			false
+		)
+		_add_directional_animation(
+			frames,
+			attack_sheet,
+			&"attack_2",
+			attack_2_columns,
+			attack_fps,
+			false
+		)
+		built_any_animation = true
+
+	var hurt_sheet := _load_valid_sheet(
+		hurt_sheet_path,
+		_required_columns(-1, hurt_columns)
+	)
+	if hurt_sheet != null:
+		_add_directional_animation(
+			frames,
+			hurt_sheet,
+			&"hurt",
+			hurt_columns,
+			hurt_fps,
+			false
+		)
 		built_any_animation = true
 
 	if built_any_animation:
@@ -103,22 +137,24 @@ func _add_movement_animations(frames: SpriteFrames, sheet: Texture2D) -> void:
 		for column in walk_columns:
 			frames.add_frame(walk_name, _atlas_frame(sheet, column, row))
 
-func _add_attack_animations(
+func _add_directional_animation(
 	frames: SpriteFrames,
 	sheet: Texture2D,
 	state_name: StringName,
-	columns: PackedInt32Array
+	columns: PackedInt32Array,
+	fps: float,
+	loop: bool
 ) -> void:
 	for facing in DIRECTION_ROWS:
 		var row: int = DIRECTION_ROWS[facing]
-		var attack_name := StringName("%s_%s" % [state_name, facing])
+		var animation_name := StringName("%s_%s" % [state_name, facing])
 
-		frames.add_animation(attack_name)
-		frames.set_animation_loop(attack_name, false)
-		frames.set_animation_speed(attack_name, attack_fps)
+		frames.add_animation(animation_name)
+		frames.set_animation_loop(animation_name, loop)
+		frames.set_animation_speed(animation_name, fps)
 
 		for column in columns:
-			frames.add_frame(attack_name, _atlas_frame(sheet, column, row))
+			frames.add_frame(animation_name, _atlas_frame(sheet, column, row))
 
 func _load_valid_sheet(path: String, required_columns: int) -> Texture2D:
 	if not ResourceLoader.exists(path):
@@ -171,8 +207,8 @@ func _has_animation(animation_name: StringName) -> bool:
 		and sprite.sprite_frames.get_frame_count(animation_name) > 0
 	)
 
-func _is_attack_state(state: StringName) -> bool:
-	return String(state).begins_with("attack_")
+func _is_one_shot_state(state: StringName) -> bool:
+	return String(state).begins_with("attack_") or state == &"hurt"
 
 func _update_placeholder_motion(state: StringName, delta: float) -> void:
 	if state == &"walk":
