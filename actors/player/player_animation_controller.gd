@@ -37,14 +37,15 @@ var charge_ki_sheet_path: String = "res://assets/sprites/characters/goku/process
 @export var hurt_columns: PackedInt32Array = PackedInt32Array([0, 1])
 @export var block_columns: PackedInt32Array = PackedInt32Array([0])
 @export var ki_blast_columns: PackedInt32Array = PackedInt32Array([0, 1, 2, 3])
-@export var kick_columns: PackedInt32Array = PackedInt32Array([0, 1, 2, 3])
+@export var kick_1_columns: PackedInt32Array = PackedInt32Array([0, 1])
+@export var kick_2_columns: PackedInt32Array = PackedInt32Array([2, 3])
 @export var charge_ki_columns: PackedInt32Array = PackedInt32Array([0, 1])
 
 @export var walk_fps: float = 8.0
 @export var attack_fps: float = 10.0
 @export var hurt_fps: float = 10.0
 @export var ki_blast_fps: float = 10.0
-@export var kick_fps: float = 9.0
+@export var kick_fps: float = 8.0
 @export var charge_ki_fps: float = 6.0
 @export var walk_bob_amplitude: float = 1.0
 @export var walk_bob_speed: float = 12.0
@@ -115,6 +116,19 @@ func _try_build_sprite_frames() -> void:
 		_add_directional_animation(frames, attack_sheet, &"attack_2", attack_2_columns, attack_fps, false)
 		built_any_animation = true
 
+	var max_kick_columns := PackedInt32Array()
+	max_kick_columns.append_array(kick_1_columns)
+	max_kick_columns.append_array(kick_2_columns)
+
+	var kick_sheet := _load_valid_sheet(
+		kick_sheet_path,
+		_required_columns(-1, max_kick_columns)
+	)
+	if kick_sheet != null:
+		_add_directional_animation(frames, kick_sheet, &"kick_1", kick_1_columns, kick_fps, false)
+		_add_directional_animation(frames, kick_sheet, &"kick_2", kick_2_columns, kick_fps, false)
+		built_any_animation = true
+
 	var hurt_sheet := _load_valid_sheet(
 		hurt_sheet_path,
 		_required_columns(-1, hurt_columns)
@@ -142,21 +156,6 @@ func _try_build_sprite_frames() -> void:
 			&"ki_blast",
 			ki_blast_columns,
 			ki_blast_fps,
-			false
-		)
-		built_any_animation = true
-
-	var kick_sheet := _load_valid_sheet(
-		kick_sheet_path,
-		_required_columns(-1, kick_columns)
-	)
-	if kick_sheet != null:
-		_add_directional_animation(
-			frames,
-			kick_sheet,
-			&"kick",
-			kick_columns,
-			kick_fps,
 			false
 		)
 		built_any_animation = true
@@ -270,9 +269,9 @@ func _has_animation(animation_name: StringName) -> bool:
 func _is_one_shot_state(state: StringName) -> bool:
 	return (
 		String(state).begins_with("attack_")
+		or String(state).begins_with("kick_")
 		or state == &"hurt"
 		or state == &"ki_blast"
-		or state == &"kick"
 	)
 
 func _update_placeholder_motion(state: StringName, delta: float) -> void:
