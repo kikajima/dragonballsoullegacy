@@ -82,6 +82,19 @@ func update_visual(state: StringName, facing: StringName, delta: float) -> void:
 	_update_placeholder_facing(facing)
 	_update_placeholder_motion(state, delta)
 
+func freeze_charge_complete() -> void:
+	if not _has_animation(&"charge_ki"):
+		return
+
+	visuals.position = Vector2.ZERO
+	placeholder.visible = false
+	sprite.visible = true
+	sprite.animation = &"charge_ki"
+
+	var last_frame := sprite.sprite_frames.get_frame_count(&"charge_ki") - 1
+	sprite.frame = maxi(last_frame, 0)
+	sprite.pause()
+
 func _show_sprite_animation(animation_name: StringName, state: StringName) -> void:
 	visuals.position = Vector2.ZERO
 	placeholder.visible = false
