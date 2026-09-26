@@ -203,8 +203,8 @@ func _process_charge_ki(delta: float) -> void:
 	if not ki_is_full:
 		charge_aura.visible = true
 		ki_component.restore(ki_charge_per_second * delta)
+		ki_is_full = ki_component.current_ki >= ki_component.max_ki - 0.001
 	else:
-		# Ao completar o Ki, mantém o segundo quadro estático e desliga a aura.
 		charge_aura.visible = false
 
 	animation_controller.update_visual(
@@ -212,6 +212,11 @@ func _process_charge_ki(delta: float) -> void:
 		facing_component.current_facing,
 		delta
 	)
+
+	if ki_is_full:
+		# Ao completar o Ki, força o segundo quadro e congela nele.
+		charge_aura.visible = false
+		animation_controller.freeze_charge_complete()
 
 func _process_ki_blast(move_intent: Vector2, delta: float) -> void:
 	guard_component.set_guarding(false)
