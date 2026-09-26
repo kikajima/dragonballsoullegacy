@@ -126,7 +126,9 @@ KiBlastComponent
 
 O projétil usa os frames reais do spritesheet local de efeitos quando o arquivo processado está presente. Se o asset estiver ausente, permanece um fallback geométrico para o projeto continuar executando.
 
-Ao segurar **L**, o Player entra em `charge_ki`, fica parado, reproduz a animação de carregamento extraída do spritesheet do Goku e recupera Ki.
+Ao segurar **L**, o Player entra em `charge_ki` e fica completamente parado. O carregamento usa os mesmos dois quadros frontais em qualquer direção: o primeiro quadro aparece no início e a animação avança uma única vez para o segundo, que permanece estático enquanto o Ki é recuperado. Ao atingir o Ki máximo, a aura é desligada e o segundo quadro não reinicia. Se o Ki já estiver cheio antes de pressionar L, o carregamento não começa.
+
+Durante `ki_blast`, o Player também fica completamente parado até o término do cast. O deslocamento volta somente depois que a técnica termina.
 
 ## HUD
 
