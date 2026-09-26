@@ -77,6 +77,7 @@ initial_state = &"idle"
 
 [node name="MeleeCombatComponent" type="Node" parent="Components"]
 script = ExtResource("7_melee")
+damage = 8
 attack_duration = 0.5
 hitbox_active_from = 0.14
 hitbox_active_until = 0.34
