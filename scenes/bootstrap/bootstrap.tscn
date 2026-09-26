@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/debug/debug_room.tscn" id="1_room"]
+[ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
+
+[node name="Bootstrap" type="Node2D"]
+
+[node name="WorldContainer" type="Node2D" parent="."]
+
+[node name="DebugRoom" parent="WorldContainer" instance=ExtResource("1_room")]
+
+[node name="PlayerContainer" type="Node2D" parent="."]
+
+[node name="Player" parent="PlayerContainer" instance=ExtResource("2_player")]
+
+[node name="UIContainer" type="CanvasLayer" parent="."]
+
+[node name="TransitionLayer" type="CanvasLayer" parent="."]
+layer = 100
