@@ -1,3 +1,8 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Third-party sprite rips kept local only.
+# Do not publish these assets in the public repository.
+/assets/sprites/characters/goku/source/
+/assets/sprites/characters/goku/processed/
