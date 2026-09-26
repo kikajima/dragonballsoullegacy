@@ -39,7 +39,7 @@ Player
 └── Camera2D
 ```
 
-O jogador possui três estados atuais: `idle`, `walk` e `attack`. O `FacingComponent` mantém a última direção cardinal observada: `up`, `down`, `left` ou `right`.
+O jogador alterna entre `idle`, `walk`, `attack_1` e `attack_2`. O `FacingComponent` mantém a última direção cardinal observada: `up`, `down`, `left` ou `right`.
 
 O `PlayerAnimationController` utiliza a convenção:
 
@@ -54,13 +54,18 @@ walk_down
 walk_left
 walk_right
 
-attack_up
-attack_down
-attack_left
-attack_right
+attack_1_up
+attack_1_down
+attack_1_left
+attack_1_right
+
+attack_2_up
+attack_2_down
+attack_2_left
+attack_2_right
 ```
 
-As animações de movimento usam um spritesheet local e as animações de ataque usam outro spritesheet local, ambos ignorados pelo Git por conterem recursos de terceiros.
+As animações de movimento e ataque usam spritesheets locais ignorados pelo Git por conterem recursos de terceiros.
 
 ## Combate corpo a corpo
 
@@ -71,20 +76,39 @@ attack (Input)
       ↓
 PlayerInputController
       ↓
-Player muda para estado attack
-      ↓
 MeleeCombatComponent
+      ├── alterna attack_1 / attack_2
+      ├── mantém uma janela de input buffer
       ├── controla duração do golpe
       └── ativa/desativa AttackHitbox
                        ↓
                 HitboxComponent
                        ↓
-               alvo com receive_hit()
+                HurtboxComponent
+                       ↓
+                HealthComponent
 ```
 
-Durante o ataque o movimento é interrompido. A hitbox só fica ativa durante a janela útil do golpe e registra cada alvo uma única vez por ataque.
+Cada pressionamento de ataque corresponde a um único soco. Os golpes alternam entre duas animações e o personagem continua se movimentando durante o ataque com velocidade reduzida.
 
-A sala de depuração possui um `DebugTarget` temporário para validar dano e alcance antes da criação do sistema real de inimigos.
+O input buffer mantém por um curto intervalo um comando de ataque feito perto do final do golpe atual. Se ainda estiver válido quando o golpe termina, o próximo soco começa imediatamente, evitando a necessidade de apertar o botão em um frame exato.
+
+## Dano, vida e hurtbox
+
+`HealthComponent` concentra HP, dano, cura, morte e sinais de mudança de vida. `HurtboxComponent` recebe a colisão do golpe e encaminha o dano para o `HealthComponent`.
+
+A sala de depuração usa o fluxo real de componentes:
+
+```text
+DebugTarget
+├── Visual
+├── Components
+│   └── HealthComponent
+└── Hurtbox
+    └── CollisionShape2D
+```
+
+Esse alvo continua restaurando a própria vida ao chegar a zero para facilitar testes repetidos.
 
 ## Princípios
 
