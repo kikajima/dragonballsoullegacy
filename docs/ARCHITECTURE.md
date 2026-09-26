@@ -142,7 +142,7 @@ KiComponent ──────→ barra Ki do jogador
 Enemy Health ─────→ barra HP do inimigo
 ```
 
-Quando os recortes locais de `Player HUD` estão disponíveis, eles são usados como moldura visual. Sem esses arquivos, o HUD mantém um fallback funcional.
+Quando os recortes locais de `Player HUD` estão disponíveis, eles são usados em escala nativa de pixel (1:1 no viewport interno de 480×270). As barras de HP/Ki e a barra do inimigo são preenchimentos dinâmicos alinhados aos slots do sprite original; os valores numéricos de depuração foram removidos da apresentação. Sem esses arquivos, o HUD mantém um fallback funcional.
 
 ## Inimigo de teste e IA
 
