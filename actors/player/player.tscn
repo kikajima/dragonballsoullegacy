@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://actors/player/player_input_controller.gd" id="2_input"]
@@ -6,11 +6,16 @@
 [ext_resource type="Script" path="res://components/state_machine/state_machine.gd" id="4_state"]
 [ext_resource type="Script" path="res://components/facing/facing_component.gd" id="5_facing"]
 [ext_resource type="Script" path="res://actors/player/player_animation_controller.gd" id="6_animation"]
+[ext_resource type="Script" path="res://combat/melee/melee_combat_component.gd" id="7_melee"]
+[ext_resource type="Script" path="res://components/hitbox/hitbox_component.gd" id="8_hitbox"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(10, 8)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_player"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
+size = Vector2(16, 14)
 
 [node name="Player" type="CharacterBody2D"]
 position = Vector2(240, 135)
@@ -40,6 +45,24 @@ script = ExtResource("6_animation")
 position = Vector2(0, 8)
 shape = SubResource("RectangleShape2D_player")
 
+[node name="Combat" type="Node2D" parent="."]
+
+[node name="AttackHitbox" type="Area2D" parent="Combat"]
+collision_layer = 8
+collision_mask = 4
+monitoring = true
+monitorable = false
+script = ExtResource("8_hitbox")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Combat/AttackHitbox"]
+shape = SubResource("RectangleShape2D_attack")
+disabled = true
+
+[node name="DebugShape" type="Polygon2D" parent="Combat/AttackHitbox"]
+visible = false
+polygon = PackedVector2Array(-8, -7, 8, -7, 8, 7, -8, 7)
+color = Color(1, 0.2, 0.15, 0.32)
+
 [node name="Components" type="Node" parent="."]
 
 [node name="MovementComponent" type="Node" parent="Components"]
@@ -50,6 +73,10 @@ script = ExtResource("5_facing")
 
 [node name="StateMachine" type="Node" parent="Components"]
 script = ExtResource("4_state")
+
+[node name="MeleeCombatComponent" type="Node" parent="Components"]
+script = ExtResource("7_melee")
+attack_hitbox_path = NodePath("../../Combat/AttackHitbox")
 
 [node name="Controllers" type="Node" parent="."]
 
