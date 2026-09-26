@@ -22,7 +22,7 @@ Mapeamento atual do protótipo.
 - **I:** alterna `kick_1` e `kick_2`, usando as duas pernas.
 - Socos e chutes compartilham o mesmo buffer de combo. É possível encadear livremente sequências como `J → I → J → I`, `J → J → I` ou `I → I → J`.
 - O chute é um pouco mais lento, alcança mais longe e causa mais dano que o soco.
-- **Shift esquerdo:** mantém a defesa ativa e reduz a velocidade de movimento.
+- **Shift esquerdo:** mantém a defesa ativa. Enquanto defende, o personagem fica completamente parado, mas ainda pode trocar a direção usando WASD/setas.
 - A defesa só reduz golpes recebidos pela frente; ataques por trás continuam causando dano normal.
 - **K:** dispara um Ki Blast, consumindo Ki.
 - **L:** mantém o personagem parado, toca a animação de carregamento e recupera Ki.
