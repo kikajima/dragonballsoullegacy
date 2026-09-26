@@ -4,10 +4,21 @@ extends CharacterBody2D
 const STATE_IDLE: StringName = &"idle"
 const STATE_WALK: StringName = &"walk"
 const STATE_HURT: StringName = &"hurt"
+const STATE_BLOCK: StringName = &"block"
+const STATE_KI_BLAST: StringName = &"ki_blast"
+const STATE_CHARGE_KI: StringName = &"charge_ki"
 
 @export_range(0.0, 1.0, 0.05)
 var attack_move_speed_scale: float = 0.85
+
+@export_range(0.0, 1.0, 0.05)
+var block_move_speed_scale: float = 0.35
+
+@export_range(0.0, 1.0, 0.05)
+var ki_blast_move_speed_scale: float = 0.45
+
 @export var hurt_duration: float = 0.24
+@export var ki_charge_per_second: float = 28.0
 
 @onready var input_controller: PlayerInputController = $Controllers/PlayerInputController
 @onready var movement_component: MovementComponent = $Components/MovementComponent
@@ -17,9 +28,13 @@ var attack_move_speed_scale: float = 0.85
 @onready var hit_stop_component: HitStopComponent = $Components/HitStopComponent
 @onready var health_component: HealthComponent = $Components/HealthComponent
 @onready var knockback_component: KnockbackComponent = $Components/KnockbackComponent
+@onready var guard_component: GuardComponent = $Components/GuardComponent
+@onready var ki_component: KiComponent = $Components/KiComponent
+@onready var ki_blast_component: KiBlastComponent = $Components/KiBlastComponent
 @onready var attack_hitbox: HitboxComponent = $Combat/AttackHitbox
 @onready var hurtbox: HurtboxComponent = $Hurtbox
 @onready var animation_controller: PlayerAnimationController = $Visuals/AnimationController
+@onready var charge_aura: Polygon2D = $Visuals/ChargeAura
 
 var _hurt_time_left: float = 0.0
 var _spawn_position: Vector2
@@ -27,6 +42,8 @@ var _flash_tween: Tween
 
 func _ready() -> void:
 	_spawn_position = global_position
+	charge_aura.visible = false
+
 	attack_hitbox.hit_confirmed.connect(_on_attack_hit_confirmed)
 	hurtbox.hit_received.connect(_on_hit_received)
 	health_component.damaged.connect(_on_damaged)
@@ -39,33 +56,38 @@ func _physics_process(delta: float) -> void:
 		_process_hurt(delta)
 		return
 
-	# Facing de movimento é atualizado sempre, inclusive durante ataques.
-	# O golpe atual mantém sua própria direção até o próximo soco da sequência.
 	facing_component.update_from_direction(move_intent)
 
-	if melee_combat_component.is_attacking():
-		movement_component.move(self, move_intent, attack_move_speed_scale)
-
-		if input_controller.is_attack_pressed():
-			melee_combat_component.buffer_attack(facing_component.current_facing)
-
-		melee_combat_component.tick_attack(delta)
-
-		if melee_combat_component.is_attacking():
-			state_machine.change_state(melee_combat_component.get_attack_state())
-			animation_controller.update_visual(
-				state_machine.current_state,
-				melee_combat_component.get_attack_facing(),
-				delta
-			)
-		else:
-			_update_movement_state(move_intent)
-			animation_controller.update_visual(
-				state_machine.current_state,
-				facing_component.current_facing,
-				delta
-			)
+	if ki_blast_component.is_casting():
+		_process_ki_blast(move_intent, delta)
 		return
+
+	if melee_combat_component.is_attacking():
+		_process_melee(move_intent, delta)
+		return
+
+	if input_controller.is_block_pressed():
+		_process_block(move_intent, delta)
+		return
+
+	guard_component.set_guarding(false)
+
+	if input_controller.is_charge_ki_pressed():
+		_process_charge_ki(delta)
+		return
+
+	charge_aura.visible = false
+
+	if input_controller.is_ki_blast_pressed():
+		if ki_blast_component.start_cast(facing_component.current_facing):
+			state_machine.change_state(STATE_KI_BLAST)
+			movement_component.move(self, move_intent, ki_blast_move_speed_scale)
+			animation_controller.update_visual(
+				STATE_KI_BLAST,
+				ki_blast_component.get_cast_facing(),
+				delta
+			)
+			return
 
 	if input_controller.is_attack_pressed():
 		if melee_combat_component.start_attack(facing_component.current_facing):
@@ -86,7 +108,82 @@ func _physics_process(delta: float) -> void:
 		delta
 	)
 
+func _process_melee(move_intent: Vector2, delta: float) -> void:
+	guard_component.set_guarding(false)
+	charge_aura.visible = false
+
+	movement_component.move(self, move_intent, attack_move_speed_scale)
+
+	if input_controller.is_attack_pressed():
+		melee_combat_component.buffer_attack(facing_component.current_facing)
+
+	melee_combat_component.tick_attack(delta)
+
+	if melee_combat_component.is_attacking():
+		state_machine.change_state(melee_combat_component.get_attack_state())
+		animation_controller.update_visual(
+			state_machine.current_state,
+			melee_combat_component.get_attack_facing(),
+			delta
+		)
+	else:
+		_update_movement_state(move_intent)
+		animation_controller.update_visual(
+			state_machine.current_state,
+			facing_component.current_facing,
+			delta
+		)
+
+func _process_block(move_intent: Vector2, delta: float) -> void:
+	charge_aura.visible = false
+	guard_component.set_guarding(true)
+	state_machine.change_state(STATE_BLOCK)
+	movement_component.move(self, move_intent, block_move_speed_scale)
+	animation_controller.update_visual(
+		STATE_BLOCK,
+		facing_component.current_facing,
+		delta
+	)
+
+func _process_charge_ki(delta: float) -> void:
+	guard_component.set_guarding(false)
+	charge_aura.visible = true
+	state_machine.change_state(STATE_CHARGE_KI)
+	movement_component.stop(self)
+	ki_component.restore(ki_charge_per_second * delta)
+	animation_controller.update_visual(
+		STATE_CHARGE_KI,
+		facing_component.current_facing,
+		delta
+	)
+
+func _process_ki_blast(move_intent: Vector2, delta: float) -> void:
+	guard_component.set_guarding(false)
+	charge_aura.visible = false
+
+	movement_component.move(self, move_intent, ki_blast_move_speed_scale)
+	ki_blast_component.tick_cast(self, delta)
+
+	if ki_blast_component.is_casting():
+		state_machine.change_state(STATE_KI_BLAST)
+		animation_controller.update_visual(
+			STATE_KI_BLAST,
+			ki_blast_component.get_cast_facing(),
+			delta
+		)
+	else:
+		_update_movement_state(move_intent)
+		animation_controller.update_visual(
+			state_machine.current_state,
+			facing_component.current_facing,
+			delta
+		)
+
 func _process_hurt(delta: float) -> void:
+	guard_component.set_guarding(false)
+	charge_aura.visible = false
+	ki_blast_component.cancel_cast()
+
 	if knockback_component.is_active():
 		knockback_component.tick(self, delta)
 	else:
@@ -102,11 +199,24 @@ func _process_hurt(delta: float) -> void:
 	if _hurt_time_left <= 0.0:
 		state_machine.change_state(STATE_IDLE)
 
+func modify_incoming_damage(damage: int, source_position: Vector2) -> int:
+	return guard_component.resolve_damage(
+		damage,
+		global_position,
+		source_position,
+		facing_component.current_facing
+	)
+
 func _on_attack_hit_confirmed(_target: Node, _damage: int) -> void:
 	hit_stop_component.trigger()
 
 func _on_hit_received(_damage: int, source_position: Vector2) -> void:
+	if guard_component.was_last_hit_blocked():
+		hit_stop_component.trigger()
+		return
+
 	melee_combat_component.cancel_attack()
+	ki_blast_component.cancel_cast()
 
 	var toward_source := source_position - global_position
 	facing_component.update_from_direction(toward_source)
@@ -117,28 +227,40 @@ func _on_hit_received(_damage: int, source_position: Vector2) -> void:
 	hit_stop_component.trigger()
 
 func _on_damaged(damage: int, current_health: int, max_health: int) -> void:
+	if guard_component.was_last_hit_blocked():
+		print(
+			"Player bloqueou o golpe. Dano recebido: %d. HP: %d/%d"
+			% [damage, current_health, max_health]
+		)
+		_flash(Color(0.55, 0.8, 1.0, 1.0))
+		return
+
 	print(
 		"Player recebeu %d de dano. HP: %d/%d"
 		% [damage, current_health, max_health]
 	)
-	_flash()
+	_flash(Color(1.0, 0.55, 0.55, 1.0))
 
 func _on_died() -> void:
-	print("Player derrotado. HP e posição restaurados para continuar os testes.")
+	print("Player derrotado. HP, Ki e posição restaurados para continuar os testes.")
 	call_deferred("_reset_after_defeat")
 
 func _reset_after_defeat() -> void:
 	health_component.restore_full()
+	ki_component.restore_full()
 	melee_combat_component.cancel_attack()
+	ki_blast_component.cancel_cast()
 	knockback_component.stop(self)
+	guard_component.set_guarding(false)
+	charge_aura.visible = false
 	global_position = _spawn_position
 	state_machine.change_state(STATE_IDLE)
 
-func _flash() -> void:
+func _flash(color: Color) -> void:
 	if _flash_tween != null and _flash_tween.is_valid():
 		_flash_tween.kill()
 
-	$Visuals.modulate = Color(1.0, 0.55, 0.55, 1.0)
+	$Visuals.modulate = color
 	_flash_tween = create_tween()
 	_flash_tween.tween_property($Visuals, "modulate", Color.WHITE, 0.10)
 
