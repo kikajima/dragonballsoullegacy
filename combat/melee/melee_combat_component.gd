@@ -12,16 +12,19 @@ const ATTACK_KICK: StringName = &"kick"
 @export var damage: int = 10
 @export var hitbox_active_from: float = 0.11
 @export var hitbox_active_until: float = 0.29
-@export var combo_chain_from: float = 0.26
-@export var input_buffer_duration: float = 0.22
+@export var combo_chain_from: float = 0.27
+@export var input_buffer_duration: float = 0.30
 @export var attack_offset_distance: float = 12.0
 
 @export var kick_duration: float = 0.48
 @export var kick_damage: int = 16
 @export var kick_hitbox_active_from: float = 0.14
 @export var kick_hitbox_active_until: float = 0.34
-@export var kick_combo_chain_from: float = 0.31
+@export var kick_combo_chain_from: float = 0.34
 @export var kick_offset_distance: float = 15.0
+
+@export var punch_to_kick_chain_from: float = 0.34
+@export var kick_to_punch_chain_from: float = 0.40
 
 @export var attack_hitbox_path: NodePath
 
@@ -64,7 +67,7 @@ func buffer_attack(
 	_buffered_kind = _sanitize_kind(attack_kind)
 	attack_buffered.emit()
 
-	if _elapsed >= _get_combo_chain_from():
+	if _elapsed >= _get_combo_chain_from(_buffered_kind):
 		_consume_buffered_attack()
 
 	return true
@@ -80,7 +83,7 @@ func tick_attack(delta: float) -> void:
 
 		if _buffer_time_left <= 0.0:
 			_clear_buffer()
-		elif _elapsed >= _get_combo_chain_from():
+		elif _elapsed >= _get_combo_chain_from(_buffered_kind):
 			_consume_buffered_attack()
 			return
 
@@ -181,7 +184,15 @@ func _get_hitbox_active_until() -> float:
 		else hitbox_active_until
 	)
 
-func _get_combo_chain_from() -> float:
+func _get_combo_chain_from(next_kind: StringName) -> float:
+	var safe_next_kind := _sanitize_kind(next_kind)
+
+	if _current_kind == ATTACK_PUNCH and safe_next_kind == ATTACK_KICK:
+		return punch_to_kick_chain_from
+
+	if _current_kind == ATTACK_KICK and safe_next_kind == ATTACK_PUNCH:
+		return kick_to_punch_chain_from
+
 	return (
 		kick_combo_chain_from
 		if _current_kind == ATTACK_KICK
