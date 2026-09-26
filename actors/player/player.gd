@@ -17,6 +17,10 @@ var attack_move_speed_scale: float = 0.85
 func _physics_process(delta: float) -> void:
 	var move_intent := input_controller.get_move_intent()
 
+	# Facing de movimento é atualizado sempre, inclusive durante ataques.
+	# O golpe atual mantém sua própria direção até o próximo soco da sequência.
+	facing_component.update_from_direction(move_intent)
+
 	if melee_combat_component.is_attacking():
 		movement_component.move(self, move_intent, attack_move_speed_scale)
 
@@ -27,18 +31,19 @@ func _physics_process(delta: float) -> void:
 
 		if melee_combat_component.is_attacking():
 			state_machine.change_state(melee_combat_component.get_attack_state())
+			animation_controller.update_visual(
+				state_machine.current_state,
+				melee_combat_component.get_attack_facing(),
+				delta
+			)
 		else:
-			facing_component.update_from_direction(move_intent)
 			_update_movement_state(move_intent)
-
-		animation_controller.update_visual(
-			state_machine.current_state,
-			facing_component.current_facing,
-			delta
-		)
+			animation_controller.update_visual(
+				state_machine.current_state,
+				facing_component.current_facing,
+				delta
+			)
 		return
-
-	facing_component.update_from_direction(move_intent)
 
 	if input_controller.is_attack_pressed():
 		if melee_combat_component.start_attack(facing_component.current_facing):
@@ -46,7 +51,7 @@ func _physics_process(delta: float) -> void:
 			movement_component.move(self, move_intent, attack_move_speed_scale)
 			animation_controller.update_visual(
 				state_machine.current_state,
-				facing_component.current_facing,
+				melee_combat_component.get_attack_facing(),
 				delta
 			)
 			return
