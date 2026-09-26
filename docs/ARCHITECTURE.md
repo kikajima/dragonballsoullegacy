@@ -2,27 +2,13 @@
 
 O projeto é organizado para manter lógica, dados, apresentação e rede desacoplados.
 
-## Diretórios principais
-
-- `actors/`: jogador, inimigos e NPCs.
-- `assets/`: sprites, tilesets, fontes, músicas e efeitos sonoros.
-- `components/`: componentes reutilizáveis como vida, Ki, movimento, direção, state machine, hitbox, hurtbox, knockback e hit stop.
-- `combat/`: regras de combate, dano, projéteis e técnicas.
-- `core/`: serviços centrais do jogo.
-- `data/`: Resources e dados de personagens/conteúdo.
-- `network/`: multiplayer e replicação futura.
-- `quests/`: sistema de missões.
-- `rpg/`: XP, níveis, inventário, equipamentos, progressão e transformações.
-- `scenes/`: cenas de bootstrap e depuração.
-- `ui/`: HUD, menus e interfaces.
-- `world/`: mapas, transições, spawns, portas e objetos interativos.
-
 ## Player atual
 
 ```text
 Player
 ├── Visuals
 │   ├── AnimatedSprite2D
+│   ├── ChargeAura
 │   └── AnimationController
 ├── CollisionShape2D
 ├── Combat
@@ -34,47 +20,17 @@ Player
 │   ├── MeleeCombatComponent
 │   ├── HitStopComponent
 │   ├── HealthComponent
-│   └── KnockbackComponent
+│   ├── KnockbackComponent
+│   ├── GuardComponent
+│   ├── KiComponent
+│   └── KiBlastComponent
 ├── Hurtbox
 ├── Controllers
 │   └── PlayerInputController
 └── Camera2D
 ```
 
-O jogador possui `idle`, `walk`, `attack_1`, `attack_2` e `hurt`. Ao receber um golpe, o ataque atual é cancelado, a direção vira para a origem do impacto, a animação `hurt` é executada e o knockback assume o movimento por um curto período.
-
-## Combate corpo a corpo
-
-Cada pressionamento corresponde a um soco. O combo usa input buffer e janela de encadeamento com cadência legível:
-
-- animação de ataque do jogador: 10 FPS;
-- duração aproximada do golpe: 0,40 s;
-- hitbox ativa entre 0,11 s e 0,29 s;
-- próximo soco pode encadear a partir de 0,26 s.
-
-O jogador continua podendo se deslocar durante o golpe com velocidade reduzida.
-
-## Inimigo de teste e IA
-
-O `DebugGokuEnemy` agora é um inimigo funcional de curto alcance. Ele procura um nó no grupo `player`, detecta o jogador dentro do raio configurado, persegue usando a animação de caminhada e inicia um ataque quando chega ao alcance.
-
-```text
-DebugGokuEnemy
-├── Visuals
-│   └── AnimatedSprite2D
-├── CollisionShape2D
-├── Combat
-│   └── AttackHitbox
-├── Components
-│   ├── HealthComponent
-│   ├── MovementComponent
-│   ├── KnockbackComponent
-│   ├── StateMachine
-│   └── MeleeCombatComponent
-└── Hurtbox
-```
-
-Estados usados atualmente:
+Estados atuais do jogador:
 
 ```text
 idle
@@ -82,54 +38,79 @@ walk
 attack_1
 attack_2
 hurt
+block
+ki_blast
+charge_ki
 ```
 
-A lógica de combate do inimigo respeita o estado `hurt`: enquanto sofre dano e knockback, ele não persegue nem ataca. Depois da reação, volta a avaliar a posição do jogador.
+## Defesa
 
-Parâmetros iniciais do protótipo:
+O `GuardComponent` mantém o estado de defesa separado da lógica do Player. A defesa verifica a direção do personagem e a posição de origem do golpe.
 
-- raio de detecção: 170 px;
-- alcance de ataque: 25 px;
-- velocidade de perseguição: 55 px/s;
-- dano por soco: 8;
-- intervalo após um ataque: 0,55 s;
-- animação de ataque do inimigo: 8 FPS.
+Golpes recebidos pela frente são reduzidos para 25% do dano original no protótipo. Golpes por trás ignoram a defesa. Um golpe bloqueado não coloca o jogador no estado `hurt` nem aplica knockback.
 
-## Impacto, dano e reação
+O jogador pode se deslocar durante a defesa, mas com velocidade reduzida.
 
-O mesmo fluxo de componentes vale nos dois sentidos:
+## Ki e técnicas
+
+`KiComponent` concentra o recurso de Ki e expõe consumo, recuperação e sinais de mudança.
+
+O primeiro ataque de energia é o Ki Blast:
 
 ```text
-AttackHitbox
-    ↓
-HitboxComponent
-    ↓
-HurtboxComponent
-    ↓
-HealthComponent
-    ↓
-estado hurt
-    ├── animação hurt direcional
-    └── KnockbackComponent
+K
+↓
+KiBlastComponent
+├── verifica e consome Ki
+├── controla o tempo da animação
+└── instancia KiBlastProjectile
+        ↓
+    Hurtbox inimiga
+        ↓
+    HealthComponent
 ```
 
-O jogador agora também possui `HealthComponent`, `HurtboxComponent` e `KnockbackComponent`, portanto o inimigo pode realmente causar dano. Para facilitar os testes, se o HP do jogador ou do inimigo chegar a zero, HP e posição são restaurados.
+Parâmetros iniciais:
 
-Os sprites locais utilizados continuam sendo:
+- Ki máximo: 100;
+- custo do Ki Blast: 12;
+- dano do projétil: 12;
+- velocidade do projétil: 210 px/s;
+- recarga manual de Ki: 28 por segundo;
+- durante a recarga o jogador permanece parado.
+
+O Ki Blast usa a camada física `Projectiles` e pode atingir Hurtboxes inimigas ou desaparecer ao atingir o mundo.
+
+## Combate corpo a corpo
+
+Cada pressionamento de J corresponde a um soco. O combo usa input buffer e janela de encadeamento:
+
+- animação do jogador: 10 FPS;
+- duração aproximada: 0,40 s;
+- hitbox ativa entre 0,11 s e 0,29 s;
+- encadeamento disponível a partir de 0,26 s.
+
+## Inimigo de teste e IA
+
+O `DebugGokuEnemy` detecta o jogador, persegue, ataca corpo a corpo, reage ao estado `hurt`, sofre knockback e recebe dano de ataques físicos e projéteis.
+
+## Assets locais
+
+Os sprites processados continuam fora do Git público:
 
 ```text
 goku_buus_fury_base.png
 goku_buus_fury_attack.png
 goku_buus_fury_hurt.png
+goku_buus_fury_block.png
+goku_buus_fury_ki_blast.png
 ```
-
-Esses assets permanecem fora do Git público.
 
 ## Princípios
 
 1. Input não altera diretamente o estado do mundo.
-2. Combate passa por sistemas/componentes, evitando dano aplicado de forma espalhada.
+2. Combate passa por sistemas/componentes.
 3. Personagens são composição de componentes.
-4. Dados de personagem e habilidade ficam separados da lógica.
+4. Vida, Ki, defesa e técnicas são sistemas separados.
 5. A camada de rede deve poder substituir a origem dos comandos sem reescrever o personagem.
 6. Saves persistem IDs e dados estáveis, não referências diretas a cenas.
