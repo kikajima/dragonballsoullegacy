@@ -1,11 +1,9 @@
 class_name Player
 extends CharacterBody2D
 
-@export var move_speed: float = 90.0
-
-@onready var input_controller: PlayerInputController = $PlayerInputController
+@onready var input_controller: PlayerInputController = $Controllers/PlayerInputController
+@onready var movement_component: MovementComponent = $Components/MovementComponent
 
 func _physics_process(_delta: float) -> void:
-	var move_direction := input_controller.get_move_vector()
-	velocity = move_direction * move_speed
-	move_and_slide()
+	var move_intent := input_controller.get_move_intent()
+	movement_component.move(self, move_intent)
