@@ -3,10 +3,12 @@ extends Node
 
 signal attack_started(facing: StringName, variant: int)
 signal attack_finished
+signal attack_buffered
 
 @export var attack_duration: float = 0.32
 @export var hitbox_active_from: float = 0.08
 @export var hitbox_active_until: float = 0.22
+@export var input_buffer_duration: float = 0.16
 @export var attack_hitbox_path: NodePath
 
 @onready var attack_hitbox: HitboxComponent = get_node(attack_hitbox_path) as HitboxComponent
@@ -15,21 +17,35 @@ var _attacking: bool = false
 var _elapsed: float = 0.0
 var _current_variant: int = 0
 
+var _buffered_attack: bool = false
+var _buffer_time_left: float = 0.0
+var _buffered_facing: StringName = &"down"
+
 func start_attack(facing: StringName) -> bool:
 	if _attacking:
 		return false
 
-	_current_variant = 2 if _current_variant == 1 else 1
-	_attacking = true
-	_elapsed = 0.0
-	attack_hitbox.set_facing(facing)
-	attack_hitbox.set_active(false)
-	attack_started.emit(facing, _current_variant)
+	_begin_attack(facing)
+	return true
+
+func buffer_attack(facing: StringName) -> bool:
+	if not _attacking:
+		return start_attack(facing)
+
+	_buffered_attack = true
+	_buffer_time_left = input_buffer_duration
+	_buffered_facing = facing
+	attack_buffered.emit()
 	return true
 
 func tick_attack(delta: float) -> void:
 	if not _attacking:
 		return
+
+	if _buffered_attack:
+		_buffer_time_left -= delta
+		if _buffer_time_left <= 0.0:
+			_clear_buffer()
 
 	_elapsed += delta
 
@@ -40,11 +56,18 @@ func tick_attack(delta: float) -> void:
 	attack_hitbox.set_active(hitbox_should_be_active)
 
 	if _elapsed >= attack_duration:
-		_finish_attack()
+		if _buffered_attack and _buffer_time_left > 0.0:
+			var next_facing := _buffered_facing
+			_clear_buffer()
+			_begin_attack(next_facing)
+		else:
+			_finish_attack()
 
 func cancel_attack() -> void:
 	if not _attacking:
 		return
+
+	_clear_buffer()
 	_finish_attack()
 
 func is_attacking() -> bool:
@@ -56,8 +79,20 @@ func get_attack_variant() -> int:
 func get_attack_state() -> StringName:
 	return StringName("attack_%d" % _current_variant)
 
+func _begin_attack(facing: StringName) -> void:
+	_current_variant = 2 if _current_variant == 1 else 1
+	_attacking = true
+	_elapsed = 0.0
+	attack_hitbox.set_facing(facing)
+	attack_hitbox.set_active(false)
+	attack_started.emit(facing, _current_variant)
+
 func _finish_attack() -> void:
 	attack_hitbox.set_active(false)
 	_attacking = false
 	_elapsed = 0.0
 	attack_finished.emit()
+
+func _clear_buffer() -> void:
+	_buffered_attack = false
+	_buffer_time_left = 0.0
