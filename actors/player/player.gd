@@ -213,7 +213,7 @@ func _process_charge_ki(delta: float) -> void:
 		delta
 	)
 
-func _process_ki_blast(_move_intent: Vector2, delta: float) -> void:
+func _process_ki_blast(move_intent: Vector2, delta: float) -> void:
 	guard_component.set_guarding(false)
 	charge_aura.visible = false
 
