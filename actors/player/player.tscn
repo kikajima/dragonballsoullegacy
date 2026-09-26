@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://actors/player/player_input_controller.gd" id="2_input"]
@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://components/ki/ki_component.gd" id="14_ki"]
 [ext_resource type="Script" path="res://combat/ki/ki_blast_component.gd" id="15_ki_blast"]
 [ext_resource type="PackedScene" path="res://combat/projectiles/ki_blast_projectile.tscn" id="16_projectile"]
+[ext_resource type="Script" path="res://combat/melee/kick_combat_component.gd" id="17_kick"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(10, 8)
@@ -93,6 +94,10 @@ script = ExtResource("4_state")
 
 [node name="MeleeCombatComponent" type="Node" parent="Components"]
 script = ExtResource("7_melee")
+attack_hitbox_path = NodePath("../../Combat/AttackHitbox")
+
+[node name="KickCombatComponent" type="Node" parent="Components"]
+script = ExtResource("17_kick")
 attack_hitbox_path = NodePath("../../Combat/AttackHitbox")
 
 [node name="HitStopComponent" type="Node" parent="Components"]
