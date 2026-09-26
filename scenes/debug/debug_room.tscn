@@ -79,4 +79,4 @@ color = Color(0.34, 0.37, 0.43, 1)
 shape = SubResource("ObstacleShapeWide")
 
 [node name="DebugGokuEnemy" parent="." instance=ExtResource("1_enemy")]
-position = Vector2(300, 135)
+position = Vector2(360, 135)
