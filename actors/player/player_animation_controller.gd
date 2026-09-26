@@ -54,7 +54,12 @@ func _try_build_sprite_frames() -> void:
 	if sheet == null:
 		return
 
-	var required_width := (walk_columns.max() + 1) * frame_size.x
+	var max_column := idle_column
+	for column in walk_columns:
+		if column > max_column:
+			max_column = column
+
+	var required_width := (max_column + 1) * frame_size.x
 	var required_height := DIRECTION_ROWS.size() * frame_size.y
 
 	if sheet.get_width() < required_width or sheet.get_height() < required_height:
@@ -74,7 +79,7 @@ func _try_build_sprite_frames() -> void:
 	if frames.has_animation(&"default"):
 		frames.remove_animation(&"default")
 
-	for facing: StringName in DIRECTION_ROWS:
+	for facing in DIRECTION_ROWS:
 		var row: int = DIRECTION_ROWS[facing]
 		var idle_name := StringName("idle_%s" % facing)
 		var walk_name := StringName("walk_%s" % facing)
