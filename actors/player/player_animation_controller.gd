@@ -11,10 +11,15 @@ const DIRECTION_ROWS := {
 @export_file("*.png")
 var sprite_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_base.png"
 
+@export_file("*.png")
+var attack_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_attack.png"
+
 @export var frame_size: Vector2i = Vector2i(32, 32)
 @export var idle_column: int = 0
 @export var walk_columns: PackedInt32Array = PackedInt32Array([2, 3, 4, 5])
+@export var attack_columns: PackedInt32Array = PackedInt32Array([0, 1, 2, 3, 4, 5, 6, 7])
 @export var walk_fps: float = 8.0
+@export var attack_fps: float = 13.0
 @export var walk_bob_amplitude: float = 1.0
 @export var walk_bob_speed: float = 12.0
 
@@ -36,7 +41,9 @@ func update_visual(state: StringName, facing: StringName, delta: float) -> void:
 		placeholder.visible = false
 		sprite.visible = true
 
-		if sprite.animation != animation_name or not sprite.is_playing():
+		if sprite.animation != animation_name:
+			sprite.play(animation_name)
+		elif state != &"attack" and not sprite.is_playing():
 			sprite.play(animation_name)
 		return
 
@@ -47,38 +54,32 @@ func update_visual(state: StringName, facing: StringName, delta: float) -> void:
 	_update_placeholder_motion(state, delta)
 
 func _try_build_sprite_frames() -> void:
-	if not ResourceLoader.exists(sprite_sheet_path):
-		return
-
-	var sheet := load(sprite_sheet_path) as Texture2D
-	if sheet == null:
-		return
-
-	var max_column := idle_column
-	for column in walk_columns:
-		if column > max_column:
-			max_column = column
-
-	var required_width := (max_column + 1) * frame_size.x
-	var required_height := DIRECTION_ROWS.size() * frame_size.y
-
-	if sheet.get_width() < required_width or sheet.get_height() < required_height:
-		push_warning(
-			"Sprite sheet inesperado em %s. Esperado ao menos %dx%d, recebido %dx%d."
-			% [
-				sprite_sheet_path,
-				required_width,
-				required_height,
-				sheet.get_width(),
-				sheet.get_height(),
-			]
-		)
-		return
-
 	var frames := SpriteFrames.new()
 	if frames.has_animation(&"default"):
 		frames.remove_animation(&"default")
 
+	var built_any_animation := false
+
+	var movement_sheet := _load_valid_sheet(
+		sprite_sheet_path,
+		_required_columns(idle_column, walk_columns)
+	)
+	if movement_sheet != null:
+		_add_movement_animations(frames, movement_sheet)
+		built_any_animation = true
+
+	var attack_sheet := _load_valid_sheet(
+		attack_sheet_path,
+		_required_columns(-1, attack_columns)
+	)
+	if attack_sheet != null:
+		_add_attack_animations(frames, attack_sheet)
+		built_any_animation = true
+
+	if built_any_animation:
+		sprite.sprite_frames = frames
+
+func _add_movement_animations(frames: SpriteFrames, sheet: Texture2D) -> void:
 	for facing in DIRECTION_ROWS:
 		var row: int = DIRECTION_ROWS[facing]
 		var idle_name := StringName("idle_%s" % facing)
@@ -96,7 +97,50 @@ func _try_build_sprite_frames() -> void:
 		for column in walk_columns:
 			frames.add_frame(walk_name, _atlas_frame(sheet, column, row))
 
-	sprite.sprite_frames = frames
+func _add_attack_animations(frames: SpriteFrames, sheet: Texture2D) -> void:
+	for facing in DIRECTION_ROWS:
+		var row: int = DIRECTION_ROWS[facing]
+		var attack_name := StringName("attack_%s" % facing)
+
+		frames.add_animation(attack_name)
+		frames.set_animation_loop(attack_name, false)
+		frames.set_animation_speed(attack_name, attack_fps)
+
+		for column in attack_columns:
+			frames.add_frame(attack_name, _atlas_frame(sheet, column, row))
+
+func _load_valid_sheet(path: String, required_columns: int) -> Texture2D:
+	if not ResourceLoader.exists(path):
+		return null
+
+	var sheet := load(path) as Texture2D
+	if sheet == null:
+		return null
+
+	var required_width := required_columns * frame_size.x
+	var required_height := DIRECTION_ROWS.size() * frame_size.y
+
+	if sheet.get_width() < required_width or sheet.get_height() < required_height:
+		push_warning(
+			"Sprite sheet inesperado em %s. Esperado ao menos %dx%d, recebido %dx%d."
+			% [
+				path,
+				required_width,
+				required_height,
+				sheet.get_width(),
+				sheet.get_height(),
+			]
+		)
+		return null
+
+	return sheet
+
+func _required_columns(single_column: int, columns: PackedInt32Array) -> int:
+	var max_column := single_column
+	for column in columns:
+		if column > max_column:
+			max_column = column
+	return max_column + 1
 
 func _atlas_frame(sheet: Texture2D, column: int, row: int) -> AtlasTexture:
 	var frame := AtlasTexture.new()
