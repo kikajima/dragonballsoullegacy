@@ -1,10 +1,13 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://actors/player/player_input_controller.gd" id="2_input"]
+[ext_resource type="Script" path="res://components/movement/movement_component.gd" id="3_movement"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(12, 14)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_player"]
 
 [node name="Player" type="CharacterBody2D"]
 position = Vector2(240, 135)
@@ -12,14 +15,26 @@ collision_layer = 2
 collision_mask = 1
 script = ExtResource("1_player")
 
-[node name="VisualPlaceholder" type="Polygon2D" parent="."]
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Visuals"]
+sprite_frames = SubResource("SpriteFrames_player")
+
+[node name="Placeholder" type="Polygon2D" parent="Visuals"]
 polygon = PackedVector2Array(-6, -7, 6, -7, 6, 7, -6, 7)
 color = Color(0.3, 0.65, 1, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_player")
 
-[node name="PlayerInputController" type="Node" parent="."]
+[node name="Components" type="Node" parent="."]
+
+[node name="MovementComponent" type="Node" parent="Components"]
+script = ExtResource("3_movement")
+
+[node name="Controllers" type="Node" parent="."]
+
+[node name="PlayerInputController" type="Node" parent="Controllers"]
 script = ExtResource("2_input")
 
 [node name="Camera2D" type="Camera2D" parent="."]
