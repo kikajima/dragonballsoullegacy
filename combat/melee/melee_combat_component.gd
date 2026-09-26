@@ -19,7 +19,7 @@ func start_attack(facing: StringName) -> bool:
 	if _attacking:
 		return false
 
-	_current_variant = 1 if _current_variant == 2 else 2
+	_current_variant = 2 if _current_variant == 1 else 1
 	_attacking = true
 	_elapsed = 0.0
 	attack_hitbox.set_facing(facing)
