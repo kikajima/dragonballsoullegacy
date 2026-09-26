@@ -6,7 +6,7 @@ O projeto é organizado para manter lógica, dados, apresentação e rede desaco
 
 - `actors/`: jogador, inimigos e NPCs.
 - `assets/`: sprites, tilesets, fontes, músicas e efeitos sonoros.
-- `components/`: componentes reutilizáveis como vida, Ki, movimento, direção, state machine, hitbox e hurtbox.
+- `components/`: componentes reutilizáveis como vida, Ki, movimento, direção, state machine, hitbox, hurtbox, knockback e hit stop.
 - `combat/`: regras de combate, dano, projéteis e técnicas.
 - `core/`: serviços centrais do jogo.
 - `data/`: Resources e dados de personagens/conteúdo.
@@ -33,7 +33,8 @@ Player
 │   ├── MovementComponent
 │   ├── FacingComponent
 │   ├── StateMachine
-│   └── MeleeCombatComponent
+│   ├── MeleeCombatComponent
+│   └── HitStopComponent
 ├── Controllers
 │   └── PlayerInputController
 └── Camera2D
@@ -41,53 +42,52 @@ Player
 
 O jogador alterna entre `idle`, `walk`, `attack_1` e `attack_2`. O `FacingComponent` acompanha imediatamente a direção de movimento, inclusive durante ataques.
 
-Cada soco, porém, guarda sua própria direção dentro do `MeleeCombatComponent`. Isso impede que a hitbox gire no meio de um golpe, mas permite que o próximo soco da sequência saia na nova direção sem o atraso de esperar toda a animação anterior terminar.
+Cada soco guarda sua própria direção dentro do `MeleeCombatComponent`, evitando que a hitbox gire no meio do golpe e permitindo mudar a direção do próximo soco da sequência.
 
 ## Combate corpo a corpo
 
-O fluxo atual é:
+Cada pressionamento corresponde a um soco. O combo usa input buffer e janela de encadeamento, mas a cadência foi ajustada para ficar mais legível:
+
+- animação de ataque: 10 FPS;
+- duração aproximada do golpe: 0,40 s;
+- hitbox ativa entre 0,11 s e 0,29 s;
+- próximo soco pode encadear a partir de 0,26 s.
+
+O jogador continua podendo se deslocar durante o golpe com velocidade reduzida.
+
+## Impacto, dano e reação
+
+O fluxo de dano atual é:
 
 ```text
-attack (Input)
-      ↓
-PlayerInputController
-      ↓
-FacingComponent atualiza direção desejada
-      ↓
-MeleeCombatComponent
-      ├── alterna attack_1 / attack_2
-      ├── guarda direção do golpe atual
-      ├── possui janela de combo/cancel
-      ├── possui input buffer
-      └── ativa/desativa AttackHitbox
-                       ↓
-                HitboxComponent
-                       ↓
-                HurtboxComponent
-                       ↓
-                HealthComponent
+AttackHitbox
+    ↓
+HitboxComponent
+    ↓
+HurtboxComponent
+    ↓
+HealthComponent
+    ↓
+estado hurt + KnockbackComponent
 ```
 
-Cada pressionamento corresponde a um soco. Se o próximo ataque for pedido cedo, ele fica no buffer. Assim que a janela de encadeamento abre, esse input é consumido imediatamente. Se o botão for pressionado depois que a janela já abriu, o próximo soco começa na hora.
+Quando um golpe é confirmado, o `HitStopComponent` reduz o tempo global por alguns milissegundos para dar sensação de impacto.
 
-Isso mantém o ataque atual coerente, permite trocar de direção rapidamente entre socos e evita a sensação de atraso ao alternar lados durante uma sequência.
-
-## Dano, vida e hurtbox
-
-`HealthComponent` concentra HP, dano, cura, morte e sinais de mudança de vida. `HurtboxComponent` recebe a colisão do golpe e encaminha o dano para o `HealthComponent`.
-
-A sala de depuração usa o fluxo real de componentes:
+O inimigo de teste agora é outro Goku e utiliza o mesmo spritesheet local do jogador:
 
 ```text
-DebugTarget
-├── Visual
+DebugGokuEnemy
+├── Visuals
+│   └── AnimatedSprite2D
+├── CollisionShape2D
 ├── Components
-│   └── HealthComponent
+│   ├── HealthComponent
+│   ├── KnockbackComponent
+│   └── StateMachine
 └── Hurtbox
-    └── CollisionShape2D
 ```
 
-Esse alvo continua restaurando a própria vida ao chegar a zero para facilitar testes repetidos.
+Ao ser atingido ele entra brevemente no estado `hurt`, pisca em vermelho e sofre knockback. Ao perder todo o HP, sua vida e posição são restauradas para continuar os testes.
 
 ## Princípios
 
