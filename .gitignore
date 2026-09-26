@@ -6,3 +6,6 @@
 # Do not publish these assets in the public repository.
 /assets/sprites/characters/goku/source/
 /assets/sprites/characters/goku/processed/
+
+/assets/sprites/effects/processed/
+/assets/ui/legacy/processed/
