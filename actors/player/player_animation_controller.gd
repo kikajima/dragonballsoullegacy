@@ -1,6 +1,20 @@
 class_name PlayerAnimationController
 extends Node
 
+const DIRECTION_ROWS := {
+	&"down": 0,
+	&"left": 1,
+	&"right": 2,
+	&"up": 3,
+}
+
+@export_file("*.png")
+var sprite_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_base.png"
+
+@export var frame_size: Vector2i = Vector2i(32, 32)
+@export var idle_column: int = 0
+@export var walk_columns: PackedInt32Array = PackedInt32Array([2, 3, 4, 5])
+@export var walk_fps: float = 8.0
 @export var walk_bob_amplitude: float = 1.0
 @export var walk_bob_speed: float = 12.0
 
@@ -10,6 +24,9 @@ extends Node
 @onready var facing_marker: Polygon2D = placeholder.get_node("FacingMarker") as Polygon2D
 
 var _bob_phase: float = 0.0
+
+func _ready() -> void:
+	_try_build_sprite_frames()
 
 func update_visual(state: StringName, facing: StringName, delta: float) -> void:
 	var animation_name := StringName("%s_%s" % [state, facing])
@@ -28,6 +45,62 @@ func update_visual(state: StringName, facing: StringName, delta: float) -> void:
 	placeholder.visible = true
 	_update_placeholder_facing(facing)
 	_update_placeholder_motion(state, delta)
+
+func _try_build_sprite_frames() -> void:
+	if not ResourceLoader.exists(sprite_sheet_path):
+		return
+
+	var sheet := load(sprite_sheet_path) as Texture2D
+	if sheet == null:
+		return
+
+	var required_width := (walk_columns.max() + 1) * frame_size.x
+	var required_height := DIRECTION_ROWS.size() * frame_size.y
+
+	if sheet.get_width() < required_width or sheet.get_height() < required_height:
+		push_warning(
+			"Sprite sheet inesperado em %s. Esperado ao menos %dx%d, recebido %dx%d."
+			% [
+				sprite_sheet_path,
+				required_width,
+				required_height,
+				sheet.get_width(),
+				sheet.get_height(),
+			]
+		)
+		return
+
+	var frames := SpriteFrames.new()
+	if frames.has_animation(&"default"):
+		frames.remove_animation(&"default")
+
+	for facing: StringName in DIRECTION_ROWS:
+		var row: int = DIRECTION_ROWS[facing]
+		var idle_name := StringName("idle_%s" % facing)
+		var walk_name := StringName("walk_%s" % facing)
+
+		frames.add_animation(idle_name)
+		frames.set_animation_loop(idle_name, true)
+		frames.set_animation_speed(idle_name, 1.0)
+		frames.add_frame(idle_name, _atlas_frame(sheet, idle_column, row))
+
+		frames.add_animation(walk_name)
+		frames.set_animation_loop(walk_name, true)
+		frames.set_animation_speed(walk_name, walk_fps)
+
+		for column in walk_columns:
+			frames.add_frame(walk_name, _atlas_frame(sheet, column, row))
+
+	sprite.sprite_frames = frames
+
+func _atlas_frame(sheet: Texture2D, column: int, row: int) -> AtlasTexture:
+	var frame := AtlasTexture.new()
+	frame.atlas = sheet
+	frame.region = Rect2(
+		Vector2(column * frame_size.x, row * frame_size.y),
+		Vector2(frame_size.x, frame_size.y)
+	)
+	return frame
 
 func _has_animation(animation_name: StringName) -> bool:
 	if sprite.sprite_frames == null:
