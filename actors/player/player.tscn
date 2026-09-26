@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://actors/player/player_input_controller.gd" id="2_input"]
@@ -12,6 +12,10 @@
 [ext_resource type="Script" path="res://components/health/health_component.gd" id="10_health"]
 [ext_resource type="Script" path="res://components/hurtbox/hurtbox_component.gd" id="11_hurtbox"]
 [ext_resource type="Script" path="res://components/knockback/knockback_component.gd" id="12_knockback"]
+[ext_resource type="Script" path="res://components/guard/guard_component.gd" id="13_guard"]
+[ext_resource type="Script" path="res://components/ki/ki_component.gd" id="14_ki"]
+[ext_resource type="Script" path="res://combat/ki/ki_blast_component.gd" id="15_ki_blast"]
+[ext_resource type="PackedScene" path="res://combat/projectiles/ki_blast_projectile.tscn" id="16_projectile"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(10, 8)
@@ -31,6 +35,12 @@ collision_mask = 5
 script = ExtResource("1_player")
 
 [node name="Visuals" type="Node2D" parent="."]
+
+[node name="ChargeAura" type="Polygon2D" parent="Visuals"]
+visible = false
+z_index = -2
+polygon = PackedVector2Array(0, -18, 12, -13, 18, 0, 12, 13, 0, 18, -12, 13, -18, 0, -12, -13)
+color = Color(0.35, 0.75, 1, 0.24)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Visuals"]
 sprite_frames = SubResource("SpriteFrames_player")
@@ -96,6 +106,19 @@ max_health = 100
 script = ExtResource("12_knockback")
 strength = 95.0
 duration = 0.14
+
+[node name="GuardComponent" type="Node" parent="Components"]
+script = ExtResource("13_guard")
+
+[node name="KiComponent" type="Node" parent="Components"]
+script = ExtResource("14_ki")
+max_ki = 100.0
+starting_ki = 100.0
+
+[node name="KiBlastComponent" type="Node" parent="Components"]
+script = ExtResource("15_ki_blast")
+projectile_scene = ExtResource("16_projectile")
+ki_component_path = NodePath("../KiComponent")
 
 [node name="Hurtbox" type="Area2D" parent="."]
 collision_layer = 2
