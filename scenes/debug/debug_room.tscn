@@ -1,0 +1,77 @@
+[gd_scene load_steps=5 format=3]
+
+[sub_resource type="RectangleShape2D" id="WallHorizontal"]
+size = Vector2(960, 16)
+
+[sub_resource type="RectangleShape2D" id="WallVertical"]
+size = Vector2(16, 540)
+
+[sub_resource type="RectangleShape2D" id="ObstacleShape"]
+size = Vector2(64, 64)
+
+[sub_resource type="RectangleShape2D" id="ObstacleShapeWide"]
+size = Vector2(120, 40)
+
+[node name="DebugRoom" type="Node2D"]
+
+[node name="Floor" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, 0, 960, 0, 960, 540, 0, 540)
+color = Color(0.12, 0.14, 0.17, 1)
+
+[node name="Walls" type="Node2D" parent="."]
+
+[node name="Top" type="StaticBody2D" parent="Walls"]
+position = Vector2(480, 8)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Top"]
+shape = SubResource("WallHorizontal")
+
+[node name="Bottom" type="StaticBody2D" parent="Walls"]
+position = Vector2(480, 532)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Bottom"]
+shape = SubResource("WallHorizontal")
+
+[node name="Left" type="StaticBody2D" parent="Walls"]
+position = Vector2(8, 270)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Left"]
+shape = SubResource("WallVertical")
+
+[node name="Right" type="StaticBody2D" parent="Walls"]
+position = Vector2(952, 270)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Right"]
+shape = SubResource("WallVertical")
+
+[node name="ObstacleA" type="StaticBody2D" parent="."]
+position = Vector2(360, 220)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Visual" type="Polygon2D" parent="ObstacleA"]
+polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
+color = Color(0.34, 0.37, 0.43, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObstacleA"]
+shape = SubResource("ObstacleShape")
+
+[node name="ObstacleB" type="StaticBody2D" parent="."]
+position = Vector2(620, 340)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Visual" type="Polygon2D" parent="ObstacleB"]
+polygon = PackedVector2Array(-60, -20, 60, -20, 60, 20, -60, 20)
+color = Color(0.34, 0.37, 0.43, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObstacleB"]
+shape = SubResource("ObstacleShapeWide")
