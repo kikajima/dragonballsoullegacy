@@ -1,10 +1,13 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://actors/enemies/debug_goku_enemy.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://components/health/health_component.gd" id="2_health"]
 [ext_resource type="Script" path="res://components/hurtbox/hurtbox_component.gd" id="3_hurtbox"]
 [ext_resource type="Script" path="res://components/knockback/knockback_component.gd" id="4_knockback"]
 [ext_resource type="Script" path="res://components/state_machine/state_machine.gd" id="5_state"]
+[ext_resource type="Script" path="res://components/movement/movement_component.gd" id="6_movement"]
+[ext_resource type="Script" path="res://combat/melee/melee_combat_component.gd" id="7_melee"]
+[ext_resource type="Script" path="res://components/hitbox/hitbox_component.gd" id="8_hitbox"]
 
 [sub_resource type="RectangleShape2D" id="BodyShape"]
 size = Vector2(10, 8)
@@ -14,9 +17,12 @@ size = Vector2(10, 8)
 [sub_resource type="RectangleShape2D" id="HurtboxShape"]
 size = Vector2(14, 18)
 
+[sub_resource type="RectangleShape2D" id="AttackShape"]
+size = Vector2(16, 14)
+
 [node name="DebugGokuEnemy" type="CharacterBody2D"]
 collision_layer = 4
-collision_mask = 1
+collision_mask = 3
 script = ExtResource("1_enemy")
 
 [node name="Visuals" type="Node2D" parent="."]
@@ -32,11 +38,35 @@ color = Color(0.75, 0.45, 0.2, 1)
 position = Vector2(0, 8)
 shape = SubResource("BodyShape")
 
+[node name="Combat" type="Node2D" parent="."]
+
+[node name="AttackHitbox" type="Area2D" parent="Combat"]
+collision_layer = 16
+collision_mask = 2
+monitoring = true
+monitorable = false
+script = ExtResource("8_hitbox")
+damage = 8
+debug_visible = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Combat/AttackHitbox"]
+shape = SubResource("AttackShape")
+disabled = true
+
+[node name="DebugShape" type="Polygon2D" parent="Combat/AttackHitbox"]
+visible = false
+polygon = PackedVector2Array(-8, -7, 8, -7, 8, 7, -8, 7)
+color = Color(1, 0.35, 0.15, 0.28)
+
 [node name="Components" type="Node" parent="."]
 
 [node name="HealthComponent" type="Node" parent="Components"]
 script = ExtResource("2_health")
 max_health = 30
+
+[node name="MovementComponent" type="Node" parent="Components"]
+script = ExtResource("6_movement")
+move_speed = 55.0
 
 [node name="KnockbackComponent" type="Node" parent="Components"]
 script = ExtResource("4_knockback")
@@ -44,6 +74,15 @@ script = ExtResource("4_knockback")
 [node name="StateMachine" type="Node" parent="Components"]
 script = ExtResource("5_state")
 initial_state = &"idle"
+
+[node name="MeleeCombatComponent" type="Node" parent="Components"]
+script = ExtResource("7_melee")
+attack_duration = 0.5
+hitbox_active_from = 0.14
+hitbox_active_until = 0.34
+combo_chain_from = 0.36
+input_buffer_duration = 0.0
+attack_hitbox_path = NodePath("../../Combat/AttackHitbox")
 
 [node name="Hurtbox" type="Area2D" parent="."]
 collision_layer = 4
