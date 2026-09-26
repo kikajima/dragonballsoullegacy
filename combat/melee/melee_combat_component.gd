@@ -8,7 +8,8 @@ signal attack_buffered
 @export var attack_duration: float = 0.32
 @export var hitbox_active_from: float = 0.08
 @export var hitbox_active_until: float = 0.22
-@export var input_buffer_duration: float = 0.16
+@export var combo_chain_from: float = 0.17
+@export var input_buffer_duration: float = 0.24
 @export var attack_hitbox_path: NodePath
 
 @onready var attack_hitbox: HitboxComponent = get_node(attack_hitbox_path) as HitboxComponent
@@ -16,6 +17,7 @@ signal attack_buffered
 var _attacking: bool = false
 var _elapsed: float = 0.0
 var _current_variant: int = 0
+var _attack_facing: StringName = &"down"
 
 var _buffered_attack: bool = false
 var _buffer_time_left: float = 0.0
@@ -36,18 +38,26 @@ func buffer_attack(facing: StringName) -> bool:
 	_buffer_time_left = input_buffer_duration
 	_buffered_facing = facing
 	attack_buffered.emit()
+
+	if _elapsed >= combo_chain_from:
+		_consume_buffered_attack()
+
 	return true
 
 func tick_attack(delta: float) -> void:
 	if not _attacking:
 		return
 
+	_elapsed += delta
+
 	if _buffered_attack:
 		_buffer_time_left -= delta
+
 		if _buffer_time_left <= 0.0:
 			_clear_buffer()
-
-	_elapsed += delta
+		elif _elapsed >= combo_chain_from:
+			_consume_buffered_attack()
+			return
 
 	var hitbox_should_be_active := (
 		_elapsed >= hitbox_active_from
@@ -56,12 +66,7 @@ func tick_attack(delta: float) -> void:
 	attack_hitbox.set_active(hitbox_should_be_active)
 
 	if _elapsed >= attack_duration:
-		if _buffered_attack and _buffer_time_left > 0.0:
-			var next_facing := _buffered_facing
-			_clear_buffer()
-			_begin_attack(next_facing)
-		else:
-			_finish_attack()
+		_finish_attack()
 
 func cancel_attack() -> void:
 	if not _attacking:
@@ -79,13 +84,22 @@ func get_attack_variant() -> int:
 func get_attack_state() -> StringName:
 	return StringName("attack_%d" % _current_variant)
 
+func get_attack_facing() -> StringName:
+	return _attack_facing
+
 func _begin_attack(facing: StringName) -> void:
 	_current_variant = 2 if _current_variant == 1 else 1
+	_attack_facing = facing
 	_attacking = true
 	_elapsed = 0.0
-	attack_hitbox.set_facing(facing)
+	attack_hitbox.set_facing(_attack_facing)
 	attack_hitbox.set_active(false)
-	attack_started.emit(facing, _current_variant)
+	attack_started.emit(_attack_facing, _current_variant)
+
+func _consume_buffered_attack() -> void:
+	var next_facing := _buffered_facing
+	_clear_buffer()
+	_begin_attack(next_facing)
 
 func _finish_attack() -> void:
 	attack_hitbox.set_active(false)
