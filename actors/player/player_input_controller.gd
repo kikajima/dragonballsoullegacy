@@ -7,6 +7,9 @@ func get_move_intent() -> Vector2:
 func is_attack_pressed() -> bool:
 	return Input.is_action_just_pressed("attack")
 
+func is_kick_pressed() -> bool:
+	return Input.is_action_just_pressed("kick")
+
 func is_ki_blast_pressed() -> bool:
 	return Input.is_action_just_pressed("ki_blast")
 
