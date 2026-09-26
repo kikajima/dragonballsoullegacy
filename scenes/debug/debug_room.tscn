@@ -1,6 +1,8 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scenes/debug/debug_target.gd" id="1_target"]
+[ext_resource type="Script" path="res://components/health/health_component.gd" id="2_health"]
+[ext_resource type="Script" path="res://components/hurtbox/hurtbox_component.gd" id="3_hurtbox"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(960, 16)
@@ -81,15 +83,27 @@ color = Color(0.34, 0.37, 0.43, 1)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ObstacleB"]
 shape = SubResource("ObstacleShapeWide")
 
-[node name="DebugTarget" type="StaticBody2D" parent="."]
+[node name="DebugTarget" type="Node2D" parent="."]
 position = Vector2(300, 135)
-collision_layer = 4
-collision_mask = 0
 script = ExtResource("1_target")
 
 [node name="Visual" type="Polygon2D" parent="DebugTarget"]
 polygon = PackedVector2Array(-7, -9, 7, -9, 7, 9, -7, 9)
 color = Color(0.75, 0.45, 0.2, 1)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="DebugTarget"]
+[node name="Components" type="Node" parent="DebugTarget"]
+
+[node name="HealthComponent" type="Node" parent="DebugTarget/Components"]
+script = ExtResource("2_health")
+max_health = 30
+
+[node name="Hurtbox" type="Area2D" parent="DebugTarget"]
+collision_layer = 4
+collision_mask = 0
+monitoring = false
+monitorable = true
+script = ExtResource("3_hurtbox")
+health_component_path = NodePath("../Components/HealthComponent")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DebugTarget/Hurtbox"]
 shape = SubResource("DebugTargetShape")
