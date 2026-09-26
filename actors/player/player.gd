@@ -12,7 +12,12 @@ var attack_move_speed_scale: float = 0.85
 @onready var facing_component: FacingComponent = $Components/FacingComponent
 @onready var state_machine: StateMachine = $Components/StateMachine
 @onready var melee_combat_component: MeleeCombatComponent = $Components/MeleeCombatComponent
+@onready var hit_stop_component: HitStopComponent = $Components/HitStopComponent
+@onready var attack_hitbox: HitboxComponent = $Combat/AttackHitbox
 @onready var animation_controller: PlayerAnimationController = $Visuals/AnimationController
+
+func _ready() -> void:
+	attack_hitbox.hit_confirmed.connect(_on_attack_hit_confirmed)
 
 func _physics_process(delta: float) -> void:
 	var move_intent := input_controller.get_move_intent()
@@ -63,6 +68,9 @@ func _physics_process(delta: float) -> void:
 		facing_component.current_facing,
 		delta
 	)
+
+func _on_attack_hit_confirmed(_target: Node, _damage: int) -> void:
+	hit_stop_component.trigger()
 
 func _update_movement_state(move_intent: Vector2) -> void:
 	if move_intent.is_zero_approx():
