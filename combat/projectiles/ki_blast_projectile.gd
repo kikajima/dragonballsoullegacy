@@ -36,8 +36,9 @@ func _on_area_entered(area: Area2D) -> void:
 	queue_free()
 
 func _on_body_entered(body: Node2D) -> void:
-	if body == null:
+	if body == null or not body is CollisionObject2D:
 		return
 
-	if body.collision_layer & 1 != 0:
+	var collision_body := body as CollisionObject2D
+	if collision_body.collision_layer & 1 != 0:
 		queue_free()
