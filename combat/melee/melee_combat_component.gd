@@ -5,11 +5,11 @@ signal attack_started(facing: StringName, variant: int)
 signal attack_finished
 signal attack_buffered
 
-@export var attack_duration: float = 0.32
-@export var hitbox_active_from: float = 0.08
-@export var hitbox_active_until: float = 0.22
-@export var combo_chain_from: float = 0.17
-@export var input_buffer_duration: float = 0.24
+@export var attack_duration: float = 0.40
+@export var hitbox_active_from: float = 0.11
+@export var hitbox_active_until: float = 0.29
+@export var combo_chain_from: float = 0.26
+@export var input_buffer_duration: float = 0.22
 @export var attack_hitbox_path: NodePath
 
 @onready var attack_hitbox: HitboxComponent = get_node(attack_hitbox_path) as HitboxComponent
