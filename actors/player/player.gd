@@ -19,9 +19,15 @@ func _physics_process(delta: float) -> void:
 
 	if melee_combat_component.is_attacking():
 		movement_component.move(self, move_intent, attack_move_speed_scale)
+
+		if input_controller.is_attack_pressed():
+			melee_combat_component.buffer_attack(facing_component.current_facing)
+
 		melee_combat_component.tick_attack(delta)
 
-		if not melee_combat_component.is_attacking():
+		if melee_combat_component.is_attacking():
+			state_machine.change_state(melee_combat_component.get_attack_state())
+		else:
 			facing_component.update_from_direction(move_intent)
 			_update_movement_state(move_intent)
 
