@@ -9,7 +9,7 @@ Mapeamento atual do protótipo.
 | Mover para esquerda | A / ← |
 | Mover para direita | D / → |
 | Soco / combo | J |
-| Chute | I |
+| Chute / combo | I |
 | Ki Blast | K |
 | Carregar Ki | L |
 | Dash | Espaço |
@@ -18,8 +18,10 @@ Mapeamento atual do protótipo.
 
 ## Combate atual
 
-- **J:** alterna os dois socos do combo, com input buffer.
-- **I:** executa um chute separado, mais lento e mais forte que o soco.
+- **J:** alterna `attack_1` e `attack_2`, usando os dois socos.
+- **I:** alterna `kick_1` e `kick_2`, usando as duas pernas.
+- Socos e chutes compartilham o mesmo buffer de combo. É possível encadear livremente sequências como `J → I → J → I`, `J → J → I` ou `I → I → J`.
+- O chute é um pouco mais lento, alcança mais longe e causa mais dano que o soco.
 - **Shift esquerdo:** mantém a defesa ativa e reduz a velocidade de movimento.
 - A defesa só reduz golpes recebidos pela frente; ataques por trás continuam causando dano normal.
 - **K:** dispara um Ki Blast, consumindo Ki.
