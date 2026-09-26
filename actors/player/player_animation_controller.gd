@@ -17,15 +17,25 @@ var attack_sheet_path: String = "res://assets/sprites/characters/goku/processed/
 @export_file("*.png")
 var hurt_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_hurt.png"
 
+@export_file("*.png")
+var block_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_block.png"
+
+@export_file("*.png")
+var ki_blast_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_ki_blast.png"
+
 @export var frame_size: Vector2i = Vector2i(32, 32)
 @export var idle_column: int = 0
 @export var walk_columns: PackedInt32Array = PackedInt32Array([2, 3, 4, 5])
 @export var attack_1_columns: PackedInt32Array = PackedInt32Array([0, 1, 2, 3])
 @export var attack_2_columns: PackedInt32Array = PackedInt32Array([4, 5, 6, 7])
 @export var hurt_columns: PackedInt32Array = PackedInt32Array([0, 1])
+@export var block_columns: PackedInt32Array = PackedInt32Array([0])
+@export var ki_blast_columns: PackedInt32Array = PackedInt32Array([0, 1, 2, 3])
+
 @export var walk_fps: float = 8.0
 @export var attack_fps: float = 10.0
 @export var hurt_fps: float = 10.0
+@export var ki_blast_fps: float = 10.0
 @export var walk_bob_amplitude: float = 1.0
 @export var walk_bob_speed: float = 12.0
 
@@ -43,14 +53,12 @@ func update_visual(state: StringName, facing: StringName, delta: float) -> void:
 	var animation_name := StringName("%s_%s" % [state, facing])
 
 	if _has_animation(animation_name):
-		visuals.position = Vector2.ZERO
-		placeholder.visible = false
-		sprite.visible = true
+		_show_sprite_animation(animation_name, state)
+		return
 
-		if sprite.animation != animation_name:
-			sprite.play(animation_name)
-		elif not _is_one_shot_state(state) and not sprite.is_playing():
-			sprite.play(animation_name)
+	var fallback_name := StringName("idle_%s" % facing)
+	if _has_animation(fallback_name):
+		_show_sprite_animation(fallback_name, &"idle")
 		return
 
 	sprite.stop()
@@ -58,6 +66,16 @@ func update_visual(state: StringName, facing: StringName, delta: float) -> void:
 	placeholder.visible = true
 	_update_placeholder_facing(facing)
 	_update_placeholder_motion(state, delta)
+
+func _show_sprite_animation(animation_name: StringName, state: StringName) -> void:
+	visuals.position = Vector2.ZERO
+	placeholder.visible = false
+	sprite.visible = true
+
+	if sprite.animation != animation_name:
+		sprite.play(animation_name)
+	elif not _is_one_shot_state(state) and not sprite.is_playing():
+		sprite.play(animation_name)
 
 func _try_build_sprite_frames() -> void:
 	var frames := SpriteFrames.new()
@@ -83,22 +101,8 @@ func _try_build_sprite_frames() -> void:
 		_required_columns(-1, max_attack_columns)
 	)
 	if attack_sheet != null:
-		_add_directional_animation(
-			frames,
-			attack_sheet,
-			&"attack_1",
-			attack_1_columns,
-			attack_fps,
-			false
-		)
-		_add_directional_animation(
-			frames,
-			attack_sheet,
-			&"attack_2",
-			attack_2_columns,
-			attack_fps,
-			false
-		)
+		_add_directional_animation(frames, attack_sheet, &"attack_1", attack_1_columns, attack_fps, false)
+		_add_directional_animation(frames, attack_sheet, &"attack_2", attack_2_columns, attack_fps, false)
 		built_any_animation = true
 
 	var hurt_sheet := _load_valid_sheet(
@@ -106,12 +110,28 @@ func _try_build_sprite_frames() -> void:
 		_required_columns(-1, hurt_columns)
 	)
 	if hurt_sheet != null:
+		_add_directional_animation(frames, hurt_sheet, &"hurt", hurt_columns, hurt_fps, false)
+		built_any_animation = true
+
+	var block_sheet := _load_valid_sheet(
+		block_sheet_path,
+		_required_columns(-1, block_columns)
+	)
+	if block_sheet != null:
+		_add_directional_animation(frames, block_sheet, &"block", block_columns, 1.0, true)
+		built_any_animation = true
+
+	var ki_blast_sheet := _load_valid_sheet(
+		ki_blast_sheet_path,
+		_required_columns(-1, ki_blast_columns)
+	)
+	if ki_blast_sheet != null:
 		_add_directional_animation(
 			frames,
-			hurt_sheet,
-			&"hurt",
-			hurt_columns,
-			hurt_fps,
+			ki_blast_sheet,
+			&"ki_blast",
+			ki_blast_columns,
+			ki_blast_fps,
 			false
 		)
 		built_any_animation = true
@@ -208,7 +228,11 @@ func _has_animation(animation_name: StringName) -> bool:
 	)
 
 func _is_one_shot_state(state: StringName) -> bool:
-	return String(state).begins_with("attack_") or state == &"hurt"
+	return (
+		String(state).begins_with("attack_")
+		or state == &"hurt"
+		or state == &"ki_blast"
+	)
 
 func _update_placeholder_motion(state: StringName, delta: float) -> void:
 	if state == &"walk":
