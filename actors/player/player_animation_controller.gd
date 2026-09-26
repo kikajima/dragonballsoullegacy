@@ -41,7 +41,7 @@ func _has_animation(animation_name: StringName) -> bool:
 func _update_placeholder_motion(state: StringName, delta: float) -> void:
 	if state == &"walk":
 		_bob_phase += delta * walk_bob_speed
-		visuals.position.y = roundf(sinf(_bob_phase) * walk_bob_amplitude)
+		visuals.position.y = roundf(sin(_bob_phase) * walk_bob_amplitude)
 		return
 
 	_bob_phase = 0.0
