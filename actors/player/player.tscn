@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://actors/player/player_input_controller.gd" id="2_input"]
@@ -9,6 +9,9 @@
 [ext_resource type="Script" path="res://combat/melee/melee_combat_component.gd" id="7_melee"]
 [ext_resource type="Script" path="res://components/hitbox/hitbox_component.gd" id="8_hitbox"]
 [ext_resource type="Script" path="res://components/hit_stop/hit_stop_component.gd" id="9_hit_stop"]
+[ext_resource type="Script" path="res://components/health/health_component.gd" id="10_health"]
+[ext_resource type="Script" path="res://components/hurtbox/hurtbox_component.gd" id="11_hurtbox"]
+[ext_resource type="Script" path="res://components/knockback/knockback_component.gd" id="12_knockback"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(10, 8)
@@ -18,10 +21,13 @@ size = Vector2(10, 8)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
 size = Vector2(16, 14)
 
-[node name="Player" type="CharacterBody2D"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurtbox"]
+size = Vector2(14, 18)
+
+[node name="Player" type="CharacterBody2D" groups=["player"]]
 position = Vector2(240, 135)
 collision_layer = 2
-collision_mask = 1
+collision_mask = 5
 script = ExtResource("1_player")
 
 [node name="Visuals" type="Node2D" parent="."]
@@ -81,6 +87,26 @@ attack_hitbox_path = NodePath("../../Combat/AttackHitbox")
 
 [node name="HitStopComponent" type="Node" parent="Components"]
 script = ExtResource("9_hit_stop")
+
+[node name="HealthComponent" type="Node" parent="Components"]
+script = ExtResource("10_health")
+max_health = 100
+
+[node name="KnockbackComponent" type="Node" parent="Components"]
+script = ExtResource("12_knockback")
+strength = 95.0
+duration = 0.14
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+monitoring = false
+monitorable = true
+script = ExtResource("11_hurtbox")
+health_component_path = NodePath("../Components/HealthComponent")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("RectangleShape2D_hurtbox")
 
 [node name="Controllers" type="Node" parent="."]
 
