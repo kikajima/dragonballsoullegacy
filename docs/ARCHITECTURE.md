@@ -18,7 +18,6 @@ Player
 │   ├── FacingComponent
 │   ├── StateMachine
 │   ├── MeleeCombatComponent
-│   ├── KickCombatComponent
 │   ├── HitStopComponent
 │   ├── HealthComponent
 │   ├── KnockbackComponent
@@ -38,7 +37,8 @@ idle
 walk
 attack_1
 attack_2
-kick
+kick_1
+kick_2
 hurt
 block
 ki_blast
@@ -47,11 +47,45 @@ charge_ki
 
 ## Combate físico
 
-**J** usa o `MeleeCombatComponent` e alterna os dois socos do combo.
+O `MeleeCombatComponent` concentra agora os ataques físicos e o buffer de combo. Soco e chute usam a mesma hitbox, mas possuem temporização, dano, alcance e variantes independentes.
 
-**I** usa um `KickCombatComponent` separado. O chute tem animação, duração, janela de hitbox e dano próprios. No protótipo ele é mais lento e mais forte que um soco.
+**J** alterna:
 
-O `AttackHitbox` é compartilhado pelos ataques físicos, mas cada componente define explicitamente o dano ao iniciar sua ação. Isso evita que o dano de um chute permaneça configurado no próximo soco.
+```text
+attack_1 → attack_2 → attack_1 → ...
+```
+
+**I** alterna:
+
+```text
+kick_1 → kick_2 → kick_1 → ...
+```
+
+Os quatro frames do sheet de chute são divididos em duas animações por direção:
+
+```text
+kick_1 = frames 0-1
+kick_2 = frames 2-3
+```
+
+Isso representa as duas pernas e permite que cada pressionamento de I produza um chute distinto.
+
+O buffer é compartilhado entre os tipos de golpe, portanto também é possível trocar de ataque no meio da sequência:
+
+```text
+J → I → J → I
+J → J → I
+I → I → J
+```
+
+Parâmetros iniciais:
+
+- soco: 10 de dano, alcance de hitbox 12 px;
+- chute: 16 de dano, alcance de hitbox 15 px;
+- movimento durante soco: 85% da velocidade;
+- movimento durante chute: 70% da velocidade.
+
+A direção do golpe atual permanece estável durante sua janela ativa, enquanto a direção desejada do jogador continua sendo atualizada para o próximo golpe.
 
 ## Defesa
 
@@ -100,7 +134,7 @@ O `DebugGokuEnemy` detecta o jogador, persegue, ataca corpo a corpo, reage ao es
 
 ## Assets locais
 
-Os sprites ripados continuam fora do Git público. Os novos arquivos esperados localmente são:
+Os sprites ripados continuam fora do Git público. Os arquivos esperados localmente são:
 
 ```text
 assets/sprites/characters/goku/processed/
