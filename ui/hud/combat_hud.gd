@@ -7,30 +7,22 @@ var player_panel_path: String = "res://assets/ui/legacy/processed/player_hud_pan
 @export_file("*.png")
 var enemy_panel_path: String = "res://assets/ui/legacy/processed/enemy_hud_panel.png"
 
-@onready var player_panel: Control = $PlayerPanel
 @onready var player_panel_texture: TextureRect = $PlayerPanel/PanelTexture
 @onready var player_fallback: ColorRect = $PlayerPanel/Fallback
 @onready var player_hp_fill: ColorRect = $PlayerPanel/HPFill
 @onready var player_ki_fill: ColorRect = $PlayerPanel/KiFill
-@onready var player_values: Label = $PlayerPanel/Values
 
 @onready var enemy_panel: Control = $EnemyPanel
 @onready var enemy_panel_texture: TextureRect = $EnemyPanel/PanelTexture
 @onready var enemy_fallback: ColorRect = $EnemyPanel/Fallback
 @onready var enemy_hp_fill: ColorRect = $EnemyPanel/HPFill
-@onready var enemy_values: Label = $EnemyPanel/Values
 
-const PLAYER_BAR_WIDTH: float = 136.0
-const ENEMY_BAR_WIDTH: float = 128.0
+const PLAYER_BAR_WIDTH: float = 68.0
+const ENEMY_BAR_WIDTH: float = 60.0
 
 var _player_health: HealthComponent
 var _player_ki: KiComponent
 var _enemy_health: HealthComponent
-
-var _player_hp_current: int = 0
-var _player_hp_max: int = 1
-var _player_ki_current: float = 0.0
-var _player_ki_max: float = 1.0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -87,35 +79,16 @@ func _bind_targets() -> void:
 		enemy_panel.visible = false
 
 func _on_player_health_changed(current_health: int, max_health: int) -> void:
-	_player_hp_current = current_health
-	_player_hp_max = maxi(max_health, 1)
-
-	var ratio := clampf(
-		float(_player_hp_current) / float(_player_hp_max),
-		0.0,
-		1.0
-	)
+	var safe_max := maxi(max_health, 1)
+	var ratio := clampf(float(current_health) / float(safe_max), 0.0, 1.0)
 	player_hp_fill.size.x = roundf(PLAYER_BAR_WIDTH * ratio)
-	_update_player_values()
 
 func _on_player_ki_changed(current_ki: float, max_ki: float) -> void:
-	_player_ki_current = current_ki
-	_player_ki_max = maxf(max_ki, 1.0)
-
-	var ratio := clampf(_player_ki_current / _player_ki_max, 0.0, 1.0)
+	var safe_max := maxf(max_ki, 1.0)
+	var ratio := clampf(current_ki / safe_max, 0.0, 1.0)
 	player_ki_fill.size.x = roundf(PLAYER_BAR_WIDTH * ratio)
-	_update_player_values()
 
 func _on_enemy_health_changed(current_health: int, max_health: int) -> void:
 	var safe_max := maxi(max_health, 1)
 	var ratio := clampf(float(current_health) / float(safe_max), 0.0, 1.0)
 	enemy_hp_fill.size.x = roundf(ENEMY_BAR_WIDTH * ratio)
-	enemy_values.text = "%d / %d" % [current_health, safe_max]
-
-func _update_player_values() -> void:
-	player_values.text = "HP %d/%d   KI %d/%d" % [
-		_player_hp_current,
-		_player_hp_max,
-		roundi(_player_ki_current),
-		roundi(_player_ki_max),
-	]
