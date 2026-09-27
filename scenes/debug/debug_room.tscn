@@ -83,7 +83,7 @@ shape = SubResource("ObstacleShapeWide")
 [node name="DebugGokuEnemy" parent="." instance=ExtResource("1_enemy")]
 position = Vector2(360, 135)
 
-[node name="DebugMentor" parent="." instance=ExtResource("2_mentor")]
+[node name="MasterRoshiGuide" parent="." instance=ExtResource("2_mentor")]
 position = Vector2(175, 135)
 
 [node name="TrainingCheckpoint" parent="." instance=ExtResource("3_checkpoint")]
