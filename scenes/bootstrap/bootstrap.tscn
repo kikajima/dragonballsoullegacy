@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/debug/debug_room.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
@@ -13,6 +13,10 @@
 [ext_resource type="PackedScene" path="res://ui/notifications/notification_feed.tscn" id="11_notifications"]
 [ext_resource type="Script" path="res://core/game_session.gd" id="12_session"]
 [ext_resource type="Script" path="res://core/debug/system_diagnostics.gd" id="13_diagnostics"]
+[ext_resource type="Script" path="res://core/combat/combat_feedback_manager.gd" id="14_feedback"]
+[ext_resource type="PackedScene" path="res://ui/combat/combo_counter.tscn" id="15_combo"]
+[ext_resource type="PackedScene" path="res://ui/combat/enemy_target_bar.tscn" id="16_target"]
+[ext_resource type="PackedScene" path="res://ui/interaction/interaction_prompt.tscn" id="17_interaction_prompt"]
 
 [node name="Bootstrap" type="Node2D"]
 
@@ -37,7 +41,10 @@ autosave_on_quest_complete = true
 [node name="SystemDiagnostics" type="Node" parent="."]
 script = ExtResource("13_diagnostics")
 
-[node name="WorldContainer" type="Node2D" parent="."]
+[node name="CombatFeedbackManager" type="Node" parent="." groups=["combat_feedback"]]
+script = ExtResource("14_feedback")
+
+[node name="WorldContainer" type="Node2D" parent="." groups=["world_container"]]
 
 [node name="DebugRoom" parent="WorldContainer" instance=ExtResource("1_room")]
 
@@ -52,6 +59,12 @@ script = ExtResource("13_diagnostics")
 [node name="QuestTracker" parent="UIContainer" instance=ExtResource("10_quest_tracker")]
 
 [node name="NotificationFeed" parent="UIContainer" instance=ExtResource("11_notifications")]
+
+[node name="EnemyTargetBar" parent="UIContainer" instance=ExtResource("16_target")]
+
+[node name="ComboCounter" parent="UIContainer" instance=ExtResource("15_combo")]
+
+[node name="InteractionPrompt" parent="UIContainer" instance=ExtResource("17_interaction_prompt")]
 
 [node name="DialogueBox" parent="UIContainer" instance=ExtResource("8_dialogue")]
 
