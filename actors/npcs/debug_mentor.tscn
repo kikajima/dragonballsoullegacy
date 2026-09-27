@@ -7,10 +7,10 @@
 radius = 18.0
 
 [sub_resource type="RectangleShape2D" id="BodyCollision"]
-size = Vector2(14, 10)
+size = Vector2(18, 28)
 
 [sub_resource type="RectangleShape2D" id="KiBlockerShape"]
-size = Vector2(18, 24)
+size = Vector2(20, 30)
 
 [node name="DebugMentor" type="StaticBody2D" groups=["npc"]]
 collision_layer = 1
@@ -33,11 +33,11 @@ polygon = PackedVector2Array(-5, -5, 5, -5, 5, 5, -5, 5)
 color = Color(0.95, 0.8, 0.58, 1)
 
 [node name="BodyCollision" type="CollisionShape2D" parent="."]
-position = Vector2(0, 5)
+position = Vector2(0, -6)
 shape = SubResource("BodyCollision")
 
 [node name="KiBlocker" type="Area2D" parent="." groups=["ki_blocker"]]
-position = Vector2(0, -4)
+position = Vector2(0, -6)
 collision_layer = 1
 collision_mask = 0
 monitoring = false
