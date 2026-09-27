@@ -113,3 +113,51 @@ Se algo quebrar, validar nesta ordem:
 8. save/load;
 9. inventário/economia;
 10. sistemas futuros.
+
+
+## 11. Combat feedback update
+
+- Confirmar que dano corpo a corpo mostra número flutuante.
+- Confirmar que Ki Blast também registra o dano uma única vez.
+- Dois ou mais golpes devem abrir o combo counter.
+- Após ~1,25 s sem acertar, o combo deve desaparecer.
+- Receber dano deve quebrar o combo.
+- Atacar durante invulnerability frames não deve gerar falso HIT.
+- Ao acertar inimigo, barra de HP contextual deve surgir no topo.
+
+## 12. Loot e quick item
+
+- Derrotar Training Fighter deve criar pickup de Zeni.
+- Pickup próximo deve ser puxado para o Player.
+- Coletar deve aumentar Wallet.
+- Eventual Senzu drop deve aumentar Inventory.
+- Q deve consumir Senzu se HP ou Ki não estiverem cheios.
+- Q não deve consumir item desnecessariamente.
+
+## 13. UX contextual
+
+- Aproximar de Master Roshi deve mostrar `E Talk to Master Roshi`.
+- Roshi deve mostrar ! antes da missão, ? durante e esconder após conclusão.
+- Entrar na região inicial deve mostrar `TRAINING GROUNDS`.
+- Esc deve mostrar status, quest, Zeni, Senzu, KOs e play time.
+
+## 14. Respawn e transições
+
+- Morrer deve iniciar fade para preto.
+- Player deve reaparecer no checkpoint ou spawn.
+- HP/Ki devem ser restaurados.
+- Fade deve voltar ao gameplay.
+- Ativar checkpoint deve recuperar HP/Ki e autosalvar.
+
+## 15. Gamepad
+
+- Analógico e D-pad devem mover.
+- A interage.
+- B dispara Ki.
+- X soca.
+- Y chuta.
+- LB defende.
+- RB corre.
+- LT usa Senzu.
+- RT carrega Ki.
+- Start abre pausa.
