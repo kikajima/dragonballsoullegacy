@@ -4,6 +4,7 @@ extends CharacterBody2D
 const STATE_IDLE: StringName = &"idle"
 const STATE_WALK: StringName = &"walk"
 const STATE_HURT: StringName = &"hurt"
+const STATE_BLOCK: StringName = &"block"
 const STATE_DEFEATED: StringName = &"defeated"
 
 const DIRECTION_ROWS := {
@@ -22,12 +23,16 @@ var attack_sheet_path: String = "res://assets/sprites/characters/goku/processed/
 @export_file("*.png")
 var hurt_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_hurt.png"
 
+@export_file("*.png")
+var block_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_block.png"
+
 @export var frame_size: Vector2i = Vector2i(32, 32)
 @export var idle_column: int = 0
 @export var walk_columns: PackedInt32Array = PackedInt32Array([2, 3, 4, 5])
 @export var attack_1_columns: PackedInt32Array = PackedInt32Array([0, 1, 2, 3])
 @export var attack_2_columns: PackedInt32Array = PackedInt32Array([4, 5, 6, 7])
 @export var hurt_columns: PackedInt32Array = PackedInt32Array([0, 1])
+@export var block_columns: PackedInt32Array = PackedInt32Array([0])
 @export var walk_fps: float = 8.0
 @export var attack_fps: float = 8.0
 @export var hurt_fps: float = 10.0
@@ -60,6 +65,8 @@ var initial_facing: String = "left"
 @onready var knockback_component: KnockbackComponent = $Components/KnockbackComponent
 @onready var state_machine: StateMachine = $Components/StateMachine
 @onready var melee_combat_component: MeleeCombatComponent = $Components/MeleeCombatComponent
+@onready var guard_component: GuardComponent = $Components/GuardComponent
+@onready var ai_component: EnemyAIComponent = $Components/EnemyAIComponent
 @onready var experience_reward_component: ExperienceRewardComponent = $Components/ExperienceRewardComponent
 @onready var hurtbox: HurtboxComponent = $Hurtbox
 @onready var body_collision: CollisionShape2D = $CollisionShape2D
@@ -88,25 +95,58 @@ func _physics_process(delta: float) -> void:
 	if _defeated:
 		return
 
-	_attack_cooldown_left = maxf(_attack_cooldown_left - delta, 0.0)
+	_attack_cooldown_left = maxf(
+		_attack_cooldown_left - delta,
+		0.0
+	)
+	ai_component.tick(delta)
 
 	if state_machine.is_state(STATE_HURT):
+		guard_component.set_guarding(false)
 		_process_hurt(delta)
 		return
+
+	if not is_instance_valid(_target):
+		_target = get_tree().get_first_node_in_group(
+			"player"
+		) as Node2D
+
+	if not is_instance_valid(_target):
+		guard_component.set_guarding(false)
+		_set_idle()
+		return
+
+	var defense_action: int = ai_component.choose_defensive_action(
+		self,
+		_target
+	)
+
+	if (
+		defense_action == EnemyAIComponent.DefensiveAction.BLOCK
+		or ai_component.is_guarding()
+	):
+		melee_combat_component.cancel_attack()
+		_process_ai_guard()
+		return
+
+	if (
+		defense_action == EnemyAIComponent.DefensiveAction.DODGE
+		or ai_component.is_dodging()
+	):
+		melee_combat_component.cancel_attack()
+		_process_ai_dodge()
+		return
+
+	guard_component.set_guarding(false)
 
 	if melee_combat_component.is_attacking():
 		_process_attack(delta)
 		return
 
-	if not is_instance_valid(_target):
-		_target = get_tree().get_first_node_in_group("player") as Node2D
-
-	if not is_instance_valid(_target):
-		_set_idle()
-		return
-
-	var to_target := _target.global_position - global_position
-	var distance_to_target := to_target.length()
+	var to_target: Vector2 = (
+		_target.global_position - global_position
+	)
+	var distance_to_target: float = to_target.length()
 	var distance_from_spawn: float = global_position.distance_to(
 		_spawn_position
 	)
@@ -128,6 +168,14 @@ func _physics_process(delta: float) -> void:
 
 	_update_facing_from_direction(to_target)
 
+	if (
+		distance_to_target <= attack_range * 1.25
+		and _attack_cooldown_left <= 0.0
+		and ai_component.consume_counterattack()
+	):
+		_start_attack()
+		return
+
 	if distance_to_target <= attack_range:
 		movement_component.stop(self)
 
@@ -142,8 +190,41 @@ func _physics_process(delta: float) -> void:
 		_return_home()
 		return
 
+	var approach_direction: Vector2 = (
+		ai_component.get_approach_direction(
+			to_target,
+			distance_to_target
+		)
+	)
+
 	state_machine.change_state(STATE_WALK)
-	movement_component.move(self, to_target.normalized())
+	movement_component.move(self, approach_direction)
+	_play_current_animation()
+
+func _process_ai_guard() -> void:
+	movement_component.stop(self)
+	guard_component.set_guarding(true)
+
+	var threat_position: Vector2 = ai_component.get_threat_position()
+	_current_facing = _facing_toward(threat_position)
+
+	state_machine.change_state(STATE_BLOCK)
+	_play_current_animation()
+
+func _process_ai_dodge() -> void:
+	guard_component.set_guarding(false)
+
+	if is_instance_valid(_target):
+		_update_facing_from_direction(
+			_target.global_position - global_position
+		)
+
+	state_machine.change_state(STATE_WALK)
+	movement_component.move(
+		self,
+		ai_component.get_dodge_direction(),
+		ai_component.get_dodge_speed_scale()
+	)
 	_play_current_animation()
 
 func _process_hurt(delta: float) -> void:
@@ -159,6 +240,7 @@ func _process_hurt(delta: float) -> void:
 		_play_current_animation()
 
 func _process_attack(delta: float) -> void:
+	guard_component.set_guarding(false)
 	movement_component.stop(self)
 	melee_combat_component.tick_attack(delta)
 
@@ -172,16 +254,19 @@ func _process_attack(delta: float) -> void:
 	_play_current_animation()
 
 func _start_attack() -> void:
+	guard_component.set_guarding(false)
 	if melee_combat_component.start_attack(_current_facing):
 		state_machine.change_state(melee_combat_component.get_attack_state())
 		_play_current_animation()
 
 func _set_idle() -> void:
+	guard_component.set_guarding(false)
 	movement_component.stop(self)
 	state_machine.change_state(STATE_IDLE)
 	_play_current_animation()
 
 func _return_home() -> void:
+	guard_component.set_guarding(false)
 	var to_home: Vector2 = _spawn_position - global_position
 	if to_home.length() <= return_home_tolerance:
 		global_position = _spawn_position
@@ -193,10 +278,31 @@ func _return_home() -> void:
 	movement_component.move(self, to_home.normalized())
 	_play_current_animation()
 
+func modify_incoming_damage(
+	damage: int,
+	source_position: Vector2
+) -> int:
+	return guard_component.resolve_damage(
+		damage,
+		global_position,
+		source_position,
+		_current_facing
+	)
+
 func _on_hit_received(_damage: int, source_position: Vector2) -> void:
 	if _defeated:
 		return
 
+	if guard_component.was_last_hit_blocked():
+		_current_facing = _facing_toward(source_position)
+		knockback_component.stop(self)
+		ai_component.register_successful_block()
+		state_machine.change_state(STATE_BLOCK)
+		_play_current_animation()
+		return
+
+	guard_component.set_guarding(false)
+	ai_component.clear_defense()
 	melee_combat_component.cancel_attack()
 	_current_facing = _facing_toward(source_position)
 	state_machine.change_state(STATE_HURT)
@@ -204,18 +310,32 @@ func _on_hit_received(_damage: int, source_position: Vector2) -> void:
 	knockback_component.start(self, source_position)
 	_play_current_animation()
 
-func _on_damaged(damage: int, current_health: int, max_health: int) -> void:
+func _on_damaged(
+	damage: int,
+	current_health: int,
+	max_health: int
+) -> void:
+	if guard_component.was_last_hit_blocked():
+		print(
+			"Training Fighter blocked. Damage: %d. HP: %d/%d"
+			% [damage, current_health, max_health]
+		)
+		_flash(Color(0.55, 0.8, 1.0, 1.0))
+		return
+
 	print(
-		"DebugGokuEnemy recebeu %d de dano. HP: %d/%d"
+		"Training Fighter took %d damage. HP: %d/%d"
 		% [damage, current_health, max_health]
 	)
-	_flash()
+	_flash(Color(1.0, 0.55, 0.55, 1.0))
 
 func _on_died() -> void:
 	if _defeated:
 		return
 
 	_defeated = true
+	guard_component.set_guarding(false)
+	ai_component.clear_defense()
 	melee_combat_component.cancel_attack()
 	knockback_component.stop(self)
 	movement_component.stop(self)
@@ -296,6 +416,9 @@ func _drop_loot() -> void:
 func get_display_name() -> String:
 	return "Training Fighter"
 
+func get_intelligence_tier_name() -> String:
+	return ai_component.get_tier_name()
+
 func _show_defeated_pose() -> void:
 	if sprite.sprite_frames == null:
 		return
@@ -314,6 +437,8 @@ func _show_defeated_pose() -> void:
 func _reset_after_defeat() -> void:
 	health_component.restore_full()
 	experience_reward_component.reset_reward()
+	guard_component.set_guarding(false)
+	ai_component.clear_defense()
 	melee_combat_component.cancel_attack()
 	knockback_component.stop(self)
 
@@ -328,13 +453,18 @@ func _reset_after_defeat() -> void:
 	state_machine.change_state(STATE_IDLE)
 	_play_current_animation()
 
-func _flash() -> void:
+func _flash(color: Color) -> void:
 	if _flash_tween != null and _flash_tween.is_valid():
 		_flash_tween.kill()
 
-	$Visuals.modulate = Color(1.0, 0.55, 0.55, 1.0)
+	$Visuals.modulate = color
 	_flash_tween = create_tween()
-	_flash_tween.tween_property($Visuals, "modulate", Color.WHITE, 0.10)
+	_flash_tween.tween_property(
+		$Visuals,
+		"modulate",
+		Color.WHITE,
+		0.10
+	)
 
 func _build_sprite_frames() -> void:
 	var frames := SpriteFrames.new()
@@ -360,6 +490,19 @@ func _build_sprite_frames() -> void:
 		var hurt_sheet := load(hurt_sheet_path) as Texture2D
 		if hurt_sheet != null:
 			_add_directional_animation(frames, hurt_sheet, &"hurt", hurt_columns, hurt_fps, false)
+			built_any = true
+
+	if ResourceLoader.exists(block_sheet_path):
+		var block_sheet := load(block_sheet_path) as Texture2D
+		if block_sheet != null:
+			_add_directional_animation(
+				frames,
+				block_sheet,
+				&"block",
+				block_columns,
+				1.0,
+				true
+			)
 			built_any = true
 
 	if built_any:
