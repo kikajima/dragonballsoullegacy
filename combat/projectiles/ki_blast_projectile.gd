@@ -81,7 +81,19 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 
 func _on_area_entered(area: Area2D) -> void:
-	if _impacted or area == null or not area.has_method("receive_hit"):
+	if _impacted or area == null:
+		return
+
+	# Dedicated non-damage blockers are used by NPCs such as Master Roshi.
+	# They stop Ki projectiles but never receive damage.
+	if area.is_in_group("ki_blocker"):
+		var npc: Node = area.get_parent()
+		if npc != null and npc.has_method("on_ki_blast_blocked"):
+			npc.call("on_ki_blast_blocked", _direction)
+		_start_impact()
+		return
+
+	if not area.has_method("receive_hit"):
 		return
 
 	area.call("receive_hit", damage, global_position)
