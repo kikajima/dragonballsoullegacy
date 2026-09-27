@@ -1,0 +1,34 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/location/location_banner.gd" id="1_banner"]
+
+[node name="LocationBanner" type="Control" groups=["location_banner"]]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 205.0
+offset_right = 340.0
+offset_bottom = 230.0
+mouse_filter = 2
+script = ExtResource("1_banner")
+
+[node name="Panel" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01, 0.015, 0.025, 0.72)
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "TRAINING GROUNDS"
+theme_override_font_sizes/font_size = 9
+horizontal_alignment = 1
+vertical_alignment = 1
