@@ -47,6 +47,19 @@ func restore_full() -> void:
 	current_health = max_health
 	health_changed.emit(current_health, max_health)
 
+func increase_max_health(amount: int, restore_added: bool = true) -> void:
+	if amount <= 0:
+		return
+
+	max_health += amount
+
+	if restore_added:
+		current_health = mini(current_health + amount, max_health)
+	else:
+		current_health = mini(current_health, max_health)
+
+	health_changed.emit(current_health, max_health)
+
 func is_dead() -> bool:
 	return current_health <= 0
 
