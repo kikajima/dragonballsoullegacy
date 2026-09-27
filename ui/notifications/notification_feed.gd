@@ -65,6 +65,13 @@ func _bind_sources() -> void:
 		if wallet != null:
 			wallet.currency_gained.connect(_on_currency_gained)
 
+		var consumable := player.get_node_or_null(
+			"Components/ConsumableComponent"
+		) as ConsumableComponent
+		if consumable != null:
+			consumable.item_used.connect(_on_item_used)
+			consumable.item_use_failed.connect(_on_item_use_failed)
+
 	var quests := get_tree().get_first_node_in_group(
 		"quest_manager"
 	) as QuestManager
@@ -77,6 +84,13 @@ func _bind_sources() -> void:
 	) as CheckpointManager
 	if checkpoints != null:
 		checkpoints.checkpoint_changed.connect(_on_checkpoint_changed)
+
+	var save_manager := get_tree().get_first_node_in_group(
+		"save_manager"
+	) as SaveManager
+	if save_manager != null:
+		save_manager.game_saved.connect(_on_game_saved)
+		save_manager.game_loaded.connect(_on_game_loaded)
 
 func _on_xp_gained(amount: int) -> void:
 	push_message("+%d XP" % amount)
@@ -96,6 +110,16 @@ func _on_item_added(
 
 func _on_currency_gained(amount: int) -> void:
 	push_message("+%d Zeni" % amount)
+
+func _on_item_used(item_id: StringName) -> void:
+	push_message(
+		"Used %s"
+		% String(item_id).replace("_", " ").capitalize()
+	)
+
+func _on_item_use_failed(item_id: StringName) -> void:
+	if item_id == &"senzu_bean":
+		push_message("Senzu Bean unavailable or not needed")
 
 func _on_quest_started(quest_id: StringName) -> void:
 	push_message(
@@ -124,3 +148,9 @@ func _on_checkpoint_changed(
 	_position: Vector2
 ) -> void:
 	push_message("Checkpoint activated")
+
+func _on_game_saved(_path: String) -> void:
+	push_message("Game saved")
+
+func _on_game_loaded(_path: String) -> void:
+	push_message("Game loaded")
