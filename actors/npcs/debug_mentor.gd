@@ -119,12 +119,19 @@ func _load_local_sprite() -> void:
 	fallback_body.visible = false
 	fallback_head.visible = false
 
-func _face_actor(actor: Node2D) -> void:
-	if not sprite.visible:
+func on_ki_blast_blocked(projectile_direction: Vector2) -> void:
+	if projectile_direction.is_zero_approx():
 		return
 
+	# Look toward the side the projectile came from.
+	_face_direction(-projectile_direction.normalized())
+
+func _face_actor(actor: Node2D) -> void:
 	var direction := actor.global_position - global_position
-	if direction.is_zero_approx():
+	_face_direction(direction)
+
+func _face_direction(direction: Vector2) -> void:
+	if not sprite.visible or direction.is_zero_approx():
 		return
 
 	if absf(direction.x) > absf(direction.y):
