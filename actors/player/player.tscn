@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://actors/player/player_input_controller.gd" id="2_input"]
@@ -16,6 +16,8 @@
 [ext_resource type="Script" path="res://components/ki/ki_component.gd" id="14_ki"]
 [ext_resource type="Script" path="res://combat/ki/ki_blast_component.gd" id="15_ki_blast"]
 [ext_resource type="PackedScene" path="res://combat/projectiles/ki_blast_projectile.tscn" id="16_projectile"]
+[ext_resource type="Script" path="res://components/progression/experience_component.gd" id="17_experience"]
+[ext_resource type="Script" path="res://components/progression/level_stats_component.gd" id="18_level_stats"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(10, 8)
@@ -119,6 +121,24 @@ starting_ki = 100.0
 script = ExtResource("15_ki_blast")
 projectile_scene = ExtResource("16_projectile")
 ki_component_path = NodePath("../KiComponent")
+
+[node name="ExperienceComponent" type="Node" parent="Components"]
+script = ExtResource("17_experience")
+base_experience_to_next_level = 40
+experience_growth = 1.35
+
+[node name="LevelStatsComponent" type="Node" parent="Components"]
+script = ExtResource("18_level_stats")
+experience_component_path = NodePath("../ExperienceComponent")
+health_component_path = NodePath("../HealthComponent")
+ki_component_path = NodePath("../KiComponent")
+melee_component_path = NodePath("../MeleeCombatComponent")
+ki_blast_component_path = NodePath("../KiBlastComponent")
+health_per_level = 10
+ki_per_level = 5.0
+punch_damage_per_level = 1
+kick_damage_per_level = 1
+ki_blast_damage_per_level = 1
 
 [node name="Hurtbox" type="Area2D" parent="."]
 collision_layer = 2
