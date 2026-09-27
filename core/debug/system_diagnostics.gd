@@ -17,6 +17,9 @@ func _run_checks() -> void:
 		"checkpoint_manager",
 		"world_manager",
 		"dialogue_ui",
+		"combat_feedback",
+		"game_stats",
+		"screen_transition",
 	]:
 		if get_tree().get_first_node_in_group(group_name) == null:
 			missing.append("group:%s" % group_name)
@@ -32,6 +35,7 @@ func _run_checks() -> void:
 			"WalletComponent",
 			"StatusEffectComponent",
 			"TransformationComponent",
+			"ComboTrackerComponent",
 		]:
 			if player.get_node_or_null(
 				"Components/%s" % component_name
@@ -42,11 +46,11 @@ func _run_checks() -> void:
 
 	if missing.is_empty():
 		print(
-			"DBSL diagnostics: sistemas principais encontrados."
+			"DBSL diagnostics: core systems found."
 		)
 		return
 
 	push_warning(
-		"DBSL diagnostics: faltando -> %s"
+		"DBSL diagnostics: missing -> %s"
 		% ", ".join(missing)
 	)
