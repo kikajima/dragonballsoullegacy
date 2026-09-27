@@ -8,6 +8,12 @@ radius = 18.0
 [node name="DebugMentor" type="Node2D" groups=["npc"]]
 script = ExtResource("1_mentor")
 
+[node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(0, -13)
+texture_filter = 1
+vframes = 4
+
 [node name="Body" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(-7, -10, 7, -10, 7, 10, -7, 10)
 color = Color(0.75, 0.68, 0.3, 1)
