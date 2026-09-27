@@ -95,9 +95,11 @@ func choose_defensive_action(
 		var projectile_direction: Vector2 = Vector2.ZERO
 
 		if projectile.has_method("get_travel_direction"):
-			projectile_direction = projectile.call(
+			var direction_value: Variant = projectile.call(
 				"get_travel_direction"
-			) as Vector2
+			)
+			if direction_value is Vector2:
+				projectile_direction = direction_value
 
 		if (
 			distance >= profile.dodge_min_distance
@@ -129,7 +131,7 @@ func choose_defensive_action(
 				owner_actor.global_position
 				- target.global_position
 			).normalized()
-			_begin_dodge(_perpendicular(away))
+			_begin_dodge(away)
 			return DefensiveAction.DODGE
 
 	return DefensiveAction.NONE
@@ -240,7 +242,7 @@ func _find_projectile_threat(
 	var best_distance: float = INF
 
 	for node in nodes:
-		var projectile := node as Node2D
+		var projectile: Node2D = node as Node2D
 		if projectile == null:
 			continue
 
@@ -255,7 +257,7 @@ func _find_projectile_threat(
 			var source_value: Variant = projectile.call(
 				"get_source_actor"
 			)
-			var source_actor := source_value as Node
+			var source_actor: Node = source_value as Node
 			if source_actor != null and source_actor != target:
 				if not source_actor.is_in_group("player"):
 					continue
@@ -268,9 +270,11 @@ func _find_projectile_threat(
 
 		var direction: Vector2 = Vector2.ZERO
 		if projectile.has_method("get_travel_direction"):
-			direction = projectile.call(
+			var direction_value: Variant = projectile.call(
 				"get_travel_direction"
-			) as Vector2
+			)
+			if direction_value is Vector2:
+				direction = direction_value
 
 		if direction.is_zero_approx():
 			continue
