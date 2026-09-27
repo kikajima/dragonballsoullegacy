@@ -15,6 +15,8 @@ Mapeamento atual do protótipo.
 | Correr | Segurar Espaço |
 | Defender | Shift esquerdo |
 | Interagir | E |
+| Usar Senzu Bean rápido | Q |
+| Pausar | Esc |
 
 ## Combate atual
 
@@ -29,3 +31,23 @@ Mapeamento atual do protótipo.
 - **L:** mantém o personagem parado, toca a animação de carregamento e recupera Ki.
 
 O `PlayerInputController` traduz dispositivos de entrada em intenções de jogo. A lógica do personagem não lê teclas diretamente, permitindo adicionar gamepad e controle por rede sem reescrever o movimento.
+
+
+## Gamepad
+
+Um perfil de gamepad é registrado em runtime sem remover os controles de teclado.
+
+| Ação | Gamepad |
+| --- | --- |
+| Movimento | Analógico esquerdo / D-pad |
+| Interagir | A |
+| Ki Blast | B |
+| Soco | X |
+| Chute | Y |
+| Defender | LB |
+| Correr | RB |
+| Senzu Bean rápido | LT |
+| Carregar Ki | RT |
+| Pausar | Start |
+
+O mapeamento fica em `core/input/gamepad_profile.gd` para poder ser alterado depois sem reescrever o Player.
