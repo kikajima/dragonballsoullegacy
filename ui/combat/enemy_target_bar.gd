@@ -4,6 +4,7 @@ extends Control
 @export var visible_duration: float = 3.0
 
 @onready var name_label: Label = $Panel/Name
+@onready var tier_label: Label = $Panel/Tier
 @onready var health_bar: ProgressBar = $Panel/HealthBar
 
 var _health: HealthComponent
@@ -53,6 +54,14 @@ func _on_target_changed(target: Node) -> void:
 		display_name = str(target.call("get_display_name"))
 
 	name_label.text = display_name
+
+	var tier_name: String = "Common"
+	if target.has_method("get_intelligence_tier_name"):
+		tier_name = str(
+			target.call("get_intelligence_tier_name")
+		)
+
+	tier_label.text = tier_name
 	_time_left = visible_duration
 	visible = true
 
