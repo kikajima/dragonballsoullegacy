@@ -9,7 +9,7 @@ const STATE_BLOCK: StringName = &"block"
 const STATE_CHARGE_KI: StringName = &"charge_ki"
 
 @export_range(1.0, 3.0, 0.05)
-var run_speed_scale: float = 1.55
+var run_speed_scale: float = 1.333333
 
 @export_range(0.0, 1.0, 0.05)
 var attack_move_speed_scale: float = 0.85
