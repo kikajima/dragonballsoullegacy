@@ -46,6 +46,15 @@ var dialogue_sheet_path: String = (
 
 const DIALOGUE_FRAME_REGION := Rect2(6, 17, 160, 62)
 
+# O atlas limpo fornecido pelo usuário é uma versão ampliada (2048x541).
+# Normalizamos esse formato para a geometria compacta usada pelo renderer.
+const CLEAN_ATLAS_MIN_WIDTH: int = 1000
+const CLEAN_FRAME_SOURCE := Rect2i(33, 88, 884, 354)
+const CLEAN_FONT_SOURCE := Rect2i(966, 20, 1079, 498)
+const NORMALIZED_ATLAS_SIZE := Vector2i(377, 128)
+const NORMALIZED_FONT_SIZE := Vector2i(195, 90)
+const NORMALIZED_FONT_DESTINATION := Vector2i(172, 3)
+
 var _sheet: Texture2D
 var _pages: Array[String] = []
 var _speaker: String = ""
@@ -244,9 +253,77 @@ func _load_legacy_sheet() -> void:
 	if source_image == null:
 		return
 
-	for y in range(source_image.get_height()):
-		for x in range(source_image.get_width()):
-			var pixel: Color = source_image.get_pixel(x, y)
+	var normalized_image: Image
+
+	if source_image.get_width() >= CLEAN_ATLAS_MIN_WIDTH:
+		normalized_image = _normalize_clean_atlas(source_image)
+	else:
+		normalized_image = _normalize_original_atlas(source_image)
+
+	_sheet = ImageTexture.create_from_image(normalized_image)
+
+	var frame_texture := _atlas_region(
+		DIALOGUE_FRAME_REGION
+	)
+	text_frame.texture = frame_texture
+	portrait_border.texture = frame_texture
+	text_renderer.set_sheet(_sheet)
+
+func _normalize_clean_atlas(source_image: Image) -> Image:
+	var normalized := Image.create(
+		NORMALIZED_ATLAS_SIZE.x,
+		NORMALIZED_ATLAS_SIZE.y,
+		false,
+		Image.FORMAT_RGBA8
+	)
+	normalized.fill(Color(0.0, 0.0, 0.0, 0.0))
+
+	var frame_image := source_image.get_region(
+		CLEAN_FRAME_SOURCE
+	)
+	frame_image.resize(
+		int(DIALOGUE_FRAME_REGION.size.x),
+		int(DIALOGUE_FRAME_REGION.size.y),
+		Image.INTERPOLATE_NEAREST
+	)
+	normalized.blit_rect(
+		frame_image,
+		Rect2i(
+			Vector2i.ZERO,
+			Vector2i(
+				int(DIALOGUE_FRAME_REGION.size.x),
+				int(DIALOGUE_FRAME_REGION.size.y)
+			)
+		),
+		Vector2i(
+			int(DIALOGUE_FRAME_REGION.position.x),
+			int(DIALOGUE_FRAME_REGION.position.y)
+		)
+	)
+
+	var font_image := source_image.get_region(
+		CLEAN_FONT_SOURCE
+	)
+	_make_black_transparent(font_image)
+	font_image.resize(
+		NORMALIZED_FONT_SIZE.x,
+		NORMALIZED_FONT_SIZE.y,
+		Image.INTERPOLATE_NEAREST
+	)
+	normalized.blit_rect(
+		font_image,
+		Rect2i(Vector2i.ZERO, NORMALIZED_FONT_SIZE),
+		NORMALIZED_FONT_DESTINATION
+	)
+
+	return normalized
+
+func _normalize_original_atlas(source_image: Image) -> Image:
+	var normalized := source_image.duplicate()
+
+	for y in range(normalized.get_height()):
+		for x in range(normalized.get_width()):
+			var pixel: Color = normalized.get_pixel(x, y)
 			var red: int = int(round(pixel.r * 255.0))
 			var green: int = int(round(pixel.g * 255.0))
 			var blue: int = int(round(pixel.b * 255.0))
@@ -259,16 +336,22 @@ func _load_legacy_sheet() -> void:
 
 			if is_background_blue:
 				pixel.a = 0.0
-				source_image.set_pixel(x, y, pixel)
+				normalized.set_pixel(x, y, pixel)
 
-	_sheet = ImageTexture.create_from_image(source_image)
+	return normalized
 
-	var frame_texture := _atlas_region(
-		DIALOGUE_FRAME_REGION
-	)
-	text_frame.texture = frame_texture
-	portrait_border.texture = frame_texture
-	text_renderer.set_sheet(_sheet)
+func _make_black_transparent(image: Image) -> void:
+	for y in range(image.get_height()):
+		for x in range(image.get_width()):
+			var pixel: Color = image.get_pixel(x, y)
+
+			if (
+				pixel.r <= 0.02
+				and pixel.g <= 0.02
+				and pixel.b <= 0.02
+			):
+				pixel.a = 0.0
+				image.set_pixel(x, y, pixel)
 
 func _atlas_region(region: Rect2) -> AtlasTexture:
 	var atlas := AtlasTexture.new()
