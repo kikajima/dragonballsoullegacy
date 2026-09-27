@@ -34,6 +34,7 @@ var kick_move_speed_scale: float = 0.70
 @onready var inventory_component: InventoryComponent = $Components/InventoryComponent
 @onready var ability_loadout_component: AbilityLoadoutComponent = $Components/AbilityLoadoutComponent
 @onready var consumable_component: ConsumableComponent = $Components/ConsumableComponent
+@onready var combo_tracker_component: ComboTrackerComponent = $Components/ComboTrackerComponent
 @onready var ki_blast_component: KiBlastComponent = $Components/KiBlastComponent
 @onready var attack_hitbox: HitboxComponent = $Combat/AttackHitbox
 @onready var hurtbox: HurtboxComponent = $Hurtbox
@@ -86,6 +87,9 @@ func _physics_process(delta: float) -> void:
 		return
 
 	charge_aura.visible = false
+
+	if input_controller.is_quick_item_pressed():
+		use_inventory_item(&"senzu_bean")
 
 	if input_controller.is_interact_pressed():
 		movement_component.stop(self)
@@ -316,14 +320,32 @@ func modify_incoming_damage(damage: int, source_position: Vector2) -> int:
 		facing_component.current_facing
 	)
 
-func _on_attack_hit_confirmed(_target: Node, _damage: int) -> void:
+func _on_attack_hit_confirmed(target: Node, damage: int) -> void:
 	hit_stop_component.trigger()
+	register_combat_hit(target, damage)
+
+func register_combat_hit(target: Node, damage: int) -> void:
+	if damage <= 0:
+		return
+
+	combo_tracker_component.register_hit(damage)
+
+	var feedback := get_tree().get_first_node_in_group(
+		"combat_feedback"
+	) as CombatFeedbackManager
+	if feedback != null:
+		feedback.report_hit(
+			target,
+			damage,
+			global_position
+		)
 
 func _on_hit_received(_damage: int, source_position: Vector2) -> void:
 	if guard_component.was_last_hit_blocked():
 		hit_stop_component.trigger()
 		return
 
+	combo_tracker_component.break_combo()
 	melee_combat_component.cancel_attack()
 	ki_blast_component.cancel_cast()
 
@@ -336,6 +358,12 @@ func _on_hit_received(_damage: int, source_position: Vector2) -> void:
 	hit_stop_component.trigger()
 
 func _on_damaged(damage: int, current_health: int, max_health: int) -> void:
+	var feedback := get_tree().get_first_node_in_group(
+		"combat_feedback"
+	) as CombatFeedbackManager
+	if feedback != null:
+		feedback.report_damage_taken(self, damage)
+
 	if guard_component.was_last_hit_blocked():
 		print(
 			"Player bloqueou o golpe. Dano recebido: %d. HP: %d/%d"
