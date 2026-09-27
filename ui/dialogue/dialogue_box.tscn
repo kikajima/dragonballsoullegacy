@@ -17,11 +17,11 @@ script = ExtResource("1_dialogue")
 
 [node name="DialogueRoot" type="Control" parent="."]
 layout_mode = 0
-offset_left = 8.0
-offset_top = 137.0
-offset_right = 232.0
-offset_bottom = 201.0
-scale = Vector2(2, 2)
+offset_left = 88.0
+offset_top = 179.0
+offset_right = 312.0
+offset_bottom = 243.0
+scale = Vector2(1.35, 1.35)
 mouse_filter = 2
 texture_filter = 1
 
