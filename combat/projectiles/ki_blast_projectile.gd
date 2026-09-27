@@ -47,7 +47,34 @@ func _physics_process(delta: float) -> void:
 			queue_free()
 		return
 
-	global_position += _direction * speed * delta
+	var start_position: Vector2 = global_position
+	var end_position: Vector2 = (
+		start_position + _direction * speed * delta
+	)
+
+	var solid_hit: Dictionary = _cast_against_solids(
+		start_position,
+		end_position
+	)
+	if not solid_hit.is_empty():
+		var hit_position_value: Variant = solid_hit.get(
+			"position",
+			end_position
+		)
+		global_position = hit_position_value as Vector2
+
+		var collider_value: Variant = solid_hit.get(
+			"collider",
+			null
+		)
+		var collider := collider_value as Node2D
+		if collider != null:
+			_handle_solid_body(collider)
+		else:
+			_start_impact()
+		return
+
+	global_position = end_position
 
 	_lifetime_left -= delta
 	if _lifetime_left <= 0.0:
@@ -61,25 +88,46 @@ func _on_area_entered(area: Area2D) -> void:
 	_start_impact()
 
 func _on_body_entered(body: Node2D) -> void:
-	if _impacted or body == null or not body is CollisionObject2D:
+	if _impacted or body == null:
+		return
+
+	_handle_solid_body(body)
+
+func _cast_against_solids(
+	from_position: Vector2,
+	to_position: Vector2
+) -> Dictionary:
+	var query := PhysicsRayQueryParameters2D.create(
+		from_position,
+		to_position
+	)
+	query.collision_mask = 1
+	query.collide_with_bodies = true
+	query.collide_with_areas = false
+
+	return get_world_2d().direct_space_state.intersect_ray(query)
+
+func _handle_solid_body(body: Node2D) -> void:
+	if _impacted or body == null:
 		return
 
 	var collision_body := body as CollisionObject2D
+	if collision_body == null:
+		return
 
-	# NPCs are solid obstacles for Ki projectiles, but they are not damaged
-	# unless they expose a Hurtbox/receive_hit area. The projectile stops and
-	# the NPC may react to the direction of impact.
 	var npc: Node = null
+
 	if collision_body.is_in_group("npc"):
 		npc = collision_body
-	elif collision_body.get_parent() != null:
-		var parent := collision_body.get_parent()
-		if parent.is_in_group("npc"):
+	else:
+		var parent: Node = collision_body.get_parent()
+		if parent != null and parent.is_in_group("npc"):
 			npc = parent
 
 	if npc != null:
 		if npc.has_method("on_ki_blast_blocked"):
 			npc.call("on_ki_blast_blocked", _direction)
+
 		_start_impact()
 		return
 
