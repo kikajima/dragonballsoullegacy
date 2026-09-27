@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="PackedScene" path="res://actors/enemies/debug_goku_enemy.tscn" id="1_enemy"]
+[ext_resource type="PackedScene" path="res://actors/npcs/debug_mentor.tscn" id="2_mentor"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(960, 16)
@@ -80,3 +81,6 @@ shape = SubResource("ObstacleShapeWide")
 
 [node name="DebugGokuEnemy" parent="." instance=ExtResource("1_enemy")]
 position = Vector2(360, 135)
+
+[node name="DebugMentor" parent="." instance=ExtResource("2_mentor")]
+position = Vector2(175, 135)
