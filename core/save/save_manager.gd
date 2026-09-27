@@ -16,7 +16,7 @@ func has_save() -> bool:
 func save_game() -> bool:
 	var player := get_tree().get_first_node_in_group("player")
 	if player == null:
-		save_failed.emit("Player não encontrado.")
+		save_failed.emit("Player not found.")
 		return false
 
 	var data := {
@@ -30,7 +30,7 @@ func save_game() -> bool:
 
 	var file := FileAccess.open(save_path, FileAccess.WRITE)
 	if file == null:
-		save_failed.emit("Não foi possível abrir o arquivo para escrita.")
+		save_failed.emit("Could not open the save file for writing.")
 		return false
 
 	file.store_string(JSON.stringify(data, "	"))
@@ -41,12 +41,12 @@ func save_game() -> bool:
 
 func load_game() -> bool:
 	if not has_save():
-		load_failed.emit("Nenhum save encontrado.")
+		load_failed.emit("No save found.")
 		return false
 
 	var file := FileAccess.open(save_path, FileAccess.READ)
 	if file == null:
-		load_failed.emit("Não foi possível abrir o save.")
+		load_failed.emit("Could not open the save file.")
 		return false
 
 	var raw := file.get_as_text()
@@ -54,20 +54,20 @@ func load_game() -> bool:
 
 	var parsed: Variant = JSON.parse_string(raw)
 	if not parsed is Dictionary:
-		load_failed.emit("Save inválido ou corrompido.")
+		load_failed.emit("Invalid or corrupted save.")
 		return false
 
 	var data: Dictionary = parsed as Dictionary
 	var version: int = int(data.get("version", 0))
 	if version <= 0 or version > SAVE_VERSION:
 		load_failed.emit(
-			"Versão de save incompatível: %d." % version
+			"Incompatible save version: %d." % version
 		)
 		return false
 
 	var player := get_tree().get_first_node_in_group("player")
 	if player == null:
-		load_failed.emit("Player não encontrado.")
+		load_failed.emit("Player not found.")
 		return false
 
 	var player_value: Variant = data.get("player", {})
