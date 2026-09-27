@@ -3,8 +3,29 @@ extends Node2D
 
 const TRAINING_QUEST_ID: StringName = &"training_basics"
 const TRAINING_OBJECTIVE_ID: StringName = &"defeat_training_dummy"
+const SPEAKER_NAME: String = "Master Roshi"
 
-func interact(_actor: Node) -> void:
+@export_file("*.png")
+var sprite_path: String = (
+	"res://assets/sprites/npcs/master_roshi/processed/master_roshi_idle.png"
+)
+
+@export_file("*.png")
+var portrait_path: String = (
+	"res://assets/ui/portraits/master_roshi_portrait.png"
+)
+
+@onready var sprite: Sprite2D = $Sprite2D
+@onready var fallback_body: Polygon2D = $Body
+@onready var fallback_head: Polygon2D = $Head
+
+func _ready() -> void:
+	_load_local_sprite()
+
+func interact(actor: Node) -> void:
+	if actor is Node2D:
+		_face_actor(actor as Node2D)
+
 	var dialogue := get_tree().get_first_node_in_group(
 		"dialogue_ui"
 	) as DialogueBox
@@ -18,7 +39,8 @@ func interact(_actor: Node) -> void:
 	if quests == null:
 		dialogue.show_dialogue(
 			["The quest system is not available yet."],
-			"Master"
+			SPEAKER_NAME,
+			portrait_path
 		)
 		return
 
@@ -26,9 +48,10 @@ func interact(_actor: Node) -> void:
 		dialogue.show_dialogue(
 			[
 				"Good work. You already completed the basic training.",
-				"Once we add more enemies, this system can chain larger quests."
+				"Come back later. I will have tougher training for you."
 			],
-			"Master"
+			SPEAKER_NAME,
+			portrait_path
 		)
 		return
 
@@ -40,9 +63,13 @@ func interact(_actor: Node) -> void:
 		dialogue.show_dialogue(
 			[
 				"Keep training.",
-				"Training opponents defeated: %d/%d." % [progress, target]
+				"Training opponents defeated: %d/%d." % [
+					progress,
+					target,
+				]
 			],
-			"Master"
+			SPEAKER_NAME,
+			portrait_path
 		)
 		return
 
@@ -61,9 +88,46 @@ func interact(_actor: Node) -> void:
 
 	dialogue.show_dialogue(
 		[
-			"Let us test your progress.",
+			"Let me test your progress, Goku.",
 			"Defeat the training opponent twice.",
 			"As a reward, you will receive extra XP, Zeni, and a Senzu Bean."
 		],
-		"Master"
+		SPEAKER_NAME,
+		portrait_path
 	)
+
+func _load_local_sprite() -> void:
+	if not ResourceLoader.exists(sprite_path):
+		sprite.visible = false
+		fallback_body.visible = true
+		fallback_head.visible = true
+		return
+
+	var texture := load(sprite_path) as Texture2D
+	if texture == null:
+		sprite.visible = false
+		fallback_body.visible = true
+		fallback_head.visible = true
+		return
+
+	sprite.texture = texture
+	sprite.hframes = 1
+	sprite.vframes = 4
+	sprite.frame = 0
+	sprite.visible = true
+
+	fallback_body.visible = false
+	fallback_head.visible = false
+
+func _face_actor(actor: Node2D) -> void:
+	if not sprite.visible:
+		return
+
+	var direction := actor.global_position - global_position
+	if direction.is_zero_approx():
+		return
+
+	if absf(direction.x) > absf(direction.y):
+		sprite.frame = 2 if direction.x > 0.0 else 1
+	else:
+		sprite.frame = 0 if direction.y > 0.0 else 3
