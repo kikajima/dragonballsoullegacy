@@ -352,5 +352,8 @@ func _apply_portrait(path: String) -> void:
 			portrait.texture = portrait_texture
 			portrait.visible = true
 
-	portrait_background.visible = true
-	portrait_border.visible = _sheet != null
+	# Character portraits already include their original silver frame from
+	# the portrait sheet. Do not place the dialogue frame or cyan backing
+	# behind them, otherwise the portrait gets a blue/gold double border.
+	portrait_background.visible = not portrait.visible
+	portrait_border.visible = _sheet != null and not portrait.visible
