@@ -445,3 +445,36 @@ Esses dados entram no save versionado a partir da versão 3.
 ## Controles
 
 `GamepadProfile` registra controles de gamepad em runtime mantendo teclado como fallback. Isso prepara o mesmo fluxo de ações para gamepad e, futuramente, controladores de rede.
+
+
+## Hierarquia de inteligência dos inimigos
+
+A IA defensiva deixou de ser específica do `DebugGokuEnemy`. `EnemyAIComponent` recebe um `EnemyAIProfile` reutilizável e separa percepção/decisão da apresentação do personagem.
+
+A hierarquia inicial é:
+
+```text
+Boss > Elite > Uncommon > Common
+```
+
+Os níveis superiores possuem menor tempo de reação, maior percepção de projéteis, maior chance de bloquear corpo a corpo e ataques de Ki, maior chance de esquiva a longa distância, strafing mais frequente e maior chance de contra-atacar depois de uma defesa bem-sucedida.
+
+Fluxo defensivo:
+
+```text
+Player attack / combat_projectile
+              ↓
+       EnemyAIComponent
+       ├── BLOCK
+       │    └── GuardComponent
+       ├── DODGE
+       │    └── MovementComponent
+       └── NONE
+            └── pursuit / attack
+```
+
+O bloqueio continua direcional por meio de `GuardComponent`: a IA primeiro vira para a ameaça e só então a guarda reduz o dano. Um bloqueio não aplica hurt/knockback normal e pode gerar um counterattack pendente.
+
+Projéteis pertencem ao grupo `combat_projectile` e expõem origem/direção para percepção. A IA verifica se a trajetória realmente cruza um corredor próximo do inimigo antes de reagir, evitando esquivas falsas.
+
+Os perfis ficam em `data/enemies/ai/`. O Training Fighter usa `uncommon.tres` para validar o sistema. Detalhes e valores iniciais estão em `docs/ENEMY_AI.md`.
