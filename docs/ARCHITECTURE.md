@@ -333,3 +333,41 @@ O menu de pausa fornece Salvar e Carregar. Conclusões de missão e checkpoints 
 ### Feedback e diagnóstico
 
 `NotificationFeed` mostra XP, level up, itens, Zeni, missões e checkpoints. Em builds de debug, `SystemDiagnostics` verifica a presença dos managers e principais componentes do Player ao iniciar.
+
+
+## Diálogo estilo GBA
+
+O `DialogueBox` agora replica o comportamento observado na referência em vídeo de Buu's Fury:
+
+```text
+interação
+   ↓
+retrato aparece
+   ↓
+caixa de texto expande horizontalmente
+   ↓
+texto surge caractere por caractere
+   ↓
+E / Enter
+   ├── durante digitação → completa a página
+   └── após completar    → próxima página / fecha
+```
+
+O asset local esperado é:
+
+```text
+assets/ui/legacy/processed/dialogue_box_font.png
+```
+
+O arquivo-fonte possui a moldura de diálogo e o alfabeto bitmap. O runtime remove as duas cores azuis do fundo do rip apenas em memória; o arquivo original não precisa ser alterado.
+
+Geometria usada:
+
+```text
+moldura: x=6 y=17 160x62
+fonte:   x=172 y=3, grade 13x6, células 15x15
+```
+
+A fonte é desenhada por `LegacyDialogueText` diretamente do atlas. O avanço horizontal é menor que a célula do sprite para reproduzir o espaçamento compacto visto no jogo. Caracteres portugueses acentuados são normalizados para suas letras-base porque o atlas original não possui glifos acentuados.
+
+A composição inteira usa escala 2x no viewport 480x270, ficando próxima da proporção do diálogo no GBA. O quadro de retrato usa a mesma borda dourada da caixa com centro ciano. Retratos específicos podem ser passados futuramente pelo terceiro argumento de `show_dialogue(..., portrait_texture_path)`.
