@@ -103,7 +103,8 @@ func _consume_next_buffered_cast() -> void:
 	if _buffered_facings.is_empty():
 		return
 
-	var next_facing := _buffered_facings.pop_front()
+	var next_facing: StringName = _buffered_facings[0]
+	_buffered_facings.remove_at(0)
 
 	if not _begin_cast(next_facing):
 		_buffered_facings.clear()
