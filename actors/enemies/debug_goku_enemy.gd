@@ -235,6 +235,12 @@ func _on_died() -> void:
 
 	_drop_loot()
 
+	var stats := get_tree().get_first_node_in_group(
+		"game_stats"
+	) as GameStatsManager
+	if stats != null:
+		stats.register_enemy_defeat()
+
 	var awarded_xp: int = 0
 	if is_instance_valid(_target):
 		awarded_xp = experience_reward_component.grant_to(_target)
