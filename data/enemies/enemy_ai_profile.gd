@@ -24,10 +24,10 @@ var ranged_block_chance: float = 0.18
 var projectile_dodge_chance: float = 0.06
 
 @export_range(32.0, 320.0, 1.0)
-var projectile_scan_range: float = 95.0
+var projectile_scan_range: float = 110.0
 
 @export_range(24.0, 240.0, 1.0)
-var dodge_min_distance: float = 120.0
+var dodge_min_distance: float = 90.0
 
 @export_range(0.1, 1.5, 0.01)
 var guard_duration: float = 0.32
