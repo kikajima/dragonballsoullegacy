@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://actors/enemies/debug_goku_enemy.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://components/health/health_component.gd" id="2_health"]
@@ -10,6 +10,9 @@
 [ext_resource type="Script" path="res://components/hitbox/hitbox_component.gd" id="8_hitbox"]
 [ext_resource type="Script" path="res://components/progression/experience_reward_component.gd" id="9_xp_reward"]
 [ext_resource type="PackedScene" path="res://world/pickups/pickup_actor.tscn" id="10_pickup"]
+[ext_resource type="Script" path="res://components/guard/guard_component.gd" id="11_guard"]
+[ext_resource type="Script" path="res://components/ai/enemy_ai_component.gd" id="12_ai"]
+[ext_resource type="Resource" path="res://data/enemies/ai/uncommon.tres" id="13_ai_profile"]
 
 [sub_resource type="RectangleShape2D" id="BodyShape"]
 size = Vector2(10, 8)
@@ -94,6 +97,17 @@ attack_hitbox_path = NodePath("../../Combat/AttackHitbox")
 [node name="ExperienceRewardComponent" type="Node" parent="Components"]
 script = ExtResource("9_xp_reward")
 experience_reward = 25
+
+[node name="GuardComponent" type="Node" parent="Components"]
+script = ExtResource("11_guard")
+damage_multiplier = 0.25
+front_dot_threshold = 0.0
+
+[node name="EnemyAIComponent" type="Node" parent="Components"]
+script = ExtResource("12_ai")
+profile = ExtResource("13_ai_profile")
+melee_threat_range = 36.0
+projectile_corridor_radius = 16.0
 
 [node name="Hurtbox" type="Area2D" parent="."]
 collision_layer = 4
