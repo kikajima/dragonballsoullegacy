@@ -8,7 +8,9 @@ radius = 18.0
 [sub_resource type="RectangleShape2D" id="BodyCollision"]
 size = Vector2(14, 10)
 
-[node name="DebugMentor" type="Node2D" groups=["npc"]]
+[node name="DebugMentor" type="StaticBody2D" groups=["npc"]]
+collision_layer = 1
+collision_mask = 0
 script = ExtResource("1_mentor")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
@@ -26,12 +28,8 @@ position = Vector2(0, -14)
 polygon = PackedVector2Array(-5, -5, 5, -5, 5, 5, -5, 5)
 color = Color(0.95, 0.8, 0.58, 1)
 
-[node name="SolidBody" type="StaticBody2D" parent="."]
+[node name="BodyCollision" type="CollisionShape2D" parent="."]
 position = Vector2(0, 5)
-collision_layer = 1
-collision_mask = 0
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="SolidBody"]
 shape = SubResource("BodyCollision")
 
 [node name="InteractionArea" type="Area2D" parent="."]
