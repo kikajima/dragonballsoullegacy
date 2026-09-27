@@ -55,7 +55,8 @@ func interact(_actor: Node) -> void:
 		2,
 		40,
 		&"senzu_bean",
-		1
+		1,
+		100
 	)
 
 	dialogue.show_dialogue(
