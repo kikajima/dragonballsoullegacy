@@ -3,9 +3,13 @@ extends CharacterBody2D
 
 const STATE_IDLE: StringName = &"idle"
 const STATE_WALK: StringName = &"walk"
+const STATE_RUN: StringName = &"run"
 const STATE_HURT: StringName = &"hurt"
 const STATE_BLOCK: StringName = &"block"
 const STATE_CHARGE_KI: StringName = &"charge_ki"
+
+@export_range(1.0, 3.0, 0.05)
+var run_speed_scale: float = 1.55
 
 @export_range(0.0, 1.0, 0.05)
 var attack_move_speed_scale: float = 0.85
@@ -103,7 +107,11 @@ func _physics_process(delta: float) -> void:
 			return
 
 	_update_movement_state(move_intent)
-	movement_component.move(self, move_intent)
+	movement_component.move(
+		self,
+		move_intent,
+		_get_locomotion_speed_scale()
+	)
 	animation_controller.update_visual(
 		state_machine.current_state,
 		facing_component.current_facing,
@@ -166,6 +174,12 @@ func _get_current_melee_speed_scale() -> float:
 		return kick_move_speed_scale
 
 	return attack_move_speed_scale
+
+func _get_locomotion_speed_scale() -> float:
+	if state_machine.is_state(STATE_RUN):
+		return run_speed_scale
+
+	return 1.0
 
 func _process_block(_move_intent: Vector2, delta: float) -> void:
 	charge_aura.visible = false
@@ -342,6 +356,8 @@ func _flash(color: Color) -> void:
 func _update_movement_state(move_intent: Vector2) -> void:
 	if move_intent.is_zero_approx():
 		state_machine.change_state(STATE_IDLE)
+	elif input_controller.is_run_pressed():
+		state_machine.change_state(STATE_RUN)
 	else:
 		state_machine.change_state(STATE_WALK)
 
