@@ -105,6 +105,8 @@ func _serialize_player(player: Node) -> Dictionary:
 		"experience": {},
 		"inventory": {},
 		"abilities": {},
+		"wallet": {},
+		"transformations": {},
 		"combat": {},
 	}
 
@@ -154,6 +156,18 @@ func _serialize_player(player: Node) -> Dictionary:
 	) as AbilityLoadoutComponent
 	if abilities != null:
 		result["abilities"] = abilities.serialize_state()
+
+	var wallet := player.get_node_or_null(
+		"Components/WalletComponent"
+	) as WalletComponent
+	if wallet != null:
+		result["wallet"] = wallet.serialize_state()
+
+	var transformations := player.get_node_or_null(
+		"Components/TransformationComponent"
+	) as TransformationComponent
+	if transformations != null:
+		result["transformations"] = transformations.serialize_state()
 
 	var melee := player.get_node_or_null(
 		"Components/MeleeCombatComponent"
@@ -257,6 +271,25 @@ func _load_player(player: Node, data: Dictionary) -> void:
 	var abilities_value: Variant = data.get("abilities", {})
 	if abilities != null and abilities_value is Dictionary:
 		abilities.load_state(abilities_value as Dictionary)
+
+	var wallet := player.get_node_or_null(
+		"Components/WalletComponent"
+	) as WalletComponent
+	var wallet_value: Variant = data.get("wallet", {})
+	if wallet != null and wallet_value is Dictionary:
+		wallet.load_state(wallet_value as Dictionary)
+
+	var transformations := player.get_node_or_null(
+		"Components/TransformationComponent"
+	) as TransformationComponent
+	var transformations_value: Variant = data.get("transformations", {})
+	if (
+		transformations != null
+		and transformations_value is Dictionary
+	):
+		transformations.load_state(
+			transformations_value as Dictionary
+		)
 
 	var melee := player.get_node_or_null(
 		"Components/MeleeCombatComponent"
