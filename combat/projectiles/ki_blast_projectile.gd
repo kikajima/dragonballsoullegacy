@@ -110,11 +110,9 @@ func _on_area_entered(area: Area2D) -> void:
 	)
 	var applied_damage: int = int(result)
 
-	if applied_damage <= 0:
-		return
-
 	if (
-		_source_actor != null
+		applied_damage > 0
+		and _source_actor != null
 		and is_instance_valid(_source_actor)
 		and _source_actor.has_method("register_combat_hit")
 	):
@@ -124,6 +122,8 @@ func _on_area_entered(area: Area2D) -> void:
 			applied_damage
 		)
 
+	# Projectiles still collide visually with an invulnerable target,
+	# but only confirmed damage contributes to combo/feedback.
 	_start_impact()
 
 func _on_body_entered(body: Node2D) -> void:
