@@ -44,10 +44,10 @@ func _refresh() -> void:
 		return
 
 	var state: Dictionary = active[0]
-	title_label.text = str(state.get("title", "Missão"))
+	title_label.text = str(state.get("title", "Quest"))
 
 	var objective_text := str(
-		state.get("objective_text", "Objetivo")
+		state.get("objective_text", "Objective")
 	)
 	var progress: int = int(state.get("progress", 0))
 	var target: int = maxi(
