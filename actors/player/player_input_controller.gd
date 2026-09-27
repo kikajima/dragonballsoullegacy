@@ -13,6 +13,9 @@ func is_kick_pressed() -> bool:
 func is_ki_blast_pressed() -> bool:
 	return Input.is_action_just_pressed("ki_blast")
 
+func is_ki_blast_held() -> bool:
+	return Input.is_action_pressed("ki_blast")
+
 func is_dash_pressed() -> bool:
 	return Input.is_action_just_pressed("dash")
 
