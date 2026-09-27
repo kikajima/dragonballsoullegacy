@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/debug/debug_room.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" path="res://ui/combat/combo_counter.tscn" id="15_combo"]
 [ext_resource type="PackedScene" path="res://ui/combat/enemy_target_bar.tscn" id="16_target"]
 [ext_resource type="PackedScene" path="res://ui/interaction/interaction_prompt.tscn" id="17_interaction_prompt"]
+[ext_resource type="PackedScene" path="res://ui/location/location_banner.tscn" id="18_location_banner"]
 
 [node name="Bootstrap" type="Node2D"]
 
@@ -65,6 +66,8 @@ script = ExtResource("14_feedback")
 [node name="ComboCounter" parent="UIContainer" instance=ExtResource("15_combo")]
 
 [node name="InteractionPrompt" parent="UIContainer" instance=ExtResource("17_interaction_prompt")]
+
+[node name="LocationBanner" parent="UIContainer" instance=ExtResource("18_location_banner")]
 
 [node name="DialogueBox" parent="UIContainer" instance=ExtResource("8_dialogue")]
 
