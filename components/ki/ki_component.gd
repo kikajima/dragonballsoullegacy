@@ -50,5 +50,18 @@ func restore_full() -> void:
 	current_ki = max_ki
 	ki_changed.emit(current_ki, max_ki)
 
+func increase_max_ki(amount: float, restore_added: bool = true) -> void:
+	if amount <= 0.0:
+		return
+
+	max_ki += amount
+
+	if restore_added:
+		current_ki = minf(current_ki + amount, max_ki)
+	else:
+		current_ki = minf(current_ki, max_ki)
+
+	ki_changed.emit(current_ki, max_ki)
+
 func get_ki_ratio() -> float:
 	return current_ki / max_ki
