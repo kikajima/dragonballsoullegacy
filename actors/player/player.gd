@@ -31,11 +31,15 @@ var kick_move_speed_scale: float = 0.70
 @onready var guard_component: GuardComponent = $Components/GuardComponent
 @onready var ki_component: KiComponent = $Components/KiComponent
 @onready var experience_component: ExperienceComponent = $Components/ExperienceComponent
+@onready var inventory_component: InventoryComponent = $Components/InventoryComponent
+@onready var ability_loadout_component: AbilityLoadoutComponent = $Components/AbilityLoadoutComponent
+@onready var consumable_component: ConsumableComponent = $Components/ConsumableComponent
 @onready var ki_blast_component: KiBlastComponent = $Components/KiBlastComponent
 @onready var attack_hitbox: HitboxComponent = $Combat/AttackHitbox
 @onready var hurtbox: HurtboxComponent = $Hurtbox
 @onready var animation_controller: PlayerAnimationController = $Visuals/AnimationController
 @onready var charge_aura: Polygon2D = $Visuals/ChargeAura
+@onready var interaction_sensor: InteractionSensor = $InteractionSensor
 
 var _hurt_time_left: float = 0.0
 var _spawn_position: Vector2
@@ -50,6 +54,9 @@ func _ready() -> void:
 	health_component.damaged.connect(_on_damaged)
 	health_component.died.connect(_on_died)
 	experience_component.leveled_up.connect(_on_leveled_up)
+
+	ability_loadout_component.unlock_ability(&"ki_blast")
+	ability_loadout_component.equip_ability(0, &"ki_blast")
 
 func _physics_process(delta: float) -> void:
 	var move_intent := input_controller.get_move_intent()
@@ -79,6 +86,17 @@ func _physics_process(delta: float) -> void:
 		return
 
 	charge_aura.visible = false
+
+	if input_controller.is_interact_pressed():
+		movement_component.stop(self)
+		if interaction_sensor.try_interact(self):
+			state_machine.change_state(STATE_IDLE)
+			animation_controller.update_visual(
+				STATE_IDLE,
+				facing_component.current_facing,
+				delta
+			)
+			return
 
 	if input_controller.is_ki_blast_pressed():
 		if ki_blast_component.start_cast(facing_component.current_facing):
@@ -348,7 +366,16 @@ func _reset_after_defeat() -> void:
 	knockback_component.stop(self)
 	guard_component.set_guarding(false)
 	charge_aura.visible = false
-	global_position = _spawn_position
+	var respawn_position := _spawn_position
+	var checkpoint_manager := get_tree().get_first_node_in_group(
+		"checkpoint_manager"
+	) as CheckpointManager
+	if checkpoint_manager != null:
+		respawn_position = checkpoint_manager.get_respawn_position(
+			_spawn_position
+		)
+
+	global_position = respawn_position
 	state_machine.change_state(STATE_IDLE)
 
 func _flash(color: Color) -> void:
@@ -369,6 +396,9 @@ func _update_movement_state(move_intent: Vector2) -> void:
 
 func get_current_state() -> StringName:
 	return state_machine.current_state
+
+func use_inventory_item(item_id: StringName) -> bool:
+	return consumable_component.use_item(item_id)
 
 func get_facing() -> StringName:
 	return facing_component.current_facing
