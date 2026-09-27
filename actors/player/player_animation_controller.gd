@@ -36,7 +36,7 @@ var charge_ki_sheet_path: String = "res://assets/sprites/characters/goku/process
 @export var attack_2_columns: PackedInt32Array = PackedInt32Array([4, 5, 6, 7])
 @export var hurt_columns: PackedInt32Array = PackedInt32Array([0, 1])
 @export var block_columns: PackedInt32Array = PackedInt32Array([0])
-@export var ki_blast_columns: PackedInt32Array = PackedInt32Array([0, 1, 2, 3])
+@export var ki_blast_columns: PackedInt32Array = PackedInt32Array([0, 1, 2])
 @export var kick_1_columns: PackedInt32Array = PackedInt32Array([0, 1, 0])
 @export var kick_2_columns: PackedInt32Array = PackedInt32Array([2, 3, 2])
 @export var charge_ki_columns: PackedInt32Array = PackedInt32Array([0, 1])
@@ -81,6 +81,23 @@ func update_visual(state: StringName, facing: StringName, delta: float) -> void:
 	placeholder.visible = true
 	_update_placeholder_facing(facing)
 	_update_placeholder_motion(state, delta)
+
+func restart_visual(state: StringName, facing: StringName) -> void:
+	var animation_name := (
+		&"charge_ki"
+		if state == &"charge_ki"
+		else StringName("%s_%s" % [state, facing])
+	)
+
+	if not _has_animation(animation_name):
+		return
+
+	visuals.position = Vector2.ZERO
+	placeholder.visible = false
+	sprite.visible = true
+	sprite.stop()
+	sprite.play(animation_name)
+	sprite.frame = 0
 
 func freeze_charge_complete() -> void:
 	if not _has_animation(&"charge_ki"):
