@@ -12,6 +12,9 @@ const DIRECTION_ROWS := {
 var sprite_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_base.png"
 
 @export_file("*.png")
+var run_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_run.png"
+
+@export_file("*.png")
 var attack_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_attack.png"
 
 @export_file("*.png")
@@ -32,6 +35,7 @@ var charge_ki_sheet_path: String = "res://assets/sprites/characters/goku/process
 @export var frame_size: Vector2i = Vector2i(32, 32)
 @export var idle_column: int = 0
 @export var walk_columns: PackedInt32Array = PackedInt32Array([2, 3, 4, 5])
+@export var run_columns: PackedInt32Array = PackedInt32Array([0, 1, 2, 3])
 @export var attack_1_columns: PackedInt32Array = PackedInt32Array([0, 1, 2, 3])
 @export var attack_2_columns: PackedInt32Array = PackedInt32Array([4, 5, 6, 7])
 @export var hurt_columns: PackedInt32Array = PackedInt32Array([0, 1])
@@ -44,6 +48,7 @@ var charge_ki_sheet_path: String = "res://assets/sprites/characters/goku/process
 @export var charge_ki_columns: PackedInt32Array = PackedInt32Array([0, 1])
 
 @export var walk_fps: float = 8.0
+@export var run_fps: float = 12.0
 @export var attack_fps: float = 10.0
 @export var hurt_fps: float = 10.0
 @export var ki_blast_fps: float = 10.0
@@ -137,6 +142,21 @@ func _try_build_sprite_frames() -> void:
 	)
 	if movement_sheet != null:
 		_add_movement_animations(frames, movement_sheet)
+		built_any_animation = true
+
+	var run_sheet := _load_valid_sheet(
+		run_sheet_path,
+		_required_columns(-1, run_columns)
+	)
+	if run_sheet != null:
+		_add_directional_animation(
+			frames,
+			run_sheet,
+			&"run",
+			run_columns,
+			run_fps,
+			true
+		)
 		built_any_animation = true
 
 	var max_attack_columns := PackedInt32Array()
