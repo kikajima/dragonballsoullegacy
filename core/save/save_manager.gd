@@ -105,6 +105,7 @@ func _serialize_player(player: Node) -> Dictionary:
 		"experience": {},
 		"inventory": {},
 		"abilities": {},
+		"combat": {},
 	}
 
 	if player is Node2D:
@@ -153,6 +154,19 @@ func _serialize_player(player: Node) -> Dictionary:
 	) as AbilityLoadoutComponent
 	if abilities != null:
 		result["abilities"] = abilities.serialize_state()
+
+	var melee := player.get_node_or_null(
+		"Components/MeleeCombatComponent"
+	) as MeleeCombatComponent
+	var ki_blast := player.get_node_or_null(
+		"Components/KiBlastComponent"
+	) as KiBlastComponent
+	if melee != null and ki_blast != null:
+		result["combat"] = {
+			"punch_damage": melee.damage,
+			"kick_damage": melee.kick_damage,
+			"ki_blast_damage": ki_blast.projectile_damage,
+		}
 
 	return result
 
@@ -243,6 +257,35 @@ func _load_player(player: Node, data: Dictionary) -> void:
 	var abilities_value: Variant = data.get("abilities", {})
 	if abilities != null and abilities_value is Dictionary:
 		abilities.load_state(abilities_value as Dictionary)
+
+	var melee := player.get_node_or_null(
+		"Components/MeleeCombatComponent"
+	) as MeleeCombatComponent
+	var ki_blast := player.get_node_or_null(
+		"Components/KiBlastComponent"
+	) as KiBlastComponent
+	var combat_value: Variant = data.get("combat", {})
+	if (
+		melee != null
+		and ki_blast != null
+		and combat_value is Dictionary
+	):
+		var combat_data: Dictionary = combat_value as Dictionary
+		melee.damage = maxi(
+			int(combat_data.get("punch_damage", melee.damage)),
+			1
+		)
+		melee.kick_damage = maxi(
+			int(combat_data.get("kick_damage", melee.kick_damage)),
+			1
+		)
+		ki_blast.projectile_damage = maxi(
+			int(combat_data.get(
+				"ki_blast_damage",
+				ki_blast.projectile_damage
+			)),
+			1
+		)
 
 func _serialize_group_node(group_name: String) -> Dictionary:
 	var node := get_tree().get_first_node_in_group(group_name)
