@@ -140,12 +140,26 @@ Durante `ki_blast`, o Player também fica completamente parado até o término d
 `CombatHUD` fica no `UIContainer` do bootstrap e observa os componentes, sem duplicar os valores de gameplay:
 
 ```text
-HealthComponent ──→ barra HP do jogador
-KiComponent ──────→ barra Ki do jogador
-Enemy Health ─────→ barra HP do inimigo
+HealthComponent ──→ barra vermelha de HP
+KiComponent ──────→ barra verde de Ki
+XP futuro ────────→ barra fina azul/ciano
 ```
 
-Quando os recortes locais de `Player HUD` estão disponíveis, eles são usados em escala nativa de pixel (1:1 no viewport interno de 480×270). As barras de HP/Ki e a barra do inimigo são preenchimentos dinâmicos alinhados aos slots do sprite original; os valores numéricos de depuração foram removidos da apresentação. Sem esses arquivos, o HUD mantém um fallback funcional.
+A HUD foi reconstruída diretamente do `hud.png` transparente e conferida contra o vídeo do jogo original. A moldura base possui 80×16 px no GBA e é exibida em escala pixel-perfect de 2× dentro do viewport de 480×270, preservando aproximadamente a mesma proporção de tela do original.
+
+Os elementos usam os sprites reais do sheet, não `ColorRect`s: ícone, divisor amarelo, barra vermelha de HP, barra verde de Ki e barra azul/ciano de experiência. HP e Ki são cortados horizontalmente conforme os valores dos componentes, preservando os highlights e gradientes da pixel art.
+
+Posições nativas medidas no vídeo:
+
+```text
+ícone:   (0, 0)
+divisor: (22, 3)
+HP:      (32, 3)  43×3
+Ki:      (29, 7)  43×3
+XP:      (2, 12)  73×2
+```
+
+A barra de XP permanece vazia até o sistema de experiência ser conectado. O ícone amarelo é o padrão atual; o ícone azul já pode ser selecionado futuramente pelo sistema de técnicas.
 
 ## Inimigo de teste e IA
 
