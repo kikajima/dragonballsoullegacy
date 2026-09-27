@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3]
+[gd_scene load_steps=31 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://actors/player/player_input_controller.gd" id="2_input"]
@@ -22,6 +22,9 @@
 [ext_resource type="Script" path="res://components/abilities/ability_loadout_component.gd" id="20_abilities"]
 [ext_resource type="Script" path="res://components/items/consumable_component.gd" id="21_consumable"]
 [ext_resource type="Script" path="res://components/interaction/interaction_sensor.gd" id="22_interaction"]
+[ext_resource type="Script" path="res://components/economy/wallet_component.gd" id="23_wallet"]
+[ext_resource type="Script" path="res://components/status/status_effect_component.gd" id="24_status"]
+[ext_resource type="Script" path="res://components/transformations/transformation_component.gd" id="25_transform"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(10, 8)
@@ -158,6 +161,17 @@ slot_count = 4
 script = ExtResource("21_consumable")
 inventory_component_path = NodePath("../InventoryComponent")
 health_component_path = NodePath("../HealthComponent")
+ki_component_path = NodePath("../KiComponent")
+
+[node name="WalletComponent" type="Node" parent="Components"]
+script = ExtResource("23_wallet")
+starting_amount = 0
+
+[node name="StatusEffectComponent" type="Node" parent="Components"]
+script = ExtResource("24_status")
+
+[node name="TransformationComponent" type="Node" parent="Components"]
+script = ExtResource("25_transform")
 ki_component_path = NodePath("../KiComponent")
 
 [node name="Hurtbox" type="Area2D" parent="."]
