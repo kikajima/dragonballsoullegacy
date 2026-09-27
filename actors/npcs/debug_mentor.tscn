@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://actors/npcs/debug_mentor.gd" id="1_mentor"]
+
+[sub_resource type="CircleShape2D" id="InteractionShape"]
+radius = 18.0
+
+[node name="DebugMentor" type="Node2D" groups=["npc"]]
+script = ExtResource("1_mentor")
+
+[node name="Body" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-7, -10, 7, -10, 7, 10, -7, 10)
+color = Color(0.75, 0.68, 0.3, 1)
+
+[node name="Head" type="Polygon2D" parent="."]
+position = Vector2(0, -14)
+polygon = PackedVector2Array(-5, -5, 5, -5, 5, 5, -5, 5)
+color = Color(0.95, 0.8, 0.58, 1)
+
+[node name="InteractionArea" type="Area2D" parent="."]
+collision_layer = 64
+collision_mask = 0
+monitoring = false
+monitorable = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea"]
+shape = SubResource("InteractionShape")
