@@ -6,6 +6,15 @@ extends Control
 @onready var load_button: Button = $Panel/LoadButton
 @onready var status_label: Label = $Panel/Status
 
+@onready var level_label: Label = $Panel/Stats/Level
+@onready var xp_label: Label = $Panel/Stats/XP
+@onready var hp_label: Label = $Panel/Stats/HP
+@onready var ki_label: Label = $Panel/Stats/Ki
+@onready var zeni_label: Label = $Panel/Stats/Zeni
+@onready var senzu_label: Label = $Panel/Stats/Senzu
+@onready var quest_title_label: Label = $Panel/Quest/Title
+@onready var quest_objective_label: Label = $Panel/Quest/Objective
+
 func _ready() -> void:
 	visible = false
 	resume_button.pressed.connect(_resume)
@@ -32,6 +41,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _pause() -> void:
 	visible = true
 	status_label.text = ""
+	_refresh_status()
 	get_tree().paused = true
 	resume_button.grab_focus()
 
@@ -58,11 +68,106 @@ func _load() -> void:
 		"save_manager"
 	) as SaveManager
 	if manager == null:
-		status_label.text = "SaveManager não encontrado."
+		status_label.text = "SaveManager not found."
 		return
 
+	var loaded: bool = manager.load_game()
 	status_label.text = (
 		"Save loaded."
-		if manager.load_game()
+		if loaded
 		else "No valid save found."
 	)
+
+	if loaded:
+		_refresh_status()
+
+func _refresh_status() -> void:
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null:
+		level_label.text = "Level --"
+		xp_label.text = "XP --"
+		hp_label.text = "HP --"
+		ki_label.text = "Ki --"
+		zeni_label.text = "Zeni --"
+		senzu_label.text = "Senzu --"
+		return
+
+	var health := player.get_node_or_null(
+		"Components/HealthComponent"
+	) as HealthComponent
+	var ki := player.get_node_or_null(
+		"Components/KiComponent"
+	) as KiComponent
+	var experience := player.get_node_or_null(
+		"Components/ExperienceComponent"
+	) as ExperienceComponent
+	var wallet := player.get_node_or_null(
+		"Components/WalletComponent"
+	) as WalletComponent
+	var inventory := player.get_node_or_null(
+		"Components/InventoryComponent"
+	) as InventoryComponent
+
+	if experience != null:
+		level_label.text = "Level  %d" % experience.current_level
+		xp_label.text = "XP  %d / %d" % [
+			experience.current_experience,
+			experience.experience_to_next_level,
+		]
+
+	if health != null:
+		hp_label.text = "HP  %d / %d" % [
+			health.current_health,
+			health.max_health,
+		]
+
+	if ki != null:
+		ki_label.text = "Ki  %.0f / %.0f" % [
+			ki.current_ki,
+			ki.max_ki,
+		]
+
+	if wallet != null:
+		zeni_label.text = "Zeni  %d" % wallet.current_amount
+
+	if inventory != null:
+		senzu_label.text = "Senzu  x%d" % inventory.get_quantity(
+			&"senzu_bean"
+		)
+
+	_refresh_quest()
+
+func _refresh_quest() -> void:
+	var quests := get_tree().get_first_node_in_group(
+		"quest_manager"
+	) as QuestManager
+	if quests == null:
+		quest_title_label.text = "Quest"
+		quest_objective_label.text = "No quest data"
+		return
+
+	var active: Array[Dictionary] = quests.get_active_quests()
+	if active.is_empty():
+		quest_title_label.text = "Quest"
+		quest_objective_label.text = "No active quest"
+		return
+
+	var state: Dictionary = active[0]
+	quest_title_label.text = str(
+		state.get("title", "Quest")
+	)
+
+	var objective: String = str(
+		state.get("objective_text", "Objective")
+	)
+	var progress: int = int(state.get("progress", 0))
+	var target: int = maxi(
+		int(state.get("target_count", 1)),
+		1
+	)
+
+	quest_objective_label.text = "%s  %d/%d" % [
+		objective,
+		progress,
+		target,
+	]
