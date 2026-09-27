@@ -48,3 +48,26 @@ func load_world(
 
 func get_player() -> Node2D:
 	return get_tree().get_first_node_in_group("player") as Node2D
+
+func load_world_with_transition(
+	scene_path: String,
+	spawn_position: Vector2 = Vector2.ZERO,
+	use_spawn_position: bool = false
+) -> bool:
+	var transition := get_tree().get_first_node_in_group(
+		"screen_transition"
+	) as ScreenTransition
+
+	if transition != null:
+		await transition.fade_out()
+
+	var loaded: bool = load_world(
+		scene_path,
+		spawn_position,
+		use_spawn_position
+	)
+
+	if transition != null:
+		await transition.fade_in()
+
+	return loaded
