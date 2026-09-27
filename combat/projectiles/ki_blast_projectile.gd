@@ -173,6 +173,18 @@ func _handle_solid_body(body: Node2D) -> void:
 	if collision_body.collision_layer & 1 != 0:
 		_start_impact()
 
+func get_source_actor() -> Node:
+	return _source_actor
+
+func get_travel_direction() -> Vector2:
+	return _direction
+
+func get_projectile_speed() -> float:
+	return speed
+
+func is_active_projectile() -> bool:
+	return not _impacted
+
 func _start_impact() -> void:
 	if _impacted:
 		return
