@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://actors/npcs/debug_mentor.gd" id="1_mentor"]
+[ext_resource type="PackedScene" path="res://ui/quest/world_quest_marker.tscn" id="2_quest_marker"]
 
 [sub_resource type="CircleShape2D" id="InteractionShape"]
 radius = 18.0
@@ -44,6 +45,10 @@ monitorable = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="KiBlocker"]
 shape = SubResource("KiBlockerShape")
+
+[node name="QuestMarker" parent="." instance=ExtResource("2_quest_marker")]
+position = Vector2(0, -25)
+quest_id = &"training_basics"
 
 [node name="InteractionArea" type="Area2D" parent="."]
 collision_layer = 64
