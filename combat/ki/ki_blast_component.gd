@@ -9,6 +9,7 @@ signal cast_buffered(buffered_count: int)
 @export var projectile_scene: PackedScene
 @export var ki_component_path: NodePath
 @export var ki_cost: float = 12.0
+@export var projectile_damage: int = 12
 
 # A referência do jogo original mostra uma preparação curta antes do
 # primeiro disparo e, depois, alternância direta entre os braços.
@@ -159,7 +160,7 @@ func _fire(caster: Node2D, facing: StringName) -> bool:
 
 	parent.add_child(projectile)
 	projectile.global_position = caster.global_position + direction * spawn_distance
-	projectile.setup(direction)
+	projectile.setup(direction, projectile_damage)
 
 	projectile_fired.emit(_cast_facing, _current_variant)
 	return true
