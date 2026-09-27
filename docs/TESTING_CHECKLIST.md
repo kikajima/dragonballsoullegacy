@@ -6,7 +6,7 @@ Este documento existe porque o update adicionou vários sistemas de uma só vez 
 
 - Abrir o projeto sem erros de parser.
 - Rodar `bootstrap.tscn`.
-- Confirmar no Output: `DBSL diagnostics: sistemas principais encontrados.`
+- Confirmar no Output: `DBSL diagnostics: core systems found.`
 - HUD continua aparecendo corretamente.
 - Player continua andando, correndo, atacando, defendendo, carregando Ki e disparando Ki Blast.
 
