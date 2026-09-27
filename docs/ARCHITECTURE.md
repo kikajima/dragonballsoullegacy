@@ -371,3 +371,77 @@ fonte:   x=172 y=3, grade 13x6, células 15x15
 A fonte é desenhada por `LegacyDialogueText` diretamente do atlas. O avanço horizontal é menor que a célula do sprite para reproduzir o espaçamento compacto visto no jogo. Caracteres portugueses acentuados são normalizados para suas letras-base porque o atlas original não possui glifos acentuados.
 
 A composição inteira usa escala 2x no viewport 480x270, ficando próxima da proporção do diálogo no GBA. O quadro de retrato usa a mesma borda dourada da caixa com centro ciano. Retratos específicos podem ser passados futuramente pelo terceiro argumento de `show_dialogue(..., portrait_texture_path)`.
+
+
+## Combat feedback e UX
+
+A camada de combate agora possui feedback desacoplado da lógica de dano.
+
+```text
+Hitbox / Ki Blast
+      ↓ dano confirmado
+Player.register_combat_hit
+      ├── ComboTrackerComponent
+      └── CombatFeedbackManager
+              ├── floating damage text
+              └── enemy target health bar
+```
+
+O `ComboTrackerComponent` mantém número de golpes, dano acumulado e timeout de 1,25 s. O contador visual só aparece a partir de dois golpes.
+
+`CombatFeedbackManager` também centraliza os números flutuantes de dano. A barra de alvo mostra temporariamente o HP do último inimigo atingido.
+
+Hurtboxes passaram a suportar invulnerability frames configuráveis. O Player começa com 0,35 s após receber dano e o inimigo de treino usa 0,10 s. `receive_hit()` retorna o dano efetivamente aplicado, evitando combo/damage feedback falso quando um golpe é ignorado.
+
+## Loot físico e coleta
+
+Inimigos podem soltar `PickupActor`s no mundo. O pickup atual suporta:
+
+- Zeni;
+- itens por ID estável;
+- bob vertical;
+- lifetime;
+- magnetismo de curta distância em direção ao Player.
+
+O Training Fighter deixa 8–18 Zeni por derrota e possui chance inicial de 10% de Senzu Bean.
+
+## Melhorias de IA
+
+O inimigo de treino agora possui detection range, disengage range e leash range separados. Se perseguir o Player para longe demais, retorna ao spawn automaticamente em vez de atravessar o mapa inteiro.
+
+`EncounterSpawner` foi adicionado como backend reutilizável para áreas com respawn e múltiplos pontos de nascimento.
+
+## Checkpoints e morte
+
+Checkpoints agora podem restaurar HP e Ki ao serem ativados, além do autosave existente.
+
+A morte do Player usa `ScreenTransition`: fade para preto, reposicionamento/restauração e fade de retorno. O mesmo overlay já está preparado para trocas de mapa via `WorldManager.load_world_with_transition()`.
+
+## Interface contextual
+
+Novos elementos de UX:
+
+- `InteractionPrompt`: mostra **E Talk to Master Roshi** quando um alvo interagível está próximo;
+- `WorldQuestMarker`: exibe ! para quest disponível e ? durante a quest;
+- `LocationBanner`: apresenta nomes de regiões ao entrar;
+- menu de pausa ampliado com Level, XP, HP, Ki, Zeni, Senzu, KOs, play time e quest ativa;
+- uso rápido de Senzu Bean por Q.
+
+A sala de debug é identificada como **TRAINING GROUNDS**.
+
+## Estatísticas persistentes
+
+`GameStatsManager` registra:
+
+- play time;
+- damage dealt;
+- damage taken;
+- enemies defeated;
+- items received;
+- Zeni received.
+
+Esses dados entram no save versionado a partir da versão 3.
+
+## Controles
+
+`GamepadProfile` registra controles de gamepad em runtime mantendo teclado como fallback. Isso prepara o mesmo fluxo de ações para gamepad e, futuramente, controladores de rede.
