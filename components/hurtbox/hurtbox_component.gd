@@ -16,9 +16,9 @@ func _process(delta: float) -> void:
 		0.0
 	)
 
-func receive_hit(damage: int, source_position: Vector2 = Vector2.ZERO) -> void:
+func receive_hit(damage: int, source_position: Vector2 = Vector2.ZERO) -> int:
 	if health_component == null or _invulnerability_left > 0.0:
-		return
+		return 0
 
 	var resolved_damage := damage
 	var actor := get_parent()
@@ -33,13 +33,14 @@ func receive_hit(damage: int, source_position: Vector2 = Vector2.ZERO) -> void:
 		)
 
 	if resolved_damage <= 0:
-		return
+		return 0
 
-	var applied_damage := health_component.take_damage(resolved_damage)
+	var applied_damage: int = health_component.take_damage(resolved_damage)
 	if applied_damage <= 0:
-		return
+		return 0
 
 	if invulnerability_duration > 0.0:
 		_invulnerability_left = invulnerability_duration
 
 	hit_received.emit(applied_damage, source_position)
+	return applied_damage
