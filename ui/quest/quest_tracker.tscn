@@ -28,6 +28,7 @@ offset_top = 4.0
 offset_right = 172.0
 offset_bottom = 20.0
 text = "Missão"
+theme_override_font_sizes/font_size = 8
 
 [node name="Objective" type="Label" parent="Panel"]
 layout_mode = 0
@@ -36,4 +37,5 @@ offset_top = 23.0
 offset_right = 172.0
 offset_bottom = 42.0
 text = "Objetivo"
+theme_override_font_sizes/font_size = 7
 autowrap_mode = 2
