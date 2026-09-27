@@ -268,6 +268,12 @@ func _find_projectile_threat(
 		if distance > profile.projectile_scan_range:
 			continue
 
+		if not _projectile_path_is_clear(
+			projectile,
+			owner_actor
+		):
+			continue
+
 		var direction: Vector2 = Vector2.ZERO
 		if projectile.has_method("get_travel_direction"):
 			var direction_value: Variant = projectile.call(
@@ -302,6 +308,26 @@ func _find_projectile_threat(
 			best_projectile = projectile
 
 	return best_projectile
+
+func _projectile_path_is_clear(
+	projectile: Node2D,
+	owner_actor: Node2D
+) -> bool:
+	var query := PhysicsRayQueryParameters2D.create(
+		projectile.global_position,
+		owner_actor.global_position
+	)
+	query.collision_mask = 1
+	query.collide_with_bodies = true
+	query.collide_with_areas = false
+
+	var result: Dictionary = (
+		owner_actor.get_world_2d()
+		.direct_space_state
+		.intersect_ray(query)
+	)
+
+	return result.is_empty()
 
 func _is_melee_threat(
 	owner_actor: Node2D,
