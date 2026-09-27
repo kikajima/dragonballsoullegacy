@@ -5,7 +5,6 @@ const STATE_IDLE: StringName = &"idle"
 const STATE_WALK: StringName = &"walk"
 const STATE_HURT: StringName = &"hurt"
 const STATE_BLOCK: StringName = &"block"
-const STATE_KI_BLAST: StringName = &"ki_blast"
 const STATE_CHARGE_KI: StringName = &"charge_ki"
 
 @export_range(0.0, 1.0, 0.05)
@@ -78,10 +77,11 @@ func _physics_process(delta: float) -> void:
 
 	if input_controller.is_ki_blast_pressed():
 		if ki_blast_component.start_cast(facing_component.current_facing):
-			state_machine.change_state(STATE_KI_BLAST)
+			var cast_state := ki_blast_component.get_cast_state()
+			state_machine.change_state(cast_state)
 			movement_component.stop(self)
 			animation_controller.update_visual(
-				STATE_KI_BLAST,
+				cast_state,
 				ki_blast_component.get_cast_facing(),
 				delta
 			)
@@ -234,9 +234,10 @@ func _process_ki_blast(move_intent: Vector2, delta: float) -> void:
 	ki_blast_component.tick_cast(self, delta)
 
 	if ki_blast_component.is_casting():
-		state_machine.change_state(STATE_KI_BLAST)
+		var cast_state := ki_blast_component.get_cast_state()
+		state_machine.change_state(cast_state)
 		animation_controller.update_visual(
-			STATE_KI_BLAST,
+			cast_state,
 			ki_blast_component.get_cast_facing(),
 			delta
 		)
@@ -279,10 +280,10 @@ func modify_incoming_damage(damage: int, source_position: Vector2) -> int:
 func _on_attack_hit_confirmed(_target: Node, _damage: int) -> void:
 	hit_stop_component.trigger()
 
-func _on_ki_blast_cast_started(facing: StringName) -> void:
-	# Reinicia a pose de disparo a cada projétil da sequência,
-	# inclusive quando a direção permanece a mesma.
-	animation_controller.restart_visual(STATE_KI_BLAST, facing)
+func _on_ki_blast_cast_started(facing: StringName, variant: int) -> void:
+	# Cada disparo alterna o braço usado e reinicia a animação correspondente.
+	var cast_state := StringName("ki_blast_%d" % variant)
+	animation_controller.restart_visual(cast_state, facing)
 
 func _on_hit_received(_damage: int, source_position: Vector2) -> void:
 	if guard_component.was_last_hit_blocked():
