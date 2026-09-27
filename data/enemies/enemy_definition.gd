@@ -3,6 +3,7 @@ extends Resource
 
 @export var enemy_id: StringName = &""
 @export var display_name: String = ""
+@export var ai_profile: EnemyAIProfile
 @export var max_health: int = 30
 @export var move_speed: float = 55.0
 @export var melee_damage: int = 8
