@@ -6,7 +6,7 @@ signal game_loaded(path: String)
 signal save_failed(reason: String)
 signal load_failed(reason: String)
 
-const SAVE_VERSION: int = 2
+const SAVE_VERSION: int = 3
 
 @export var save_path: String = "user://save_slot_01.json"
 
@@ -25,6 +25,7 @@ func save_game() -> bool:
 		"player": _serialize_player(player),
 		"quests": _serialize_group_node("quest_manager"),
 		"checkpoint": _serialize_group_node("checkpoint_manager"),
+		"stats": _serialize_group_node("game_stats"),
 	}
 
 	var file := FileAccess.open(save_path, FileAccess.WRITE)
@@ -80,6 +81,10 @@ func load_game() -> bool:
 	_load_group_node_state(
 		"checkpoint_manager",
 		data.get("checkpoint", {})
+	)
+	_load_group_node_state(
+		"game_stats",
+		data.get("stats", {})
 	)
 
 	game_loaded.emit(save_path)
