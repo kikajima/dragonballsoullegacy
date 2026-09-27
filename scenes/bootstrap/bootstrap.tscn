@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/debug/debug_room.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" path="res://ui/quest/quest_tracker.tscn" id="10_quest_tracker"]
 [ext_resource type="PackedScene" path="res://ui/notifications/notification_feed.tscn" id="11_notifications"]
 [ext_resource type="Script" path="res://core/game_session.gd" id="12_session"]
+[ext_resource type="Script" path="res://core/debug/system_diagnostics.gd" id="13_diagnostics"]
 
 [node name="Bootstrap" type="Node2D"]
 
@@ -32,6 +33,9 @@ player_container_path = NodePath("../PlayerContainer")
 [node name="GameSession" type="Node" parent="."]
 script = ExtResource("12_session")
 autosave_on_quest_complete = true
+
+[node name="SystemDiagnostics" type="Node" parent="."]
+script = ExtResource("13_diagnostics")
 
 [node name="WorldContainer" type="Node2D" parent="."]
 
