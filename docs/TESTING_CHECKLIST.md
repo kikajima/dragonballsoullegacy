@@ -161,3 +161,25 @@ Se algo quebrar, validar nesta ordem:
 - LT usa Senzu.
 - RT carrega Ki.
 - Start abre pausa.
+
+
+## 16. Enemy intelligence hierarchy
+
+- Training Fighter target bar should identify it as `Uncommon`.
+- Fire Ki Blast from long range several times:
+  - enemy should occasionally sidestep;
+  - if it does not dodge, it may turn toward the projectile and block;
+  - missed projectiles should not trigger defensive reactions.
+- Fire Ki Blast at close range:
+  - dodge should be less likely;
+  - guard should be the primary defensive response.
+- Use punch/kick near the enemy:
+  - it should occasionally face the Player and guard;
+  - blocked hits should not cause normal hurt knockback.
+- After some successful blocks, the Uncommon fighter may counterattack.
+- Confirm the enemy occasionally approaches at an angle instead of always walking in a perfectly straight line.
+- Temporarily change `EnemyAIComponent.profile` to:
+  - `common.tres`: noticeably slower and less defensive;
+  - `elite.tres`: frequent blocks/dodges and more tactical movement;
+  - `boss.tres`: fastest reactions and highest defensive consistency.
+- Confirm none of the tiers reacts with 100% certainty.
