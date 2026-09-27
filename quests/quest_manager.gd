@@ -33,6 +33,7 @@ func start_quest(definition: QuestDefinition) -> bool:
 		"progress": 0,
 		"status": STATUS_ACTIVE,
 		"reward_experience": maxi(definition.reward_experience, 0),
+		"reward_currency": maxi(definition.reward_currency, 0),
 		"reward_item_id": String(definition.reward_item_id),
 		"reward_item_amount": maxi(definition.reward_item_amount, 0),
 	}
@@ -54,7 +55,8 @@ func start_simple_quest(
 	target_count: int,
 	reward_experience: int = 0,
 	reward_item_id: StringName = &"",
-	reward_item_amount: int = 0
+	reward_item_amount: int = 0,
+	reward_currency: int = 0
 ) -> bool:
 	var definition := QuestDefinition.new()
 	definition.quest_id = quest_id
@@ -64,6 +66,7 @@ func start_simple_quest(
 	definition.objective_text = objective_text
 	definition.target_count = maxi(target_count, 1)
 	definition.reward_experience = maxi(reward_experience, 0)
+	definition.reward_currency = maxi(reward_currency, 0)
 	definition.reward_item_id = reward_item_id
 	definition.reward_item_amount = maxi(reward_item_amount, 0)
 	return start_quest(definition)
@@ -198,6 +201,17 @@ func _apply_rewards(state: Dictionary) -> void:
 		) as ExperienceComponent
 		if experience != null:
 			experience.add_experience(reward_experience)
+
+	var reward_currency: int = maxi(
+		int(state.get("reward_currency", 0)),
+		0
+	)
+	if reward_currency > 0:
+		var wallet := player.get_node_or_null(
+			"Components/WalletComponent"
+		) as WalletComponent
+		if wallet != null:
+			wallet.add(reward_currency)
 
 	var reward_item_id := StringName(
 		str(state.get("reward_item_id", ""))
