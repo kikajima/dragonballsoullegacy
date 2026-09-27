@@ -41,7 +41,6 @@ func _ready() -> void:
 	charge_aura.visible = false
 
 	attack_hitbox.hit_confirmed.connect(_on_attack_hit_confirmed)
-	ki_blast_component.cast_started.connect(_on_ki_blast_cast_started)
 	hurtbox.hit_received.connect(_on_hit_received)
 	health_component.damaged.connect(_on_damaged)
 	health_component.died.connect(_on_died)
@@ -225,13 +224,19 @@ func _process_ki_blast(move_intent: Vector2, delta: float) -> void:
 	guard_component.set_guarding(false)
 	charge_aura.visible = false
 
-	# Cada novo toque em K durante o cast guarda mais um Ki Blast.
-	# O personagem continua parado durante toda a sequência.
+	# O personagem fica estático enquanto dispara. K pode ser mantido
+	# pressionado para uma sequência contínua ou tocado novamente para
+	# armazenar disparos no buffer.
 	if input_controller.is_ki_blast_pressed():
 		ki_blast_component.buffer_cast(facing_component.current_facing)
 
 	movement_component.stop(self)
-	ki_blast_component.tick_cast(self, delta)
+	ki_blast_component.tick_cast(
+		self,
+		delta,
+		input_controller.is_ki_blast_held(),
+		facing_component.current_facing
+	)
 
 	if ki_blast_component.is_casting():
 		var cast_state := ki_blast_component.get_cast_state()
@@ -279,11 +284,6 @@ func modify_incoming_damage(damage: int, source_position: Vector2) -> int:
 
 func _on_attack_hit_confirmed(_target: Node, _damage: int) -> void:
 	hit_stop_component.trigger()
-
-func _on_ki_blast_cast_started(facing: StringName, variant: int) -> void:
-	# Cada disparo alterna o braço usado e reinicia a animação correspondente.
-	var cast_state := StringName("ki_blast_%d" % variant)
-	animation_controller.restart_visual(cast_state, facing)
 
 func _on_hit_received(_damage: int, source_position: Vector2) -> void:
 	if guard_component.was_last_hit_blocked():
