@@ -12,6 +12,8 @@ extends Control
 @onready var ki_label: Label = $Panel/Stats/Ki
 @onready var zeni_label: Label = $Panel/Stats/Zeni
 @onready var senzu_label: Label = $Panel/Stats/Senzu
+@onready var kos_label: Label = $Panel/Stats/KOs
+@onready var time_label: Label = $Panel/Stats/Time
 @onready var quest_title_label: Label = $Panel/Quest/Title
 @onready var quest_objective_label: Label = $Panel/Quest/Objective
 
@@ -134,6 +136,16 @@ func _refresh_status() -> void:
 		senzu_label.text = "Senzu  x%d" % inventory.get_quantity(
 			&"senzu_bean"
 		)
+
+	var stats := get_tree().get_first_node_in_group(
+		"game_stats"
+	) as GameStatsManager
+	if stats != null:
+		kos_label.text = "KOs  %d" % stats.enemies_defeated
+		var total_seconds: int = int(stats.play_time_seconds)
+		var minutes: int = total_seconds / 60
+		var seconds: int = total_seconds % 60
+		time_label.text = "Time  %02d:%02d" % [minutes, seconds]
 
 	_refresh_quest()
 
