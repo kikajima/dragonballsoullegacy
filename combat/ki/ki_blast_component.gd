@@ -1,7 +1,7 @@
 class_name KiBlastComponent
 extends Node
 
-signal cast_started(facing: StringName)
+signal cast_started(facing: StringName, variant: int)
 signal projectile_fired
 signal cast_finished
 signal cast_buffered(buffered_count: int)
@@ -22,6 +22,8 @@ var _casting: bool = false
 var _elapsed: float = 0.0
 var _fired: bool = false
 var _cast_facing: StringName = &"down"
+var _current_variant: int = 1
+var _variant_cycle: int = 0
 
 var _buffered_facings: Array[StringName] = []
 
@@ -82,6 +84,12 @@ func is_casting() -> bool:
 func get_cast_facing() -> StringName:
 	return _cast_facing
 
+func get_cast_variant() -> int:
+	return _current_variant
+
+func get_cast_state() -> StringName:
+	return StringName("ki_blast_%d" % _current_variant)
+
 func get_buffered_cast_count() -> int:
 	return _buffered_facings.size()
 
@@ -92,11 +100,14 @@ func _begin_cast(facing: StringName) -> bool:
 	if not ki_component.consume(ki_cost):
 		return false
 
+	_variant_cycle = 2 if _variant_cycle == 1 else 1
+	_current_variant = _variant_cycle
+
 	_casting = true
 	_elapsed = 0.0
 	_fired = false
 	_cast_facing = facing
-	cast_started.emit(_cast_facing)
+	cast_started.emit(_cast_facing, _current_variant)
 	return true
 
 func _consume_next_buffered_cast() -> void:
