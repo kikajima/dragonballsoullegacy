@@ -25,11 +25,20 @@ mouse_filter = 2
 layout_mode = 0
 offset_left = 4.0
 offset_top = 1.0
-offset_right = 136.0
+offset_right = 98.0
 offset_bottom = 11.0
 text = "Enemy"
 theme_override_font_sizes/font_size = 6
-horizontal_alignment = 1
+
+[node name="Tier" type="Label" parent="Panel"]
+layout_mode = 0
+offset_left = 99.0
+offset_top = 1.0
+offset_right = 136.0
+offset_bottom = 11.0
+text = "Common"
+theme_override_font_sizes/font_size = 5
+horizontal_alignment = 2
 
 [node name="HealthBar" type="ProgressBar" parent="Panel"]
 layout_mode = 0
