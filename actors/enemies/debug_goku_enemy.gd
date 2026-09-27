@@ -34,8 +34,19 @@ var hurt_sheet_path: String = "res://assets/sprites/characters/goku/processed/go
 @export var hurt_duration: float = 0.24
 
 @export var detection_range: float = 170.0
+@export var disengage_range: float = 220.0
+@export var leash_range: float = 260.0
+@export var return_home_tolerance: float = 3.0
 @export var attack_range: float = 25.0
 @export var attack_cooldown: float = 0.55
+
+@export var pickup_scene: PackedScene
+@export_range(0, 9999, 1)
+var min_zeni_drop: int = 8
+@export_range(0, 9999, 1)
+var max_zeni_drop: int = 18
+@export_range(0.0, 1.0, 0.01)
+var senzu_drop_chance: float = 0.10
 @export var respawn_for_debug: bool = true
 @export var respawn_delay: float = 1.2
 
@@ -96,8 +107,22 @@ func _physics_process(delta: float) -> void:
 
 	var to_target := _target.global_position - global_position
 	var distance_to_target := to_target.length()
+	var distance_from_spawn: float = global_position.distance_to(
+		_spawn_position
+	)
 
-	if distance_to_target > detection_range:
+	if distance_from_spawn > leash_range:
+		_return_home()
+		return
+
+	if distance_to_target > disengage_range:
+		_return_home()
+		return
+
+	if (
+		distance_to_target > detection_range
+		and distance_from_spawn <= return_home_tolerance
+	):
 		_set_idle()
 		return
 
@@ -111,6 +136,10 @@ func _physics_process(delta: float) -> void:
 		else:
 			state_machine.change_state(STATE_IDLE)
 			_play_current_animation()
+		return
+
+	if distance_to_target > detection_range:
+		_return_home()
 		return
 
 	state_machine.change_state(STATE_WALK)
@@ -150,6 +179,18 @@ func _start_attack() -> void:
 func _set_idle() -> void:
 	movement_component.stop(self)
 	state_machine.change_state(STATE_IDLE)
+	_play_current_animation()
+
+func _return_home() -> void:
+	var to_home: Vector2 = _spawn_position - global_position
+	if to_home.length() <= return_home_tolerance:
+		global_position = _spawn_position
+		_set_idle()
+		return
+
+	_update_facing_from_direction(to_home)
+	state_machine.change_state(STATE_WALK)
+	movement_component.move(self, to_home.normalized())
 	_play_current_animation()
 
 func _on_hit_received(_damage: int, source_position: Vector2) -> void:
@@ -192,6 +233,8 @@ func _on_died() -> void:
 			1
 		)
 
+	_drop_loot()
+
 	var awarded_xp: int = 0
 	if is_instance_valid(_target):
 		awarded_xp = experience_reward_component.grant_to(_target)
@@ -220,6 +263,32 @@ func _on_died() -> void:
 		_flash_tween.tween_callback(_reset_after_defeat)
 	else:
 		_flash_tween.tween_callback(queue_free)
+
+func _drop_loot() -> void:
+	if pickup_scene == null:
+		return
+
+	var minimum: int = maxi(min_zeni_drop, 0)
+	var maximum: int = maxi(max_zeni_drop, minimum)
+
+	if maximum > 0:
+		var zeni_drop := pickup_scene.instantiate() as PickupActor
+		if zeni_drop != null:
+			get_parent().add_child(zeni_drop)
+			zeni_drop.global_position = global_position + Vector2(-6.0, 0.0)
+			zeni_drop.configure_currency(
+				randi_range(maxi(minimum, 1), maximum)
+			)
+
+	if randf() <= clampf(senzu_drop_chance, 0.0, 1.0):
+		var item_drop := pickup_scene.instantiate() as PickupActor
+		if item_drop != null:
+			get_parent().add_child(item_drop)
+			item_drop.global_position = global_position + Vector2(6.0, 0.0)
+			item_drop.configure_item(&"senzu_bean", 1)
+
+func get_display_name() -> String:
+	return "Training Fighter"
 
 func _show_defeated_pose() -> void:
 	if sprite.sprite_frames == null:
