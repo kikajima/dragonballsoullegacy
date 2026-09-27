@@ -65,6 +65,24 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 
 	var collision_body := body as CollisionObject2D
+
+	# NPCs are solid obstacles for Ki projectiles, but they are not damaged
+	# unless they expose a Hurtbox/receive_hit area. The projectile stops and
+	# the NPC may react to the direction of impact.
+	var npc: Node = null
+	if collision_body.is_in_group("npc"):
+		npc = collision_body
+	elif collision_body.get_parent() != null:
+		var parent := collision_body.get_parent()
+		if parent.is_in_group("npc"):
+			npc = parent
+
+	if npc != null:
+		if npc.has_method("on_ki_blast_blocked"):
+			npc.call("on_ki_blast_blocked", _direction)
+		_start_impact()
+		return
+
 	if collision_body.collision_layer & 1 != 0:
 		_start_impact()
 
