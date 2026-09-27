@@ -23,7 +23,9 @@ Player
 │   ├── KnockbackComponent
 │   ├── GuardComponent
 │   ├── KiComponent
-│   └── KiBlastComponent
+│   ├── KiBlastComponent
+│   ├── ExperienceComponent
+│   └── LevelStatsComponent
 ├── Hurtbox
 ├── Controllers
 │   └── PlayerInputController
@@ -161,9 +163,9 @@ Durante `ki_blast`, o Player também fica completamente parado até o término d
 `CombatHUD` fica no `UIContainer` do bootstrap e observa os componentes, sem duplicar os valores de gameplay:
 
 ```text
-HealthComponent ──→ barra vermelha de HP
-KiComponent ──────→ barra verde de Ki
-XP futuro ────────→ barra fina azul/ciano
+HealthComponent ─────→ barra vermelha de HP
+KiComponent ─────────→ barra verde de Ki
+ExperienceComponent ─→ barra fina azul/ciano de XP
 ```
 
 A HUD foi reconstruída diretamente do `hud.png` transparente e conferida contra o vídeo do jogo original. A moldura base possui 80×16 px no GBA e é exibida atualmente em escala 1,2× dentro do viewport de 480×270, preservando aproximadamente a mesma proporção de tela do original.
@@ -180,11 +182,39 @@ Ki:      (29, 7)  43×3
 XP:      (2, 12)  73×2
 ```
 
-A barra de XP permanece vazia até o sistema de experiência ser conectado. O ícone amarelo é o padrão atual; o ícone azul já pode ser selecionado futuramente pelo sistema de técnicas.
+A barra de XP agora está conectada ao `ExperienceComponent` e representa o progresso dentro do nível atual. O ícone amarelo é o padrão atual; o ícone azul já pode ser selecionado futuramente pelo sistema de técnicas.
+
+## Progressão RPG
+
+O Player começa no nível 1. O `ExperienceComponent` controla XP, nível e a curva necessária para o próximo nível. O primeiro nível exige 40 XP e a exigência cresce inicialmente em 1,35× por nível.
+
+```text
+Enemy defeated
+      ↓
+ExperienceRewardComponent
+      ↓
+ExperienceComponent
+      ├── experience_changed → HUD
+      └── leveled_up
+              ↓
+       LevelStatsComponent
+```
+
+No protótipo, cada level up concede:
+
+- +10 HP máximo;
+- +5 Ki máximo;
+- +1 dano de soco;
+- +1 dano de chute;
+- +1 dano do Ki Blast.
+
+O HP e o Ki ganhos no level up também são recuperados imediatamente. O Player pisca em amarelo como feedback visual e o Output registra os novos atributos.
+
+O `DebugGokuEnemy` continua sendo usado como inimigo de validação antes de adicionarmos mobs definitivos. Ele concede 25 XP por derrota. Para acelerar os testes, desaparece brevemente e renasce na posição inicial; o reward é resetado somente no respawn, impedindo múltiplas recompensas para a mesma derrota. Em inimigos reais, `respawn_for_debug` pode ser desligado para que sejam removidos definitivamente.
 
 ## Inimigo de teste e IA
 
-O `DebugGokuEnemy` detecta o jogador, persegue, ataca corpo a corpo, reage ao estado `hurt`, sofre knockback e recebe dano de ataques físicos e projéteis. Ele pertence ao grupo `enemy`, permitindo que a HUD encontre sua vida sem depender de um caminho de cena fixo.
+O `DebugGokuEnemy` detecta o jogador, persegue, ataca corpo a corpo, reage ao estado `hurt`, sofre knockback e recebe dano de ataques físicos e projéteis. Ao chegar a zero HP ele entra em derrota, desativa colisão/combate, entrega XP uma única vez e desaparece. Por enquanto ele renasce automaticamente apenas para acelerar os testes da progressão.
 
 ## Assets locais
 
