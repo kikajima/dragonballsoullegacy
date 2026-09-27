@@ -22,6 +22,7 @@ var _direction: Vector2 = Vector2.RIGHT
 var _lifetime_left: float
 var _impact_time_left: float = 0.0
 var _impacted: bool = false
+var _source_actor: Node
 
 func _ready() -> void:
 	_lifetime_left = lifetime
@@ -29,7 +30,13 @@ func _ready() -> void:
 	area_entered.connect(_on_area_entered)
 	body_entered.connect(_on_body_entered)
 
-func setup(direction: Vector2, damage_override: int = -1) -> void:
+func setup(
+	direction: Vector2,
+	damage_override: int = -1,
+	source_actor: Node = null
+) -> void:
+	_source_actor = source_actor
+
 	if damage_override >= 0:
 		damage = damage_override
 
@@ -96,7 +103,27 @@ func _on_area_entered(area: Area2D) -> void:
 	if not area.has_method("receive_hit"):
 		return
 
-	area.call("receive_hit", damage, global_position)
+	var result: Variant = area.call(
+		"receive_hit",
+		damage,
+		global_position
+	)
+	var applied_damage: int = int(result)
+
+	if applied_damage <= 0:
+		return
+
+	if (
+		_source_actor != null
+		and is_instance_valid(_source_actor)
+		and _source_actor.has_method("register_combat_hit")
+	):
+		_source_actor.call(
+			"register_combat_hit",
+			area,
+			applied_damage
+		)
+
 	_start_impact()
 
 func _on_body_entered(body: Node2D) -> void:
