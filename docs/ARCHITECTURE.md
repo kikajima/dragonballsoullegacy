@@ -256,3 +256,80 @@ assets/ui/legacy/processed/
 A corrida usa velocidade base de aproximadamente 120 px/s (90 × 1,333333), o que corresponde a 2 px por tick de física a 60 Hz em movimento cardinal. Isso reduz a cadência irregular causada por snapping de pixel.
 
 A câmera do Player não usa smoothing durante o protótipo pixel-art. Com transform snapping ativo, combinar smoothing de câmera com movimento rápido pode causar tremulação aparente do sprite. A animação de corrida também utiliza um spritesheet estabilizado verticalmente, mantendo a base do personagem na mesma linha entre quadros.
+
+
+## Grande fundação RPG
+
+O protótipo agora possui uma camada maior de sistemas desacoplados para permitir que o conteúdo seja expandido sem concentrar regras no `Player`.
+
+### Inventário e consumíveis
+
+```text
+InventoryComponent
+├── add_item
+├── remove_item
+├── quantidade por ID estável
+└── serialize/load
+
+ConsumableComponent
+└── Senzu Bean → restaura HP + Ki
+```
+
+Itens são identificados por `StringName` estável para facilitar save, multiplayer e troca futura de assets.
+
+### Técnicas
+
+`AbilityLoadoutComponent` mantém habilidades desbloqueadas, quatro slots iniciais e cooldowns independentes. O Ki Blast inicial é registrado como habilidade desbloqueada do Player. `AbilityData` fornece o formato data-driven para técnicas futuras como Kamehameha.
+
+### Missões
+
+`QuestManager` vive no Bootstrap e mantém missões ativas/concluídas, objetivos, progresso e recompensas. O Mentor da sala de debug inicia a primeira missão integrada:
+
+```text
+Treino Básico
+└── derrotar Goku de treino 2 vezes
+    ├── 40 XP
+    ├── 100 Zeni
+    └── 1 Senzu Bean
+```
+
+O `QuestTracker` exibe a missão ativa no HUD.
+
+### Diálogo e interação
+
+O Player possui `InteractionSensor`, uma Area2D que detecta objetos na collision layer `Interactables`. Pressionar E chama `interact(actor)` no alvo mais próximo.
+
+`DialogueBox` pausa a SceneTree durante conversas e continua processando input por usar process mode Always.
+
+### Economia
+
+`WalletComponent` armazena Zeni e `ShopComponent` já oferece compra/venda usando `ShopEntryData`. A interface de loja será criada quando o primeiro comerciante definitivo entrar no jogo.
+
+### Save
+
+`SaveManager` usa JSON versionado em `user://save_slot_01.json`. O save atual cobre posição, HP, Ki, XP/nível, inventário, loadout, Zeni, transformações, dano de combate, missões e checkpoint.
+
+O menu de pausa fornece Salvar e Carregar. Conclusões de missão e checkpoints podem disparar autosave.
+
+### Checkpoints
+
+`CheckpointManager` mantém o último checkpoint e o Player consulta esse sistema ao ser derrotado. `CheckpointArea` é um trigger reutilizável e a sala de debug já possui um checkpoint de validação.
+
+### Transformações
+
+`TransformationComponent` e `TransformationData` implementam a base de desbloqueio, ativação, custo inicial, drenagem contínua de Ki e multiplicadores de dano/movimento. Nenhuma forma definitiva foi ligada ao Goku ainda, evitando acoplar Super Saiyan antes das animações e regras estarem definidas.
+
+### Status, loot e inimigos data-driven
+
+- `StatusEffectComponent`: efeitos temporários com magnitude/duração;
+- `LootTableComponent`: rolagem de drops configuráveis;
+- `EnemyDefinition`: HP, velocidade, dano, ranges, cooldown e XP por dados;
+- `LootEntryData`: item, chance e faixa de quantidade.
+
+### Mundo
+
+`WorldManager` troca o conteúdo de `WorldContainer` sem destruir o Bootstrap, mantendo Player, UI e managers persistentes. Isso prepara mapas conectados e transições futuras.
+
+### Feedback e diagnóstico
+
+`NotificationFeed` mostra XP, level up, itens, Zeni, missões e checkpoints. Em builds de debug, `SystemDiagnostics` verifica a presença dos managers e principais componentes do Player ao iniciar.
