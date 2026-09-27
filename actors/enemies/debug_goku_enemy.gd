@@ -183,6 +183,15 @@ func _on_died() -> void:
 	hurtbox.set_deferred("monitorable", false)
 	body_collision.set_deferred("disabled", true)
 
+	var quest_manager := get_tree().get_first_node_in_group(
+		"quest_manager"
+	) as QuestManager
+	if quest_manager != null:
+		quest_manager.advance_objective(
+			&"defeat_training_dummy",
+			1
+		)
+
 	var awarded_xp: int = 0
 	if is_instance_valid(_target):
 		awarded_xp = experience_reward_component.grant_to(_target)
