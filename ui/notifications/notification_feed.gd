@@ -89,16 +89,35 @@ func _on_item_added(
 	amount: int,
 	_new_total: int
 ) -> void:
-	push_message("+%d  %s" % [amount, String(item_id)])
+	push_message(
+		"+%d  %s"
+		% [amount, String(item_id).replace("_", " ").capitalize()]
+	)
 
 func _on_currency_gained(amount: int) -> void:
 	push_message("+%d Zeni" % amount)
 
 func _on_quest_started(quest_id: StringName) -> void:
-	push_message("New quest: %s" % String(quest_id))
+	push_message(
+		"New quest: %s" % _get_quest_display_name(quest_id)
+	)
 
 func _on_quest_completed(quest_id: StringName) -> void:
-	push_message("Quest complete: %s" % String(quest_id))
+	push_message(
+		"Quest complete: %s" % _get_quest_display_name(quest_id)
+	)
+
+func _get_quest_display_name(quest_id: StringName) -> String:
+	var quests := get_tree().get_first_node_in_group(
+		"quest_manager"
+	) as QuestManager
+	if quests != null:
+		var state := quests.get_quest(quest_id)
+		var title: String = str(state.get("title", ""))
+		if not title.is_empty():
+			return title
+
+	return String(quest_id).replace("_", " ").capitalize()
 
 func _on_checkpoint_changed(
 	_checkpoint_id: StringName,
