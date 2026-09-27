@@ -17,18 +17,18 @@ func interact(_actor: Node) -> void:
 
 	if quests == null:
 		dialogue.show_dialogue(
-			["O sistema de missões ainda não está disponível."],
-			"Mentor"
+			["The quest system is not available yet."],
+			"Master"
 		)
 		return
 
 	if quests.is_completed(TRAINING_QUEST_ID):
 		dialogue.show_dialogue(
 			[
-				"Bom trabalho. Você já concluiu o treino básico.",
-				"Quando tivermos novos inimigos, este sistema poderá encadear missões maiores."
+				"Good work. You already completed the basic training.",
+				"Once we add more enemies, this system can chain larger quests."
 			],
-			"Mentor"
+			"Master"
 		)
 		return
 
@@ -39,19 +39,19 @@ func interact(_actor: Node) -> void:
 
 		dialogue.show_dialogue(
 			[
-				"Continue o treino.",
-				"Bonecos derrotados: %d/%d." % [progress, target]
+				"Keep training.",
+				"Training opponents defeated: %d/%d." % [progress, target]
 			],
-			"Mentor"
+			"Master"
 		)
 		return
 
 	quests.start_simple_quest(
 		TRAINING_QUEST_ID,
-		"Treino Básico",
-		"Pratique o combate contra o adversário de treinamento.",
+		"Basic Training",
+		"Practice combat against the training opponent.",
 		TRAINING_OBJECTIVE_ID,
-		"Derrote o adversário de treinamento",
+		"Defeat the training opponent",
 		2,
 		40,
 		&"senzu_bean",
@@ -61,9 +61,9 @@ func interact(_actor: Node) -> void:
 
 	dialogue.show_dialogue(
 		[
-			"Vamos testar sua evolução.",
-			"Derrote o adversário de treinamento duas vezes.",
-			"Como recompensa, você receberá XP extra e um Senzu Bean."
+			"Let us test your progress.",
+			"Defeat the training opponent twice.",
+			"As a reward, you will receive extra XP, Zeni, and a Senzu Bean."
 		],
-		"Mentor"
+		"Master"
 	)
