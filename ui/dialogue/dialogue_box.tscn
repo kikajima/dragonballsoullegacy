@@ -1,0 +1,49 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/dialogue/dialogue_box.gd" id="1_dialogue"]
+
+[node name="DialogueBox" type="Control" groups=["dialogue_ui"]]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_dialogue")
+
+[node name="Panel" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 196.0
+offset_right = 460.0
+offset_bottom = 258.0
+color = Color(0.02, 0.025, 0.04, 0.94)
+mouse_filter = 2
+
+[node name="Speaker" type="Label" parent="Panel"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 5.0
+offset_right = 190.0
+offset_bottom = 22.0
+text = "NPC"
+
+[node name="Text" type="Label" parent="Panel"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 22.0
+offset_right = 425.0
+offset_bottom = 52.0
+text = "Dialogue"
+autowrap_mode = 2
+
+[node name="Hint" type="Label" parent="Panel"]
+layout_mode = 0
+offset_left = 365.0
+offset_top = 44.0
+offset_right = 430.0
+offset_bottom = 60.0
+text = "E / Enter"
+horizontal_alignment = 2
