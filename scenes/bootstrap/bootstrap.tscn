@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/debug/debug_room.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" path="res://ui/location/location_banner.tscn" id="18_location_banner"]
 [ext_resource type="Script" path="res://core/stats/game_stats_manager.gd" id="19_stats"]
 [ext_resource type="PackedScene" path="res://ui/transitions/screen_transition.tscn" id="20_transition"]
+[ext_resource type="Script" path="res://core/input/gamepad_profile.gd" id="21_gamepad"]
 
 [node name="Bootstrap" type="Node2D"]
 
@@ -43,6 +44,9 @@ autosave_on_quest_complete = true
 
 [node name="SystemDiagnostics" type="Node" parent="."]
 script = ExtResource("13_diagnostics")
+
+[node name="GamepadProfile" type="Node" parent="."]
+script = ExtResource("21_gamepad")
 
 [node name="CombatFeedbackManager" type="Node" parent="." groups=["combat_feedback"]]
 script = ExtResource("14_feedback")
