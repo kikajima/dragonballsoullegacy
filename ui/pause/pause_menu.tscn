@@ -36,6 +36,8 @@ offset_top = 8.0
 offset_right = 130.0
 offset_bottom = 28.0
 text = "PAUSADO"
+theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 7
 horizontal_alignment = 1
 
 [node name="ResumeButton" type="Button" parent="Panel"]
@@ -45,6 +47,7 @@ offset_top = 35.0
 offset_right = 120.0
 offset_bottom = 60.0
 text = "Continuar"
+theme_override_font_sizes/font_size = 8
 
 [node name="SaveButton" type="Button" parent="Panel"]
 layout_mode = 0
@@ -53,6 +56,7 @@ offset_top = 66.0
 offset_right = 120.0
 offset_bottom = 91.0
 text = "Salvar"
+theme_override_font_sizes/font_size = 8
 
 [node name="LoadButton" type="Button" parent="Panel"]
 layout_mode = 0
@@ -61,6 +65,7 @@ offset_top = 97.0
 offset_right = 120.0
 offset_bottom = 122.0
 text = "Carregar"
+theme_override_font_sizes/font_size = 8
 
 [node name="Status" type="Label" parent="Panel"]
 layout_mode = 0
