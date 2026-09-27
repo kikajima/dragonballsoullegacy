@@ -1,10 +1,31 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/debug/debug_room.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://ui/hud/combat_hud.tscn" id="3_hud"]
+[ext_resource type="Script" path="res://quests/quest_manager.gd" id="4_quests"]
+[ext_resource type="Script" path="res://core/save/save_manager.gd" id="5_save"]
+[ext_resource type="Script" path="res://world/checkpoint_manager.gd" id="6_checkpoint"]
+[ext_resource type="Script" path="res://world/world_manager.gd" id="7_world"]
+[ext_resource type="PackedScene" path="res://ui/dialogue/dialogue_box.tscn" id="8_dialogue"]
+[ext_resource type="PackedScene" path="res://ui/pause/pause_menu.tscn" id="9_pause"]
+[ext_resource type="PackedScene" path="res://ui/quest/quest_tracker.tscn" id="10_quest_tracker"]
 
 [node name="Bootstrap" type="Node2D"]
+
+[node name="QuestManager" type="Node" parent="." groups=["quest_manager"]]
+script = ExtResource("4_quests")
+
+[node name="SaveManager" type="Node" parent="." groups=["save_manager"]]
+script = ExtResource("5_save")
+
+[node name="CheckpointManager" type="Node" parent="." groups=["checkpoint_manager"]]
+script = ExtResource("6_checkpoint")
+
+[node name="WorldManager" type="Node" parent="." groups=["world_manager"]]
+script = ExtResource("7_world")
+world_container_path = NodePath("../WorldContainer")
+player_container_path = NodePath("../PlayerContainer")
 
 [node name="WorldContainer" type="Node2D" parent="."]
 
@@ -17,6 +38,12 @@
 [node name="UIContainer" type="CanvasLayer" parent="."]
 
 [node name="CombatHUD" parent="UIContainer" instance=ExtResource("3_hud")]
+
+[node name="QuestTracker" parent="UIContainer" instance=ExtResource("10_quest_tracker")]
+
+[node name="DialogueBox" parent="UIContainer" instance=ExtResource("8_dialogue")]
+
+[node name="PauseMenu" parent="UIContainer" instance=ExtResource("9_pause")]
 
 [node name="TransitionLayer" type="CanvasLayer" parent="."]
 layer = 100
