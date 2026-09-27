@@ -16,12 +16,21 @@ Common
 
 Higher tiers do not receive perfect reactions. They react sooner, notice projectiles from farther away, block more consistently, dodge more often when a projectile is still far away, strafe more, and have a higher chance to counterattack after a successful block.
 
-| Tier | Reaction | Melee block | Ranged block | Long-range dodge | Projectile awareness | Counterattack |
+| Tier | Reaction | Melee block | Ranged block | Long-range dodge | Awareness | Counter |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Common | 0.42 s | 12% | 18% | 6% | 110 px | 5% |
 | Uncommon | 0.30 s | 28% | 38% | 18% | 135 px | 12% |
 | Elite | 0.20 s | 55% | 66% | 42% | 165 px | 28% |
 | Boss | 0.12 s | 78% | 86% | 68% | 210 px | 48% |
+
+Difficulty scaling is tied to the same tier:
+
+| Tier | HP | Damage | Move speed | XP | Loot |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Common | 1.00x | 1.00x | 1.00x | 1.00x | 1.00x |
+| Uncommon | 1.20x | 1.10x | 1.05x | 1.30x | 1.15x |
+| Elite | 1.75x | 1.35x | 1.12x | 2.25x | 1.60x |
+| Boss | 4.00x | 1.75x | 1.15x | 6.00x | 3.00x |
 
 The values are starting points for balance, not permanent difficulty rules.
 
@@ -56,7 +65,7 @@ All combat projectiles expose:
 
 They belong to the `combat_projectile` group. Enemy AI only reacts to a projectile when its trajectory is actually heading through the enemy's threat corridor.
 
-This avoids enemies dodging shots that are travelling away from them or passing far to the side.
+This avoids enemies dodging shots that are travelling away from them or passing far to the side. A world-geometry ray check also prevents reactions to projectiles that will hit a wall or solid obstacle before reaching the enemy.
 
 ## Tactical movement
 
@@ -91,3 +100,14 @@ assets/sprites/characters/goku/processed/goku_buus_fury_block.png
 ```
 
 when that local asset is available.
+
+
+## Difficulty and intelligence stay together
+
+The current prototype uses the same tier resource for tactical intelligence and broad difficulty multipliers. This keeps the intended hierarchy consistent:
+
+```text
+Boss > Elite > Uncommon > Common
+```
+
+A Boss is therefore not only more durable; it also reacts faster and makes better defensive choices. The multipliers are applied once when the enemy enters the scene, so respawning the same debug enemy does not multiply its stats repeatedly.
