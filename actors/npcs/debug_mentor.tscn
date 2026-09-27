@@ -6,14 +6,14 @@
 radius = 18.0
 
 [sub_resource type="RectangleShape2D" id="BodyCollision"]
-size = Vector2(14, 12)
+size = Vector2(14, 10)
 
 [node name="DebugMentor" type="Node2D" groups=["npc"]]
 script = ExtResource("1_mentor")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 visible = false
-position = Vector2(0, -6)
+position = Vector2(0, -8)
 texture_filter = 1
 vframes = 4
 
