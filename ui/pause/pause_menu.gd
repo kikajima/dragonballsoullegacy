@@ -44,13 +44,13 @@ func _save() -> void:
 		"save_manager"
 	) as SaveManager
 	if manager == null:
-		status_label.text = "SaveManager não encontrado."
+		status_label.text = "SaveManager not found."
 		return
 
 	status_label.text = (
-		"Jogo salvo."
+		"Game saved."
 		if manager.save_game()
-		else "Falha ao salvar."
+		else "Failed to save."
 	)
 
 func _load() -> void:
@@ -62,7 +62,7 @@ func _load() -> void:
 		return
 
 	status_label.text = (
-		"Save carregado."
+		"Save loaded."
 		if manager.load_game()
-		else "Nenhum save válido."
+		else "No valid save found."
 	)
