@@ -219,3 +219,10 @@ assets/ui/legacy/processed/
 5. HUD observa os componentes; não mantém uma segunda fonte de verdade.
 6. A camada de rede deve poder substituir a origem dos comandos sem reescrever o personagem.
 7. Saves persistem IDs e dados estáveis, não referências diretas a cenas.
+
+
+## Corrida pixel-perfect
+
+A corrida usa velocidade base de aproximadamente 120 px/s (90 × 1,333333), o que corresponde a 2 px por tick de física a 60 Hz em movimento cardinal. Isso reduz a cadência irregular causada por snapping de pixel.
+
+A câmera do Player não usa smoothing durante o protótipo pixel-art. Com transform snapping ativo, combinar smoothing de câmera com movimento rápido pode causar tremulação aparente do sprite. A animação de corrida também utiliza um spritesheet estabilizado verticalmente, mantendo a base do personagem na mesma linha entre quadros.
