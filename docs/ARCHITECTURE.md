@@ -35,6 +35,7 @@ Estados atuais do jogador:
 ```text
 idle
 walk
+run
 attack_1
 attack_2
 kick_1
@@ -44,6 +45,26 @@ block
 ki_blast
 charge_ki
 ```
+
+## Locomoção
+
+A locomoção do jogador possui três estados básicos:
+
+```text
+idle → sem movimento
+walk → direção pressionada
+run  → direção + Espaço
+```
+
+O action interno `dash`, que já estava mapeado para Espaço, é usado temporariamente como modificador de corrida contínua. A velocidade de corrida começa em 1,55× a velocidade normal e a animação usa quatro quadros por direção a 12 FPS.
+
+O spritesheet local esperado é:
+
+```text
+assets/sprites/characters/goku/processed/goku_buus_fury_run.png
+```
+
+A corrida só é aplicada durante locomoção normal; ataque, defesa, dano, carregamento de Ki e disparos continuam obedecendo seus próprios estados e restrições.
 
 ## Combate físico
 
@@ -145,7 +166,7 @@ KiComponent ──────→ barra verde de Ki
 XP futuro ────────→ barra fina azul/ciano
 ```
 
-A HUD foi reconstruída diretamente do `hud.png` transparente e conferida contra o vídeo do jogo original. A moldura base possui 80×16 px no GBA e é exibida em escala pixel-perfect de 2× dentro do viewport de 480×270, preservando aproximadamente a mesma proporção de tela do original.
+A HUD foi reconstruída diretamente do `hud.png` transparente e conferida contra o vídeo do jogo original. A moldura base possui 80×16 px no GBA e é exibida atualmente em escala 1,2× dentro do viewport de 480×270, preservando aproximadamente a mesma proporção de tela do original.
 
 Os elementos usam os sprites reais do sheet, não `ColorRect`s: ícone, divisor amarelo, barra vermelha de HP, barra verde de Ki e barra azul/ciano de experiência. HP e Ki são cortados horizontalmente conforme os valores dos componentes, preservando os highlights e gradientes da pixel art.
 
@@ -172,6 +193,7 @@ Os sprites ripados continuam fora do Git público. Os arquivos esperados localme
 ```text
 assets/sprites/characters/goku/processed/
 ├── goku_buus_fury_base.png
+├── goku_buus_fury_run.png
 ├── goku_buus_fury_attack.png
 ├── goku_buus_fury_hurt.png
 ├── goku_buus_fury_block.png
