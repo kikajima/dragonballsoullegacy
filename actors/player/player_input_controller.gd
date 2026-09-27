@@ -32,3 +32,6 @@ func is_charge_ki_pressed() -> bool:
 
 func is_interact_pressed() -> bool:
 	return Input.is_action_just_pressed("interact")
+
+func is_quick_item_pressed() -> bool:
+	return Input.is_action_just_pressed("quick_item")
