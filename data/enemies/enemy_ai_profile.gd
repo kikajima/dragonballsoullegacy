@@ -47,6 +47,21 @@ var strafe_chance: float = 0.03
 @export_range(0.0, 1.5, 0.05)
 var strafe_weight: float = 0.25
 
+@export_range(0.5, 10.0, 0.05)
+var health_multiplier: float = 1.0
+
+@export_range(0.5, 5.0, 0.05)
+var damage_multiplier: float = 1.0
+
+@export_range(0.5, 2.0, 0.05)
+var move_speed_multiplier: float = 1.0
+
+@export_range(0.5, 10.0, 0.05)
+var experience_multiplier: float = 1.0
+
+@export_range(0.5, 5.0, 0.05)
+var loot_multiplier: float = 1.0
+
 func get_tier_name() -> String:
 	match intelligence_tier:
 		IntelligenceTier.UNCOMMON:
