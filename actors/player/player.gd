@@ -45,6 +45,7 @@ var kick_move_speed_scale: float = 0.70
 var _hurt_time_left: float = 0.0
 var _spawn_position: Vector2
 var _flash_tween: Tween
+var _respawning: bool = false
 
 func _ready() -> void:
 	_spawn_position = global_position
@@ -60,6 +61,10 @@ func _ready() -> void:
 	ability_loadout_component.equip_ability(0, &"ki_blast")
 
 func _physics_process(delta: float) -> void:
+	if _respawning:
+		movement_component.stop(self)
+		return
+
 	var move_intent := input_controller.get_move_intent()
 
 	if state_machine.is_state(STATE_HURT):
@@ -383,8 +388,26 @@ func _on_leveled_up(new_level: int) -> void:
 	_flash(Color(1.0, 0.92, 0.35, 1.0))
 
 func _on_died() -> void:
-	print("Player derrotado. HP, Ki e posição restaurados para continuar os testes.")
-	call_deferred("_reset_after_defeat")
+	if _respawning:
+		return
+
+	_respawning = true
+	call_deferred("_respawn_sequence")
+
+func _respawn_sequence() -> void:
+	var transition := get_tree().get_first_node_in_group(
+		"screen_transition"
+	) as ScreenTransition
+
+	if transition != null:
+		await transition.fade_out(0.28)
+
+	_reset_after_defeat()
+
+	if transition != null:
+		await transition.fade_in(0.32)
+
+	_respawning = false
 
 func _reset_after_defeat() -> void:
 	health_component.restore_full()
