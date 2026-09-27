@@ -1,7 +1,7 @@
 class_name KiBlastProjectile
 extends Area2D
 
-@export var speed: float = 210.0
+@export var speed: float = 300.0
 @export var damage: int = 12
 @export var lifetime: float = 1.6
 @export var projectile_fps: float = 12.0
