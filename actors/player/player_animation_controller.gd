@@ -36,8 +36,9 @@ var charge_ki_sheet_path: String = "res://assets/sprites/characters/goku/process
 @export var attack_2_columns: PackedInt32Array = PackedInt32Array([4, 5, 6, 7])
 @export var hurt_columns: PackedInt32Array = PackedInt32Array([0, 1])
 @export var block_columns: PackedInt32Array = PackedInt32Array([0])
-@export var ki_blast_1_columns: PackedInt32Array = PackedInt32Array([0, 1, 0])
-@export var ki_blast_2_columns: PackedInt32Array = PackedInt32Array([0, 2, 0])
+@export var ki_blast_prepare_columns: PackedInt32Array = PackedInt32Array([0])
+@export var ki_blast_1_columns: PackedInt32Array = PackedInt32Array([1])
+@export var ki_blast_2_columns: PackedInt32Array = PackedInt32Array([2])
 @export var kick_1_columns: PackedInt32Array = PackedInt32Array([0, 1, 0])
 @export var kick_2_columns: PackedInt32Array = PackedInt32Array([2, 3, 2])
 @export var charge_ki_columns: PackedInt32Array = PackedInt32Array([0, 1])
@@ -181,6 +182,7 @@ func _try_build_sprite_frames() -> void:
 		built_any_animation = true
 
 	var max_ki_blast_columns := PackedInt32Array()
+	max_ki_blast_columns.append_array(ki_blast_prepare_columns)
 	max_ki_blast_columns.append_array(ki_blast_1_columns)
 	max_ki_blast_columns.append_array(ki_blast_2_columns)
 
@@ -192,9 +194,17 @@ func _try_build_sprite_frames() -> void:
 		_add_directional_animation(
 			frames,
 			ki_blast_sheet,
+			&"ki_blast_prepare",
+			ki_blast_prepare_columns,
+			1.0,
+			false
+		)
+		_add_directional_animation(
+			frames,
+			ki_blast_sheet,
 			&"ki_blast_1",
 			ki_blast_1_columns,
-			ki_blast_fps,
+			1.0,
 			false
 		)
 		_add_directional_animation(
@@ -202,7 +212,7 @@ func _try_build_sprite_frames() -> void:
 			ki_blast_sheet,
 			&"ki_blast_2",
 			ki_blast_2_columns,
-			ki_blast_fps,
+			1.0,
 			false
 		)
 		built_any_animation = true
