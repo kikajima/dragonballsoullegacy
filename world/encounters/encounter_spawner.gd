@@ -50,16 +50,17 @@ func _spawn_one() -> bool:
 	return true
 
 func _choose_spawn_position() -> Vector2:
-	var markers: Array[Node] = get_children().filter(
-		func(child: Node) -> bool:
-			return child is Marker2D
-	)
+	var markers: Array[Marker2D] = []
+
+	for child in get_children():
+		if child is Marker2D:
+			markers.append(child as Marker2D)
 
 	if markers.is_empty():
 		return global_position
 
 	var index: int = randi_range(0, markers.size() - 1)
-	var marker := markers[index] as Marker2D
+	var marker: Marker2D = markers[index]
 	return marker.global_position
 
 func _on_enemy_tree_exited() -> void:
