@@ -15,11 +15,11 @@ script = ExtResource("1_hud")
 
 [node name="PlayerPanel" type="Control" parent="."]
 layout_mode = 0
-offset_left = 16.0
-offset_top = 6.0
+offset_left = 10.0
+offset_top = 5.0
 offset_right = 96.0
 offset_bottom = 22.0
-scale = Vector2(2, 2)
+scale = Vector2(1.4, 1.4)
 mouse_filter = 2
 texture_filter = 1
 
