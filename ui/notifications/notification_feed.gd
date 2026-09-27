@@ -82,7 +82,7 @@ func _on_xp_gained(amount: int) -> void:
 	push_message("+%d XP" % amount)
 
 func _on_level_up(new_level: int) -> void:
-	push_message("LEVEL UP!  Nível %d" % new_level)
+	push_message("LEVEL UP!  Level %d" % new_level)
 
 func _on_item_added(
 	item_id: StringName,
@@ -95,13 +95,13 @@ func _on_currency_gained(amount: int) -> void:
 	push_message("+%d Zeni" % amount)
 
 func _on_quest_started(quest_id: StringName) -> void:
-	push_message("Nova missão: %s" % String(quest_id))
+	push_message("New quest: %s" % String(quest_id))
 
 func _on_quest_completed(quest_id: StringName) -> void:
-	push_message("Missão concluída: %s" % String(quest_id))
+	push_message("Quest complete: %s" % String(quest_id))
 
 func _on_checkpoint_changed(
 	_checkpoint_id: StringName,
 	_position: Vector2
 ) -> void:
-	push_message("Checkpoint ativado")
+	push_message("Checkpoint activated")
