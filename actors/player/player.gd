@@ -30,6 +30,7 @@ var kick_move_speed_scale: float = 0.70
 @onready var knockback_component: KnockbackComponent = $Components/KnockbackComponent
 @onready var guard_component: GuardComponent = $Components/GuardComponent
 @onready var ki_component: KiComponent = $Components/KiComponent
+@onready var experience_component: ExperienceComponent = $Components/ExperienceComponent
 @onready var ki_blast_component: KiBlastComponent = $Components/KiBlastComponent
 @onready var attack_hitbox: HitboxComponent = $Combat/AttackHitbox
 @onready var hurtbox: HurtboxComponent = $Hurtbox
@@ -48,6 +49,7 @@ func _ready() -> void:
 	hurtbox.hit_received.connect(_on_hit_received)
 	health_component.damaged.connect(_on_damaged)
 	health_component.died.connect(_on_died)
+	experience_component.leveled_up.connect(_on_leveled_up)
 
 func _physics_process(delta: float) -> void:
 	var move_intent := input_controller.get_move_intent()
@@ -329,6 +331,10 @@ func _on_damaged(damage: int, current_health: int, max_health: int) -> void:
 		% [damage, current_health, max_health]
 	)
 	_flash(Color(1.0, 0.55, 0.55, 1.0))
+
+func _on_leveled_up(new_level: int) -> void:
+	print("Player chegou ao nível %d." % new_level)
+	_flash(Color(1.0, 0.92, 0.35, 1.0))
 
 func _on_died() -> void:
 	print("Player derrotado. HP, Ki e posição restaurados para continuar os testes.")
