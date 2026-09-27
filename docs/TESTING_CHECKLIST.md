@@ -12,11 +12,15 @@ Este documento existe porque o update adicionou vários sistemas de uma só vez 
 
 ## 2. Interação e diálogo
 
+- Confirmar que existe o arquivo local `assets/ui/legacy/processed/dialogue_box_font.png`.
 - Aproximar-se do Mentor na sala de debug.
 - Pressionar **E**.
-- A caixa de diálogo deve aparecer e pausar o mundo.
-- E / Enter avança as falas.
-- Ao terminar, o jogo volta a rodar.
+- O retrato deve aparecer primeiro e a moldura verde/dourada deve expandir horizontalmente.
+- O texto deve usar a fonte bitmap do sprite sheet e surgir caractere por caractere.
+- O mundo deve permanecer pausado durante o diálogo.
+- E / Enter durante a digitação deve completar imediatamente a página.
+- E / Enter depois de completar deve avançar para a próxima página.
+- Ao terminar, a caixa deve recolher horizontalmente e o jogo voltar a rodar.
 
 ## 3. Missões
 
