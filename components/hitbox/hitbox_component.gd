@@ -65,5 +65,15 @@ func _try_apply_hit(target: Node) -> void:
 		return
 
 	_hit_targets[receiver_id] = true
-	receiver.call("receive_hit", damage, global_position)
-	hit_confirmed.emit(receiver, damage)
+
+	var result: Variant = receiver.call(
+		"receive_hit",
+		damage,
+		global_position
+	)
+	var applied_damage: int = int(result)
+
+	if applied_damage <= 0:
+		return
+
+	hit_confirmed.emit(receiver, applied_damage)
