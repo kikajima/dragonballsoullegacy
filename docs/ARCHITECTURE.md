@@ -127,9 +127,9 @@ KiBlastComponent
     HealthComponent
 ```
 
-O disparo pode ser encadeado rapidamente: cada toque em K corresponde a um projétil. O componente mantém até quatro comandos adicionais no buffer, reinicia a animação de lançamento a cada novo tiro e permite trocar a direção entre disparos sem mover o personagem. O cast base dura 0,32 s, lança o projétil em 0,12 s e pode encadear o próximo a partir de 0,24 s.
+A sequência foi ajustada a partir da referência em vídeo do jogo original. O primeiro disparo usa uma preparação curta de aproximadamente 0,22 s. Depois disso, os tiros podem continuar em intervalos de 0,40 s, alternando diretamente entre os dois braços sem retornar à pose neutra entre projéteis. Um toque em K ainda gera um único tiro; manter K pressionado mantém a rajada, e toques adicionais podem ser armazenados no buffer.
 
-A animação do jogador usa três quadros direcionais do spritesheet de Buu's Fury (colunas originais 28-30). O projétil pequeno continua usando os frames reais do spritesheet local de efeitos quando o arquivo processado está presente.
+A animação usa três poses direcionais do spritesheet de Buu's Fury (colunas originais 28-30): `ki_blast_prepare`, `ki_blast_1` e `ki_blast_2`. As poses de braço são estáticas entre um disparo e outro, reproduzindo a fluidez observada no jogo. O projétil pequeno continua usando o spritesheet local de efeitos e sua velocidade base foi elevada para 300 px/s.
 
 Ao segurar **L**, o Player entra em `charge_ki` e fica completamente parado. O carregamento usa os mesmos dois quadros frontais em qualquer direção: o primeiro quadro aparece no início e a animação avança uma única vez para o segundo, que permanece estático enquanto o Ki é recuperado. Ao atingir o Ki máximo, a aura é desligada e o segundo quadro não reinicia. Se o Ki já estiver cheio antes de pressionar L, o carregamento não começa.
 
