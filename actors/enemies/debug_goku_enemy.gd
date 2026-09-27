@@ -84,6 +84,7 @@ func _ready() -> void:
 	_current_facing = StringName(initial_facing)
 	_target = get_tree().get_first_node_in_group("player") as Node2D
 
+	_apply_tier_difficulty()
 	_build_sprite_frames()
 	_play_current_animation()
 
@@ -412,6 +413,61 @@ func _drop_loot() -> void:
 			get_parent().add_child(item_drop)
 			item_drop.global_position = global_position + Vector2(6.0, 0.0)
 			item_drop.configure_item(&"senzu_bean", 1)
+
+func _apply_tier_difficulty() -> void:
+	if ai_component.profile == null:
+		return
+
+	var profile: EnemyAIProfile = ai_component.profile
+
+	health_component.max_health = maxi(
+		roundi(
+			float(health_component.max_health)
+			* profile.health_multiplier
+		),
+		1
+	)
+	health_component.restore_full()
+
+	movement_component.move_speed *= profile.move_speed_multiplier
+
+	melee_combat_component.damage = maxi(
+		roundi(
+			float(melee_combat_component.damage)
+			* profile.damage_multiplier
+		),
+		1
+	)
+	melee_combat_component.kick_damage = maxi(
+		roundi(
+			float(melee_combat_component.kick_damage)
+			* profile.damage_multiplier
+		),
+		1
+	)
+
+	experience_reward_component.experience_reward = maxi(
+		roundi(
+			float(experience_reward_component.experience_reward)
+			* profile.experience_multiplier
+		),
+		1
+	)
+
+	min_zeni_drop = maxi(
+		roundi(
+			float(min_zeni_drop)
+			* profile.loot_multiplier
+		),
+		0
+	)
+	max_zeni_drop = maxi(
+		roundi(
+			float(max_zeni_drop)
+			* profile.loot_multiplier
+		),
+		min_zeni_drop
+	)
 
 func get_display_name() -> String:
 	return "Training Fighter"
