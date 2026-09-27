@@ -29,7 +29,10 @@ func _ready() -> void:
 	area_entered.connect(_on_area_entered)
 	body_entered.connect(_on_body_entered)
 
-func setup(direction: Vector2) -> void:
+func setup(direction: Vector2, damage_override: int = -1) -> void:
+	if damage_override >= 0:
+		damage = damage_override
+
 	if direction.is_zero_approx():
 		_direction = Vector2.RIGHT
 	else:
