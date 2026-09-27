@@ -33,6 +33,7 @@ const XP_POSITION := Vector2(2, 12)
 var _sheet: Texture2D
 var _player_health: HealthComponent
 var _player_ki: KiComponent
+var _player_experience: ExperienceComponent
 var _xp_ratio: float = 0.0
 
 func _ready() -> void:
@@ -101,6 +102,9 @@ func _bind_player() -> void:
 	_player_ki = player.get_node_or_null(
 		"Components/KiComponent"
 	) as KiComponent
+	_player_experience = player.get_node_or_null(
+		"Components/ExperienceComponent"
+	) as ExperienceComponent
 
 	if _player_health != null:
 		_player_health.health_changed.connect(_on_health_changed)
@@ -114,6 +118,16 @@ func _bind_player() -> void:
 		_on_ki_changed(
 			_player_ki.current_ki,
 			_player_ki.max_ki
+		)
+
+	if _player_experience != null:
+		_player_experience.experience_changed.connect(
+			_on_experience_changed
+		)
+		_on_experience_changed(
+			_player_experience.current_experience,
+			_player_experience.experience_to_next_level,
+			_player_experience.current_level
 		)
 
 func _on_health_changed(current_health: int, max_health: int) -> void:
@@ -130,8 +144,17 @@ func _on_ki_changed(current_ki: float, max_ki: float) -> void:
 	var ratio := clampf(current_ki / safe_max, 0.0, 1.0)
 	_set_texture_bar(ki_fill, KI_REGION, ratio)
 
-# Preparado para o sistema de experiência. O vídeo mostra esta barra
-# fina azul/ciano na parte inferior da moldura.
+func _on_experience_changed(
+	current_experience: int,
+	experience_to_next_level: int,
+	_current_level: int
+) -> void:
+	var safe_required := maxi(experience_to_next_level, 1)
+	set_experience_ratio(
+		float(current_experience) / float(safe_required)
+	)
+
+# A barra fina azul/ciano na parte inferior da moldura representa XP.
 func set_experience_ratio(ratio: float) -> void:
 	_xp_ratio = clampf(ratio, 0.0, 1.0)
 	_set_texture_bar(xp_fill, XP_REGION, _xp_ratio)
