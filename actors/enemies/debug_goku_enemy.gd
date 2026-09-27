@@ -4,6 +4,7 @@ extends CharacterBody2D
 const STATE_IDLE: StringName = &"idle"
 const STATE_WALK: StringName = &"walk"
 const STATE_HURT: StringName = &"hurt"
+const STATE_DEFEATED: StringName = &"defeated"
 
 const DIRECTION_ROWS := {
 	&"down": 0,
@@ -35,6 +36,8 @@ var hurt_sheet_path: String = "res://assets/sprites/characters/goku/processed/go
 @export var detection_range: float = 170.0
 @export var attack_range: float = 25.0
 @export var attack_cooldown: float = 0.55
+@export var respawn_for_debug: bool = true
+@export var respawn_delay: float = 1.2
 
 @export_enum("up", "down", "left", "right")
 var initial_facing: String = "left"
@@ -46,7 +49,9 @@ var initial_facing: String = "left"
 @onready var knockback_component: KnockbackComponent = $Components/KnockbackComponent
 @onready var state_machine: StateMachine = $Components/StateMachine
 @onready var melee_combat_component: MeleeCombatComponent = $Components/MeleeCombatComponent
+@onready var experience_reward_component: ExperienceRewardComponent = $Components/ExperienceRewardComponent
 @onready var hurtbox: HurtboxComponent = $Hurtbox
+@onready var body_collision: CollisionShape2D = $CollisionShape2D
 
 var _hurt_time_left: float = 0.0
 var _attack_cooldown_left: float = 0.0
@@ -54,6 +59,7 @@ var _flash_tween: Tween
 var _spawn_position: Vector2
 var _current_facing: StringName = &"left"
 var _target: Node2D
+var _defeated: bool = false
 
 func _ready() -> void:
 	_spawn_position = global_position
@@ -68,6 +74,9 @@ func _ready() -> void:
 	health_component.died.connect(_on_died)
 
 func _physics_process(delta: float) -> void:
+	if _defeated:
+		return
+
 	_attack_cooldown_left = maxf(_attack_cooldown_left - delta, 0.0)
 
 	if state_machine.is_state(STATE_HURT):
@@ -144,6 +153,9 @@ func _set_idle() -> void:
 	_play_current_animation()
 
 func _on_hit_received(_damage: int, source_position: Vector2) -> void:
+	if _defeated:
+		return
+
 	melee_combat_component.cancel_attack()
 	_current_facing = _facing_toward(source_position)
 	state_machine.change_state(STATE_HURT)
@@ -159,15 +171,76 @@ func _on_damaged(damage: int, current_health: int, max_health: int) -> void:
 	_flash()
 
 func _on_died() -> void:
-	print("DebugGokuEnemy derrotado. HP restaurado para continuar os testes.")
-	call_deferred("_reset_after_defeat")
+	if _defeated:
+		return
+
+	_defeated = true
+	melee_combat_component.cancel_attack()
+	knockback_component.stop(self)
+	movement_component.stop(self)
+	state_machine.change_state(STATE_DEFEATED)
+
+	hurtbox.set_deferred("monitorable", false)
+	body_collision.set_deferred("disabled", true)
+
+	var awarded_xp: int = 0
+	if is_instance_valid(_target):
+		awarded_xp = experience_reward_component.grant_to(_target)
+
+	print(
+		"DebugGokuEnemy derrotado. +%d XP."
+		% awarded_xp
+	)
+
+	_show_defeated_pose()
+
+	if _flash_tween != null and _flash_tween.is_valid():
+		_flash_tween.kill()
+
+	_flash_tween = create_tween()
+	_flash_tween.tween_interval(0.35)
+	_flash_tween.tween_property(
+		$Visuals,
+		"modulate",
+		Color(1.0, 1.0, 1.0, 0.0),
+		0.35
+	)
+
+	if respawn_for_debug:
+		_flash_tween.tween_interval(respawn_delay)
+		_flash_tween.tween_callback(_reset_after_defeat)
+	else:
+		_flash_tween.tween_callback(queue_free)
+
+func _show_defeated_pose() -> void:
+	if sprite.sprite_frames == null:
+		return
+
+	var hurt_animation := StringName("hurt_%s" % _current_facing)
+	if not sprite.sprite_frames.has_animation(hurt_animation):
+		return
+
+	sprite.play(hurt_animation)
+	var last_frame: int = (
+		sprite.sprite_frames.get_frame_count(hurt_animation) - 1
+	)
+	sprite.frame = maxi(last_frame, 0)
+	sprite.pause()
 
 func _reset_after_defeat() -> void:
 	health_component.restore_full()
+	experience_reward_component.reset_reward()
 	melee_combat_component.cancel_attack()
 	knockback_component.stop(self)
+
 	global_position = _spawn_position
 	_attack_cooldown_left = attack_cooldown
+	_defeated = false
+
+	$Visuals.modulate = Color.WHITE
+	hurtbox.set_deferred("monitorable", true)
+	body_collision.set_deferred("disabled", false)
+
 	state_machine.change_state(STATE_IDLE)
 	_play_current_animation()
 
