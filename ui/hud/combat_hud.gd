@@ -17,7 +17,8 @@ var enemy_panel_path: String = "res://assets/ui/legacy/processed/enemy_hud_panel
 @onready var enemy_fallback: ColorRect = $EnemyPanel/Fallback
 @onready var enemy_hp_fill: ColorRect = $EnemyPanel/HPFill
 
-const PLAYER_BAR_WIDTH: float = 68.0
+const PLAYER_HP_BAR_WIDTH: float = 39.0
+const PLAYER_KI_BAR_WIDTH: float = 43.0
 const ENEMY_BAR_WIDTH: float = 60.0
 
 var _player_health: HealthComponent
@@ -26,6 +27,7 @@ var _enemy_health: HealthComponent
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	enemy_panel.visible = false
 	_load_local_hud_textures()
 	call_deferred("_bind_targets")
 
@@ -64,9 +66,12 @@ func _bind_targets() -> void:
 			_player_ki.max_ki
 		)
 
-	var enemy := get_tree().get_first_node_in_group("enemy")
-	if enemy != null:
-		_enemy_health = enemy.get_node_or_null("Components/HealthComponent") as HealthComponent
+	# A HUD normal do GBA mostra somente o status do jogador.
+	# A barra do canto direito fica reservada para futuros inimigos marcados
+	# explicitamente como "boss", em vez de aparecer para qualquer inimigo.
+	var boss := get_tree().get_first_node_in_group("boss")
+	if boss != null:
+		_enemy_health = boss.get_node_or_null("Components/HealthComponent") as HealthComponent
 
 	if _enemy_health != null:
 		enemy_panel.visible = true
@@ -81,12 +86,12 @@ func _bind_targets() -> void:
 func _on_player_health_changed(current_health: int, max_health: int) -> void:
 	var safe_max := maxi(max_health, 1)
 	var ratio := clampf(float(current_health) / float(safe_max), 0.0, 1.0)
-	player_hp_fill.size.x = roundf(PLAYER_BAR_WIDTH * ratio)
+	player_hp_fill.size.x = roundf(PLAYER_HP_BAR_WIDTH * ratio)
 
 func _on_player_ki_changed(current_ki: float, max_ki: float) -> void:
 	var safe_max := maxf(max_ki, 1.0)
 	var ratio := clampf(current_ki / safe_max, 0.0, 1.0)
-	player_ki_fill.size.x = roundf(PLAYER_BAR_WIDTH * ratio)
+	player_ki_fill.size.x = roundf(PLAYER_KI_BAR_WIDTH * ratio)
 
 func _on_enemy_health_changed(current_health: int, max_health: int) -> void:
 	var safe_max := maxi(max_health, 1)
