@@ -44,16 +44,15 @@ var dialogue_sheet_path: String = (
 	$DialogueRoot/TextClip/LegacyText
 )
 
-const DIALOGUE_FRAME_REGION := Rect2(6, 17, 160, 62)
+const DIALOGUE_FRAME_REGION := Rect2(6, 16, 160, 64)
 
-# O atlas limpo fornecido pelo usuário é uma versão ampliada (2048x541).
-# Normalizamos esse formato para a geometria compacta usada pelo renderer.
+# O atlas limpo enviado pelo usuário é exatamente a arte original ampliada.
+# Em vez de recortar e remontar regiões individualmente, reduzimos o atlas
+# inteiro à malha original. Isso preserva perfeitamente as coordenadas da
+# moldura e da fonte.
 const CLEAN_ATLAS_MIN_WIDTH: int = 1000
-const CLEAN_FRAME_SOURCE := Rect2i(33, 88, 884, 354)
-const CLEAN_FONT_SOURCE := Rect2i(966, 20, 1079, 498)
-const NORMALIZED_ATLAS_SIZE := Vector2i(377, 128)
-const NORMALIZED_FONT_SIZE := Vector2i(195, 90)
-const NORMALIZED_FONT_DESTINATION := Vector2i(172, 3)
+const NORMALIZED_ATLAS_SIZE := Vector2i(371, 98)
+const FONT_BACKGROUND_REGION := Rect2i(170, 0, 201, 98)
 
 var _sheet: Texture2D
 var _pages: Array[String] = []
@@ -270,50 +269,18 @@ func _load_legacy_sheet() -> void:
 	text_renderer.set_sheet(_sheet)
 
 func _normalize_clean_atlas(source_image: Image) -> Image:
-	var normalized := Image.create(
+	var normalized: Image = source_image.duplicate() as Image
+	normalized.resize(
 		NORMALIZED_ATLAS_SIZE.x,
 		NORMALIZED_ATLAS_SIZE.y,
-		false,
-		Image.FORMAT_RGBA8
-	)
-	normalized.fill(Color(0.0, 0.0, 0.0, 0.0))
-
-	var frame_image := source_image.get_region(
-		CLEAN_FRAME_SOURCE
-	)
-	frame_image.resize(
-		int(DIALOGUE_FRAME_REGION.size.x),
-		int(DIALOGUE_FRAME_REGION.size.y),
 		Image.INTERPOLATE_NEAREST
 	)
-	normalized.blit_rect(
-		frame_image,
-		Rect2i(
-			Vector2i.ZERO,
-			Vector2i(
-				int(DIALOGUE_FRAME_REGION.size.x),
-				int(DIALOGUE_FRAME_REGION.size.y)
-			)
-		),
-		Vector2i(
-			int(DIALOGUE_FRAME_REGION.position.x),
-			int(DIALOGUE_FRAME_REGION.position.y)
-		)
-	)
 
-	var font_image := source_image.get_region(
-		CLEAN_FONT_SOURCE
-	)
-	_make_black_transparent(font_image)
-	font_image.resize(
-		NORMALIZED_FONT_SIZE.x,
-		NORMALIZED_FONT_SIZE.y,
-		Image.INTERPOLATE_NEAREST
-	)
-	normalized.blit_rect(
-		font_image,
-		Rect2i(Vector2i.ZERO, NORMALIZED_FONT_SIZE),
-		NORMALIZED_FONT_DESTINATION
+	# O fundo preto é necessário dentro da moldura verde, então removemos
+	# preto somente da área da fonte à direita do atlas.
+	_make_black_transparent_region(
+		normalized,
+		FONT_BACKGROUND_REGION
 	)
 
 	return normalized
@@ -340,9 +307,25 @@ func _normalize_original_atlas(source_image: Image) -> Image:
 
 	return normalized
 
-func _make_black_transparent(image: Image) -> void:
-	for y in range(image.get_height()):
-		for x in range(image.get_width()):
+func _make_black_transparent_region(
+	image: Image,
+	region: Rect2i
+) -> void:
+	var start_x: int = clampi(region.position.x, 0, image.get_width())
+	var start_y: int = clampi(region.position.y, 0, image.get_height())
+	var end_x: int = clampi(
+		region.end.x,
+		start_x,
+		image.get_width()
+	)
+	var end_y: int = clampi(
+		region.end.y,
+		start_y,
+		image.get_height()
+	)
+
+	for y in range(start_y, end_y):
+		for x in range(start_x, end_x):
 			var pixel: Color = image.get_pixel(x, y)
 
 			if (
