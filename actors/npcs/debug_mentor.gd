@@ -22,6 +22,9 @@ var portrait_path: String = (
 func _ready() -> void:
 	_load_local_sprite()
 
+func get_interaction_label() -> String:
+	return "Talk to Master Roshi"
+
 func interact(actor: Node) -> void:
 	if actor is Node2D:
 		_face_actor(actor as Node2D)
