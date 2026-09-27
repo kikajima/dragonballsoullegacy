@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="PackedScene" path="res://actors/enemies/debug_goku_enemy.tscn" id="1_enemy"]
 [ext_resource type="PackedScene" path="res://actors/npcs/debug_mentor.tscn" id="2_mentor"]
+[ext_resource type="PackedScene" path="res://world/checkpoint_area.tscn" id="3_checkpoint"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(960, 16)
@@ -84,3 +85,7 @@ position = Vector2(360, 135)
 
 [node name="DebugMentor" parent="." instance=ExtResource("2_mentor")]
 position = Vector2(175, 135)
+
+[node name="TrainingCheckpoint" parent="." instance=ExtResource("3_checkpoint")]
+position = Vector2(240, 205)
+checkpoint_id = &"training_room"
