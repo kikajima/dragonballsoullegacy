@@ -97,6 +97,7 @@ monitoring = false
 monitorable = true
 script = ExtResource("3_hurtbox")
 health_component_path = NodePath("../Components/HealthComponent")
+invulnerability_duration = 0.10
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
 shape = SubResource("HurtboxShape")
