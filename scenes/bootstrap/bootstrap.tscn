@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/debug/debug_room.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
@@ -10,6 +10,8 @@
 [ext_resource type="PackedScene" path="res://ui/dialogue/dialogue_box.tscn" id="8_dialogue"]
 [ext_resource type="PackedScene" path="res://ui/pause/pause_menu.tscn" id="9_pause"]
 [ext_resource type="PackedScene" path="res://ui/quest/quest_tracker.tscn" id="10_quest_tracker"]
+[ext_resource type="PackedScene" path="res://ui/notifications/notification_feed.tscn" id="11_notifications"]
+[ext_resource type="Script" path="res://core/game_session.gd" id="12_session"]
 
 [node name="Bootstrap" type="Node2D"]
 
@@ -27,6 +29,10 @@ script = ExtResource("7_world")
 world_container_path = NodePath("../WorldContainer")
 player_container_path = NodePath("../PlayerContainer")
 
+[node name="GameSession" type="Node" parent="."]
+script = ExtResource("12_session")
+autosave_on_quest_complete = true
+
 [node name="WorldContainer" type="Node2D" parent="."]
 
 [node name="DebugRoom" parent="WorldContainer" instance=ExtResource("1_room")]
@@ -40,6 +46,8 @@ player_container_path = NodePath("../PlayerContainer")
 [node name="CombatHUD" parent="UIContainer" instance=ExtResource("3_hud")]
 
 [node name="QuestTracker" parent="UIContainer" instance=ExtResource("10_quest_tracker")]
+
+[node name="NotificationFeed" parent="UIContainer" instance=ExtResource("11_notifications")]
 
 [node name="DialogueBox" parent="UIContainer" instance=ExtResource("8_dialogue")]
 
