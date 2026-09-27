@@ -19,58 +19,170 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.55)
+color = Color(0, 0, 0, 0.6)
 
 [node name="Panel" type="ColorRect" parent="."]
 layout_mode = 0
-offset_left = 170.0
-offset_top = 65.0
-offset_right = 310.0
-offset_bottom = 205.0
-color = Color(0.03, 0.04, 0.07, 0.97)
+offset_left = 75.0
+offset_top = 48.0
+offset_right = 405.0
+offset_bottom = 222.0
+color = Color(0.025, 0.035, 0.06, 0.97)
 
 [node name="Title" type="Label" parent="Panel"]
 layout_mode = 0
 offset_left = 10.0
-offset_top = 8.0
-offset_right = 130.0
-offset_bottom = 28.0
+offset_top = 7.0
+offset_right = 105.0
+offset_bottom = 22.0
 text = "PAUSED"
-theme_override_font_sizes/font_size = 10
-theme_override_font_sizes/font_size = 7
+theme_override_font_sizes/font_size = 9
 horizontal_alignment = 1
 
 [node name="ResumeButton" type="Button" parent="Panel"]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 35.0
-offset_right = 120.0
-offset_bottom = 60.0
+offset_left = 13.0
+offset_top = 31.0
+offset_right = 102.0
+offset_bottom = 54.0
 text = "Resume"
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 7
 
 [node name="SaveButton" type="Button" parent="Panel"]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 66.0
-offset_right = 120.0
-offset_bottom = 91.0
+offset_left = 13.0
+offset_top = 60.0
+offset_right = 102.0
+offset_bottom = 83.0
 text = "Save"
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 7
 
 [node name="LoadButton" type="Button" parent="Panel"]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 97.0
-offset_right = 120.0
-offset_bottom = 122.0
+offset_left = 13.0
+offset_top = 89.0
+offset_right = 102.0
+offset_bottom = 112.0
 text = "Load"
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 7
+
+[node name="QuickHint" type="Label" parent="Panel"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 119.0
+offset_right = 108.0
+offset_bottom = 145.0
+text = "Q  Senzu Bean"
+theme_override_font_sizes/font_size = 6
+horizontal_alignment = 1
 
 [node name="Status" type="Label" parent="Panel"]
 layout_mode = 0
-offset_left = 5.0
-offset_top = 124.0
-offset_right = 135.0
-offset_bottom = 140.0
+offset_left = 7.0
+offset_top = 150.0
+offset_right = 108.0
+offset_bottom = 169.0
+theme_override_font_sizes/font_size = 6
 horizontal_alignment = 1
+
+[node name="Divider" type="ColorRect" parent="Panel"]
+layout_mode = 0
+offset_left = 118.0
+offset_top = 10.0
+offset_right = 119.0
+offset_bottom = 164.0
+color = Color(0.4, 0.48, 0.62, 0.65)
+
+[node name="Stats" type="Control" parent="Panel"]
+layout_mode = 0
+offset_left = 130.0
+offset_top = 10.0
+offset_right = 220.0
+offset_bottom = 159.0
+
+[node name="Header" type="Label" parent="Panel/Stats"]
+layout_mode = 0
+offset_right = 90.0
+offset_bottom = 15.0
+text = "STATUS"
+theme_override_font_sizes/font_size = 7
+
+[node name="Level" type="Label" parent="Panel/Stats"]
+layout_mode = 0
+offset_top = 22.0
+offset_right = 90.0
+offset_bottom = 34.0
+text = "Level  1"
+theme_override_font_sizes/font_size = 6
+
+[node name="XP" type="Label" parent="Panel/Stats"]
+layout_mode = 0
+offset_top = 40.0
+offset_right = 90.0
+offset_bottom = 52.0
+text = "XP  0 / 40"
+theme_override_font_sizes/font_size = 6
+
+[node name="HP" type="Label" parent="Panel/Stats"]
+layout_mode = 0
+offset_top = 58.0
+offset_right = 90.0
+offset_bottom = 70.0
+text = "HP  100 / 100"
+theme_override_font_sizes/font_size = 6
+
+[node name="Ki" type="Label" parent="Panel/Stats"]
+layout_mode = 0
+offset_top = 76.0
+offset_right = 90.0
+offset_bottom = 88.0
+text = "Ki  100 / 100"
+theme_override_font_sizes/font_size = 6
+
+[node name="Zeni" type="Label" parent="Panel/Stats"]
+layout_mode = 0
+offset_top = 94.0
+offset_right = 90.0
+offset_bottom = 106.0
+text = "Zeni  0"
+theme_override_font_sizes/font_size = 6
+
+[node name="Senzu" type="Label" parent="Panel/Stats"]
+layout_mode = 0
+offset_top = 112.0
+offset_right = 90.0
+offset_bottom = 124.0
+text = "Senzu  x0"
+theme_override_font_sizes/font_size = 6
+
+[node name="Quest" type="Control" parent="Panel"]
+layout_mode = 0
+offset_left = 225.0
+offset_top = 10.0
+offset_right = 320.0
+offset_bottom = 159.0
+
+[node name="Header" type="Label" parent="Panel/Quest"]
+layout_mode = 0
+offset_right = 95.0
+offset_bottom = 15.0
+text = "QUEST"
+theme_override_font_sizes/font_size = 7
+
+[node name="Title" type="Label" parent="Panel/Quest"]
+layout_mode = 0
+offset_top = 22.0
+offset_right = 95.0
+offset_bottom = 38.0
+text = "Quest"
+theme_override_font_sizes/font_size = 6
+autowrap_mode = 2
+
+[node name="Objective" type="Label" parent="Panel/Quest"]
+layout_mode = 0
+offset_top = 44.0
+offset_right = 95.0
+offset_bottom = 132.0
+text = "No active quest"
+theme_override_font_sizes/font_size = 6
+autowrap_mode = 2
