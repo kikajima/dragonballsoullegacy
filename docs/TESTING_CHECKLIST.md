@@ -183,3 +183,13 @@ Se algo quebrar, validar nesta ordem:
   - `elite.tres`: frequent blocks/dodges and more tactical movement;
   - `boss.tres`: fastest reactions and highest defensive consistency.
 - Confirm none of the tiers reacts with 100% certainty.
+
+
+## 17. Tier difficulty scaling
+
+- Training Fighter currently uses `Uncommon` and should start slightly tougher than its old base values.
+- Switching to `Common` should restore approximately base HP/damage/speed/rewards.
+- Switching to `Elite` should noticeably increase HP, damage, movement, XP and loot.
+- Switching to `Boss` should create a major HP increase and the highest reward multiplier.
+- Kill/respawn the same debug enemy multiple times and confirm the multipliers are **not** applied repeatedly.
+- Fire a projectile with a wall between the projectile and enemy; the AI should not dodge/block a shot that will be stopped by world geometry first.
