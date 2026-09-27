@@ -16,45 +16,78 @@ script = ExtResource("1_hud")
 layout_mode = 0
 offset_left = 6.0
 offset_top = 6.0
-offset_right = 95.0
-offset_bottom = 30.0
+offset_right = 86.0
+offset_bottom = 22.0
 mouse_filter = 2
 
 [node name="Fallback" type="ColorRect" parent="PlayerPanel"]
 layout_mode = 0
-offset_left = 2.0
-offset_top = 4.0
-offset_right = 84.0
-offset_bottom = 18.0
-color = Color(0.03, 0.04, 0.05, 0.92)
+offset_right = 80.0
+offset_bottom = 16.0
+color = Color(0.02, 0.025, 0.03, 0.95)
 mouse_filter = 2
 
-[node name="PanelTexture" type="TextureRect" parent="PlayerPanel"]
+[node name="Frame" type="TextureRect" parent="PlayerPanel"]
 visible = false
 layout_mode = 0
-offset_right = 89.0
-offset_bottom = 24.0
+offset_right = 80.0
+offset_bottom = 16.0
 expand_mode = 1
 stretch_mode = 0
 mouse_filter = 2
 
+[node name="HPTrack" type="ColorRect" parent="PlayerPanel"]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 3.0
+offset_right = 75.0
+offset_bottom = 6.0
+color = Color(0.015, 0.015, 0.02, 1)
+mouse_filter = 2
+
 [node name="HPFill" type="ColorRect" parent="PlayerPanel"]
 layout_mode = 0
-offset_left = 38.0
-offset_top = 6.0
-offset_right = 77.0
-offset_bottom = 9.0
-color = Color(0.96, 0.12, 0.18, 1)
+offset_left = 32.0
+offset_top = 3.0
+offset_right = 75.0
+offset_bottom = 6.0
+color = Color(0.95, 0.06, 0.09, 1)
+mouse_filter = 2
+
+[node name="KiTrack" type="ColorRect" parent="PlayerPanel"]
+layout_mode = 0
+offset_left = 29.0
+offset_top = 9.0
+offset_right = 74.0
+offset_bottom = 12.0
+color = Color(0.015, 0.015, 0.02, 1)
 mouse_filter = 2
 
 [node name="KiFill" type="ColorRect" parent="PlayerPanel"]
 layout_mode = 0
-offset_left = 33.0
-offset_top = 10.0
-offset_right = 76.0
-offset_bottom = 13.0
-color = Color(0.08, 0.82, 0.16, 1)
+offset_left = 29.0
+offset_top = 9.0
+offset_right = 74.0
+offset_bottom = 12.0
+color = Color(0.02, 0.78, 0.13, 1)
 mouse_filter = 2
+
+[node name="Icon" type="TextureRect" parent="PlayerPanel"]
+visible = false
+z_index = 2
+layout_mode = 0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 22.0
+offset_bottom = 14.0
+expand_mode = 1
+stretch_mode = 0
+mouse_filter = 2
+
+[node name="Divider" type="Polygon2D" parent="PlayerPanel"]
+z_index = 2
+polygon = PackedVector2Array(24, 2, 28, 2, 23, 14, 19, 14)
+color = Color(1, 0.82, 0.08, 1)
 
 [node name="EnemyPanel" type="Control" parent="."]
 visible = false
@@ -72,13 +105,13 @@ offset_bottom = 12.0
 color = Color(0.03, 0.04, 0.05, 0.92)
 mouse_filter = 2
 
-[node name="PanelTexture" type="TextureRect" parent="EnemyPanel"]
-visible = false
+[node name="HPTrack" type="ColorRect" parent="EnemyPanel"]
 layout_mode = 0
-offset_right = 68.0
-offset_bottom = 12.0
-expand_mode = 1
-stretch_mode = 0
+offset_left = 4.0
+offset_top = 3.0
+offset_right = 64.0
+offset_bottom = 9.0
+color = Color(0.015, 0.015, 0.02, 1)
 mouse_filter = 2
 
 [node name="HPFill" type="ColorRect" parent="EnemyPanel"]
@@ -87,5 +120,5 @@ offset_left = 4.0
 offset_top = 3.0
 offset_right = 64.0
 offset_bottom = 9.0
-color = Color(0.96, 0.12, 0.18, 1)
+color = Color(0.95, 0.06, 0.09, 1)
 mouse_filter = 2
