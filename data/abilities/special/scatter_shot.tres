@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SpecialAttackData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/special_attack_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"scatter_shot"
+display_name = "Scatter Shot"
+description = "Three energy blasts spread in a fan."
+attack_type = 2
+cast_pose = 0
+effect_key = &"blue_orb"
+ki_cost = 18.0
+cooldown = 0.85
+damage = 12
+startup_duration = 0.2
+cast_lock_duration = 0.34
+projectile_speed = 245.0
+projectile_scale = 0.9
+projectile_radius = 4.0
+projectile_count = 3
+spread_degrees = 28.0
