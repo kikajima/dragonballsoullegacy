@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://actors/enemies/debug_goku_enemy.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://components/health/health_component.gd" id="2_health"]
@@ -13,6 +13,9 @@
 [ext_resource type="Script" path="res://components/guard/guard_component.gd" id="11_guard"]
 [ext_resource type="Script" path="res://components/ai/enemy_ai_component.gd" id="12_ai"]
 [ext_resource type="Resource" path="res://data/enemies/ai/uncommon.tres" id="13_ai_profile"]
+[ext_resource type="Script" path="res://components/ki/ki_component.gd" id="14_ki"]
+[ext_resource type="Script" path="res://combat/ki/ki_blast_component.gd" id="15_ki_blast"]
+[ext_resource type="PackedScene" path="res://combat/projectiles/ki_blast_projectile.tscn" id="16_projectile"]
 
 [sub_resource type="RectangleShape2D" id="BodyShape"]
 size = Vector2(18, 28)
@@ -23,7 +26,7 @@ size = Vector2(18, 28)
 size = Vector2(14, 18)
 
 [sub_resource type="RectangleShape2D" id="AttackShape"]
-size = Vector2(16, 14)
+size = Vector2(22, 20)
 
 [node name="DebugGokuEnemy" type="CharacterBody2D" groups=["enemy"]]
 motion_mode = 1
@@ -91,7 +94,7 @@ initial_state = &"idle"
 script = ExtResource("7_melee")
 damage = 8
 attack_duration = 0.5
-attack_offset_distance = 16.0
+attack_offset_distance = 14.0
 hitbox_active_from = 0.14
 hitbox_active_until = 0.34
 combo_chain_from = 0.36
@@ -112,6 +115,22 @@ script = ExtResource("12_ai")
 profile = ExtResource("13_ai_profile")
 melee_threat_range = 36.0
 projectile_corridor_radius = 16.0
+
+[node name="KiComponent" type="Node" parent="Components"]
+script = ExtResource("14_ki")
+max_ki = 100.0
+starting_ki = 100.0
+
+[node name="KiBlastComponent" type="Node" parent="Components"]
+script = ExtResource("15_ki_blast")
+projectile_scene = ExtResource("16_projectile")
+ki_component_path = NodePath("../KiComponent")
+ki_cost = 0.0
+projectile_damage = 9
+startup_duration = 0.16
+repeat_interval = 0.18
+max_buffered_casts = 1
+spawn_distance = 18.0
 
 [node name="Hurtbox" type="Area2D" parent="."]
 collision_layer = 4
