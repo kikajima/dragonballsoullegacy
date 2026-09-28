@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SpecialAttackData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/special_attack_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"masenko_ha"
+display_name = "Masenko Ha"
+description = "Fast explosive energy projectile."
+attack_type = 0
+cast_pose = 0
+effect_key = &"masenko"
+ki_cost = 16.0
+cooldown = 0.8
+damage = 28
+startup_duration = 0.22
+cast_lock_duration = 0.34
+projectile_speed = 235.0
+projectile_scale = 1.0
+projectile_radius = 6.0
