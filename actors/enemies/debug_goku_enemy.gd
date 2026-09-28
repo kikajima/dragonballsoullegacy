@@ -54,6 +54,8 @@ var max_zeni_drop: int = 18
 var senzu_drop_chance: float = 0.10
 @export var respawn_for_debug: bool = true
 @export var respawn_delay: float = 1.2
+@export var respawn_clearance_radius: float = 30.0
+@export var respawn_retry_interval: float = 0.20
 
 @export_enum("up", "down", "left", "right")
 var initial_facing: String = "left"
@@ -78,6 +80,8 @@ var _spawn_position: Vector2
 var _current_facing: StringName = &"left"
 var _target: Node2D
 var _defeated: bool = false
+var _respawn_pending: bool = false
+var _respawn_retry_left: float = 0.0
 
 func _ready() -> void:
 	_spawn_position = global_position
@@ -94,6 +98,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if _defeated:
+		_process_respawn_wait(delta)
 		return
 
 	_attack_cooldown_left = maxf(
@@ -387,7 +392,7 @@ func _on_died() -> void:
 
 	if respawn_for_debug:
 		_flash_tween.tween_interval(respawn_delay)
-		_flash_tween.tween_callback(_reset_after_defeat)
+		_flash_tween.tween_callback(_begin_respawn_wait)
 	else:
 		_flash_tween.tween_callback(queue_free)
 
@@ -490,7 +495,48 @@ func _show_defeated_pose() -> void:
 	sprite.frame = maxi(last_frame, 0)
 	sprite.pause()
 
+func _begin_respawn_wait() -> void:
+	_respawn_pending = true
+	_respawn_retry_left = 0.0
+
+func _process_respawn_wait(delta: float) -> void:
+	if not _respawn_pending:
+		return
+
+	_respawn_retry_left = maxf(
+		_respawn_retry_left - delta,
+		0.0
+	)
+
+	if _respawn_retry_left > 0.0:
+		return
+
+	if not _is_respawn_position_clear():
+		_respawn_retry_left = maxf(
+			respawn_retry_interval,
+			0.05
+		)
+		return
+
+	_reset_after_defeat()
+
+func _is_respawn_position_clear() -> bool:
+	var player := get_tree().get_first_node_in_group(
+		"player"
+	) as Node2D
+
+	if player == null:
+		return true
+
+	var distance: float = player.global_position.distance_to(
+		_spawn_position
+	)
+
+	return distance >= maxf(respawn_clearance_radius, 1.0)
+
 func _reset_after_defeat() -> void:
+	_respawn_pending = false
+	_respawn_retry_left = 0.0
 	health_component.restore_full()
 	experience_reward_component.reset_reward()
 	guard_component.set_guarding(false)
