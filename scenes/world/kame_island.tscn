@@ -26,7 +26,7 @@ size = Vector2(180, 544)
 size = Vector2(120, 90)
 
 [sub_resource type="RectangleShape2D" id="DockCollision"]
-size = Vector2(116, 22)
+size = Vector2(148, 30)
 
 [sub_resource type="RectangleShape2D" id="SmallRock"]
 size = Vector2(38, 28)
@@ -45,7 +45,9 @@ bounds = Rect2(0, 0, 960, 544)
 
 [node name="SeaTiles" type="Node2D" parent="Terrain"]
 
-[node name="SandTiles" type="Node2D" parent="Terrain"]
+[node name="BeachTiles" type="Node2D" parent="Terrain"]
+
+[node name="GrassTiles" type="Node2D" parent="Terrain"]
 
 [node name="ShoreTint" type="Polygon2D" parent="Terrain"]
 z_index = -9
@@ -67,12 +69,12 @@ default_color = Color(1, 1, 1, 0.58)
 joint_mode = 1
 
 [node name="KameHouse" type="StaticBody2D" parent="."]
-position = Vector2(480, 228)
+position = Vector2(480, 250)
 collision_layer = 1
 collision_mask = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="KameHouse"]
-position = Vector2(0, 14)
+position = Vector2(0, 18)
 texture = ExtResource("2_house")
 z_index = 2
 
@@ -81,34 +83,69 @@ position = Vector2(0, 54)
 shape = SubResource("HouseCollision")
 
 [node name="PalmTreeLeft" type="Sprite2D" parent="."]
-position = Vector2(292, 250)
+position = Vector2(302, 272)
 texture = ExtResource("3_palm")
 z_index = 1
 
 [node name="PalmTreeRight" type="Sprite2D" parent="."]
-position = Vector2(682, 264)
+position = Vector2(646, 284)
 texture = ExtResource("3_palm")
 flip_h = true
 z_index = 1
 
 [node name="PalmTreeSouth" type="Sprite2D" parent="."]
-position = Vector2(350, 388)
+position = Vector2(628, 420)
 scale = Vector2(0.86, 0.86)
 texture = ExtResource("3_palm")
 z_index = 1
 
 [node name="PalmTreeNorthWest" type="Sprite2D" parent="."]
-position = Vector2(242, 205)
+position = Vector2(250, 196)
 scale = Vector2(0.78, 0.78)
 texture = ExtResource("3_palm")
 flip_h = true
 z_index = 1
 
 [node name="PalmTreeNorthEast" type="Sprite2D" parent="."]
-position = Vector2(718, 205)
+position = Vector2(714, 210)
 scale = Vector2(0.74, 0.74)
 texture = ExtResource("3_palm")
 z_index = 1
+
+[node name="BeachUmbrella" type="Node2D" parent="."]
+position = Vector2(320, 402)
+z_index = 1
+
+[node name="Canopy" type="Polygon2D" parent="BeachUmbrella"]
+polygon = PackedVector2Array(-24, 0, -17, -13, -7, -20, 7, -20, 17, -13, 24, 0)
+color = Color(0.97, 0.82, 0.18, 1)
+
+[node name="RedStripe" type="Polygon2D" parent="BeachUmbrella"]
+polygon = PackedVector2Array(-8, -19, 0, -22, 8, -19, 4, -1, -4, -1)
+color = Color(0.92, 0.2, 0.18, 1)
+
+[node name="Pole" type="Polygon2D" parent="BeachUmbrella"]
+polygon = PackedVector2Array(-1, 0, 1, 0, 1, 30, -1, 30)
+color = Color(0.5, 0.31, 0.14, 1)
+
+[node name="BeachChair" type="Node2D" parent="."]
+position = Vector2(280, 430)
+rotation = -0.18
+z_index = 1
+
+[node name="Seat" type="Polygon2D" parent="BeachChair"]
+polygon = PackedVector2Array(-13, -7, 10, -12, 17, 7, -6, 12)
+color = Color(0.7, 0.9, 1, 1)
+
+[node name="SeatStripe" type="Line2D" parent="BeachChair"]
+width = 2.0
+points = PackedVector2Array(-9, -4, 13, 3)
+default_color = Color(0.95, 0.95, 1, 1)
+
+[node name="Legs" type="Line2D" parent="BeachChair"]
+width = 2.0
+points = PackedVector2Array(-8, 10, -17, 20, 9, 7, 18, 18)
+default_color = Color(0.65, 0.65, 0.65, 1)
 
 [node name="BeachRock" type="StaticBody2D" parent="."]
 position = Vector2(655, 390)
@@ -123,12 +160,12 @@ color = Color(0.48, 0.44, 0.38, 1)
 shape = SubResource("SmallRock")
 
 [node name="Dock" type="StaticBody2D" parent="."]
-position = Vector2(742, 414)
+position = Vector2(788, 468)
 collision_layer = 1
 collision_mask = 0
 
 [node name="Planks" type="Polygon2D" parent="Dock"]
-polygon = PackedVector2Array(-58, -11, 58, -11, 58, 11, -58, 11)
+polygon = PackedVector2Array(-74, -15, 74, -15, 74, 15, -74, 15)
 color = Color(0.43, 0.27, 0.13, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Dock"]
@@ -205,20 +242,20 @@ collision_mask = 0
 shape = SubResource("CornerBlocker")
 
 [node name="MasterRoshi" parent="." instance=ExtResource("4_roshi")]
-position = Vector2(382, 358)
+position = Vector2(414, 372)
 
 [node name="Turtle" parent="." instance=ExtResource("9_turtle")]
-position = Vector2(282, 348)
+position = Vector2(318, 360)
 
 [node name="TrainingRing" type="Line2D" parent="."]
 z_index = 0
 width = 2.0
-points = PackedVector2Array(555, 315, 665, 315, 688, 348, 665, 385, 555, 385, 532, 348, 555, 315)
+points = PackedVector2Array(548, 330, 672, 330, 696, 368, 672, 406, 548, 406, 524, 368, 548, 330)
 default_color = Color(0.86, 0.67, 0.28, 0.75)
 joint_mode = 1
 
 [node name="TrainingFighter" parent="." instance=ExtResource("5_enemy")]
-position = Vector2(610, 348)
+position = Vector2(610, 368)
 dmi_sprite_path = "res://assets/vendor/hu2/Icons/Characters/Krillin.dmi"
 display_name = "Krillin (Sparring)"
 enemy_rank = "Training"
@@ -229,7 +266,7 @@ max_zeni_drop = 0
 senzu_drop_chance = 0.0
 
 [node name="KameHouseEntrance" parent="." instance=ExtResource("8_portal")]
-position = Vector2(480, 334)
+position = Vector2(482, 360)
 target_scene = "res://scenes/world/kame_house_interior.tscn"
 target_spawn = Vector2(272, 305)
 interaction_label = "Enter Kame House"
@@ -242,7 +279,7 @@ visible = false
 visible = false
 
 [node name="BeachGuide" type="Area2D" parent="."]
-position = Vector2(405, 420)
+position = Vector2(438, 434)
 collision_layer = 64
 collision_mask = 0
 monitoring = false
@@ -264,7 +301,7 @@ color = Color(0.92, 0.88, 0.68, 1)
 shape = SubResource("GuideShape")
 
 [node name="IslandCheckpoint" parent="." instance=ExtResource("6_checkpoint")]
-position = Vector2(480, 410)
+position = Vector2(500, 430)
 checkpoint_id = &"kame_island"
 
 [node name="IslandLocation" parent="." instance=ExtResource("7_location")]
@@ -273,13 +310,13 @@ scale = Vector2(3.6, 2.25)
 location_name = "MASTER ROSHI'S ISLAND"
 
 [node name="TravelCapsule" type="Sprite2D" parent="."]
-position = Vector2(805, 396)
+position = Vector2(836, 450)
 scale = Vector2(0.58, 0.58)
 texture = ExtResource("11_ship")
 z_index = 2
 
 [node name="WestCityBoat" parent="." instance=ExtResource("8_portal")]
-position = Vector2(748, 391)
+position = Vector2(790, 444)
 target_scene = "res://scenes/world/west_city_outskirts.tscn"
 target_spawn = Vector2(240, 185)
 interaction_label = "Fly to West City"
