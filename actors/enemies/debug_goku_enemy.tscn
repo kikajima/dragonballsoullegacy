@@ -91,6 +91,7 @@ initial_state = &"idle"
 script = ExtResource("7_melee")
 damage = 8
 attack_duration = 0.5
+attack_offset_distance = 16.0
 hitbox_active_from = 0.14
 hitbox_active_until = 0.34
 combo_chain_from = 0.36
