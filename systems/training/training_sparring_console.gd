@@ -38,6 +38,7 @@ func _spawn_partner() -> void:
 		return
 
 	partner.respawn_for_debug = false
+	partner.is_training_partner = true
 	partner.min_zeni_drop = 0
 	partner.max_zeni_drop = 0
 	partner.senzu_drop_chance = 0.0
