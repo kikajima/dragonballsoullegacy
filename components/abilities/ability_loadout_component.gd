@@ -5,8 +5,8 @@ signal ability_unlocked(ability_id: StringName)
 signal ability_equipped(slot_index: int, ability_id: StringName)
 signal cooldown_changed(ability_id: StringName, time_left: float)
 
-@export_range(1, 8, 1)
-var slot_count: int = 4
+@export_range(1, 12, 1)
+var slot_count: int = 8
 
 var _unlocked: Dictionary = {}
 var _slots: Array[StringName] = []
