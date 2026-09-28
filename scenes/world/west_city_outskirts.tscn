@@ -1,10 +1,11 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="PackedScene" path="res://actors/enemies/debug_goku_enemy.tscn" id="1_enemy"]
 [ext_resource type="PackedScene" path="res://actors/npcs/debug_mentor.tscn" id="2_mentor"]
 [ext_resource type="PackedScene" path="res://world/checkpoint_area.tscn" id="3_checkpoint"]
 [ext_resource type="PackedScene" path="res://world/location_area.tscn" id="4_location"]
 [ext_resource type="PackedScene" path="res://world/world_portal.tscn" id="5_portal"]
+[ext_resource type="Script" path="res://world/world_camera_bounds.gd" id="6_bounds"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(1280, 20)
@@ -19,6 +20,10 @@ size = Vector2(220, 140)
 size = Vector2(150, 70)
 
 [node name="WestCityOutskirts" type="Node2D"]
+
+[node name="CameraBounds" type="Node" parent="."]
+script = ExtResource("6_bounds")
+bounds = Rect2(0, 0, 1280, 720)
 
 [node name="Ground" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(0, 0, 1280, 0, 1280, 720, 0, 720)
