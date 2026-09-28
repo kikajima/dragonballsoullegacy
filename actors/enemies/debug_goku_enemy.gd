@@ -832,6 +832,15 @@ func _fallback_respawn_direction(player: Node2D) -> Vector2:
 	return Vector2.RIGHT
 
 func _reset_after_defeat() -> void:
+	# Debug fighters should not respawn directly into a beam that is still
+	# being held. Besides looking odd, that could repeatedly award XP/loot
+	# from one sustained cast.
+	if get_tree().get_first_node_in_group("active_special_beam") != null:
+		_flash_tween = create_tween()
+		_flash_tween.tween_interval(0.20)
+		_flash_tween.tween_callback(_reset_after_defeat)
+		return
+
 	health_component.restore_full()
 	experience_reward_component.reset_reward()
 	guard_component.set_guarding(false)
