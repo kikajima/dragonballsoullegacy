@@ -1,0 +1,184 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://scenes/world/kame_island.gd" id="1_island"]
+[ext_resource type="Texture2D" path="res://assets/vendor/hu2/Icons/Images/NewKameHouse.png" id="2_house"]
+[ext_resource type="Texture2D" path="res://assets/vendor/hu2/Icons/Images/PalmTree.png" id="3_palm"]
+[ext_resource type="PackedScene" path="res://actors/npcs/master_roshi.tscn" id="4_roshi"]
+[ext_resource type="PackedScene" path="res://actors/enemies/debug_goku_enemy.tscn" id="5_enemy"]
+[ext_resource type="PackedScene" path="res://world/checkpoint_area.tscn" id="6_checkpoint"]
+[ext_resource type="PackedScene" path="res://world/location_area.tscn" id="7_location"]
+[ext_resource type="PackedScene" path="res://world/world_portal.tscn" id="8_portal"]
+
+[sub_resource type="RectangleShape2D" id="HouseCollision"]
+size = Vector2(118, 78)
+
+[sub_resource type="RectangleShape2D" id="SeaHorizontal"]
+size = Vector2(960, 100)
+
+[sub_resource type="RectangleShape2D" id="SeaVertical"]
+size = Vector2(180, 544)
+
+[sub_resource type="RectangleShape2D" id="CornerBlocker"]
+size = Vector2(120, 90)
+
+[sub_resource type="RectangleShape2D" id="DockCollision"]
+size = Vector2(116, 22)
+
+[sub_resource type="RectangleShape2D" id="SmallRock"]
+size = Vector2(38, 28)
+
+[node name="KameIsland" type="Node2D"]
+script = ExtResource("1_island")
+
+[node name="Terrain" type="Node2D" parent="."]
+
+[node name="SeaTiles" type="Node2D" parent="Terrain"]
+
+[node name="SandTiles" type="Node2D" parent="Terrain"]
+
+[node name="ShoreTint" type="Polygon2D" parent="Terrain"]
+z_index = -9
+polygon = PackedVector2Array(185, 250, 205, 165, 275, 115, 380, 92, 500, 90, 610, 108, 700, 150, 748, 215, 760, 302, 735, 380, 655, 428, 540, 452, 410, 452, 300, 428, 220, 382, 185, 320)
+color = Color(1, 0.86, 0.55, 0.18)
+
+[node name="KameHouse" type="StaticBody2D" parent="."]
+position = Vector2(480, 228)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="KameHouse"]
+position = Vector2(0, 14)
+texture = ExtResource("2_house")
+z_index = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KameHouse"]
+position = Vector2(0, 54)
+shape = SubResource("HouseCollision")
+
+[node name="PalmTreeLeft" type="Sprite2D" parent="."]
+position = Vector2(292, 250)
+texture = ExtResource("3_palm")
+z_index = 1
+
+[node name="PalmTreeRight" type="Sprite2D" parent="."]
+position = Vector2(682, 264)
+texture = ExtResource("3_palm")
+flip_h = true
+z_index = 1
+
+[node name="PalmTreeSouth" type="Sprite2D" parent="."]
+position = Vector2(350, 388)
+scale = Vector2(0.86, 0.86)
+texture = ExtResource("3_palm")
+z_index = 1
+
+[node name="BeachRock" type="StaticBody2D" parent="."]
+position = Vector2(655, 390)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Visual" type="Polygon2D" parent="BeachRock"]
+polygon = PackedVector2Array(-19, -12, 14, -14, 20, 8, -15, 14)
+color = Color(0.48, 0.44, 0.38, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BeachRock"]
+shape = SubResource("SmallRock")
+
+[node name="Dock" type="StaticBody2D" parent="."]
+position = Vector2(742, 414)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Planks" type="Polygon2D" parent="Dock"]
+polygon = PackedVector2Array(-58, -11, 58, -11, 58, 11, -58, 11)
+color = Color(0.43, 0.27, 0.13, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Dock"]
+shape = SubResource("DockCollision")
+
+[node name="SeaBoundaries" type="Node2D" parent="."]
+
+[node name="TopSea" type="StaticBody2D" parent="SeaBoundaries"]
+position = Vector2(480, 42)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SeaBoundaries/TopSea"]
+shape = SubResource("SeaHorizontal")
+
+[node name="BottomSea" type="StaticBody2D" parent="SeaBoundaries"]
+position = Vector2(480, 505)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SeaBoundaries/BottomSea"]
+shape = SubResource("SeaHorizontal")
+
+[node name="LeftSea" type="StaticBody2D" parent="SeaBoundaries"]
+position = Vector2(78, 272)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SeaBoundaries/LeftSea"]
+shape = SubResource("SeaVertical")
+
+[node name="RightSea" type="StaticBody2D" parent="SeaBoundaries"]
+position = Vector2(882, 272)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SeaBoundaries/RightSea"]
+shape = SubResource("SeaVertical")
+
+[node name="CornerNW" type="StaticBody2D" parent="SeaBoundaries"]
+position = Vector2(208, 125)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SeaBoundaries/CornerNW"]
+shape = SubResource("CornerBlocker")
+
+[node name="CornerNE" type="StaticBody2D" parent="SeaBoundaries"]
+position = Vector2(752, 125)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SeaBoundaries/CornerNE"]
+shape = SubResource("CornerBlocker")
+
+[node name="CornerSW" type="StaticBody2D" parent="SeaBoundaries"]
+position = Vector2(208, 430)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SeaBoundaries/CornerSW"]
+shape = SubResource("CornerBlocker")
+
+[node name="CornerSE" type="StaticBody2D" parent="SeaBoundaries"]
+position = Vector2(792, 462)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SeaBoundaries/CornerSE"]
+shape = SubResource("CornerBlocker")
+
+[node name="MasterRoshi" parent="." instance=ExtResource("4_roshi")]
+position = Vector2(382, 358)
+
+[node name="TrainingFighter" parent="." instance=ExtResource("5_enemy")]
+position = Vector2(610, 348)
+
+[node name="IslandCheckpoint" parent="." instance=ExtResource("6_checkpoint")]
+position = Vector2(480, 410)
+checkpoint_id = &"kame_island"
+
+[node name="IslandLocation" parent="." instance=ExtResource("7_location")]
+position = Vector2(480, 285)
+scale = Vector2(3.6, 2.25)
+location_name = "MASTER ROSHI'S ISLAND"
+
+[node name="WestCityBoat" parent="." instance=ExtResource("8_portal")]
+position = Vector2(748, 391)
+target_scene = "res://scenes/world/west_city_outskirts.tscn"
+target_spawn = Vector2(240, 185)
+interaction_label = "Travel to West City"
