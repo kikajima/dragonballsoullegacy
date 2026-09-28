@@ -6,6 +6,8 @@ extends Area2D
 @export var lifetime: float = 1.6
 @export var projectile_fps: float = 12.0
 @export var impact_duration: float = 0.12
+@export var clashes_with_projectiles: bool = true
+@export var projectile_clash_radius: float = 3.5
 
 @export_file("*.png")
 var projectile_sheet_path: String = "res://assets/sprites/effects/processed/ki_blast_projectile.png"
@@ -60,10 +62,40 @@ func _physics_process(delta: float) -> void:
 		start_position + _direction * speed * delta
 	)
 
+	var projectile_hit: Dictionary = _cast_against_projectiles(
+		start_position,
+		end_position
+	)
 	var solid_hit: Dictionary = _cast_against_solids(
 		start_position,
 		end_position
 	)
+
+	if _projectile_hit_happens_first(
+		projectile_hit,
+		solid_hit,
+		start_position
+	):
+		var clash_position_value: Variant = projectile_hit.get(
+			"position",
+			end_position
+		)
+		var clash_position: Vector2 = clash_position_value as Vector2
+		var other_value: Variant = projectile_hit.get(
+			"projectile",
+			null
+		)
+		var other_projectile := other_value as Node2D
+
+		if other_projectile != null:
+			resolve_projectile_clash(
+				other_projectile,
+				clash_position
+			)
+		else:
+			_start_impact_at(clash_position)
+		return
+
 	if not solid_hit.is_empty():
 		var hit_position_value: Variant = solid_hit.get(
 			"position",
@@ -90,6 +122,24 @@ func _physics_process(delta: float) -> void:
 
 func _on_area_entered(area: Area2D) -> void:
 	if _impacted or area == null:
+		return
+
+	if (
+		clashes_with_projectiles
+		and area != self
+		and area.is_in_group("combat_projectile")
+	):
+		if area.has_method("is_active_projectile"):
+			var active_value: Variant = area.call(
+				"is_active_projectile"
+			)
+			if not bool(active_value):
+				return
+
+		var clash_position: Vector2 = (
+			global_position + area.global_position
+		) * 0.5
+		resolve_projectile_clash(area, clash_position)
 		return
 
 	# Dedicated non-damage blockers are used by NPCs such as Master Roshi.
@@ -132,6 +182,119 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 
 	_handle_solid_body(body)
+
+func _cast_against_projectiles(
+	from_position: Vector2,
+	to_position: Vector2
+) -> Dictionary:
+	if not clashes_with_projectiles:
+		return {}
+
+	var nearest: Node2D = null
+	var nearest_position: Vector2 = Vector2.ZERO
+	var nearest_distance: float = INF
+
+	var projectiles: Array[Node] = get_tree().get_nodes_in_group(
+		"combat_projectile"
+	)
+
+	for node in projectiles:
+		var other := node as Node2D
+		if other == null or other == self:
+			continue
+
+		if other.has_method("is_active_projectile"):
+			var active_value: Variant = other.call(
+				"is_active_projectile"
+			)
+			if not bool(active_value):
+				continue
+
+		var other_radius: float = projectile_clash_radius
+		if other.has_method("get_projectile_clash_radius"):
+			var radius_value: Variant = other.call(
+				"get_projectile_clash_radius"
+			)
+			other_radius = maxf(float(radius_value), 0.0)
+
+		var closest: Vector2 = _closest_point_on_segment(
+			other.global_position,
+			from_position,
+			to_position
+		)
+		var combined_radius: float = maxf(
+			projectile_clash_radius,
+			0.0
+		) + other_radius
+
+		if closest.distance_to(other.global_position) > combined_radius:
+			continue
+
+		var distance: float = from_position.distance_to(closest)
+		if distance >= nearest_distance:
+			continue
+
+		nearest = other
+		nearest_position = (
+			closest + other.global_position
+		) * 0.5
+		nearest_distance = distance
+
+	if nearest == null:
+		return {}
+
+	return {
+		"projectile": nearest,
+		"position": nearest_position,
+		"distance": nearest_distance,
+	}
+
+func _projectile_hit_happens_first(
+	projectile_hit: Dictionary,
+	solid_hit: Dictionary,
+	start_position: Vector2
+) -> bool:
+	if projectile_hit.is_empty():
+		return false
+
+	if solid_hit.is_empty():
+		return true
+
+	var projectile_position_value: Variant = projectile_hit.get(
+		"position",
+		start_position
+	)
+	var solid_position_value: Variant = solid_hit.get(
+		"position",
+		start_position
+	)
+
+	var projectile_position: Vector2 = projectile_position_value as Vector2
+	var solid_position: Vector2 = solid_position_value as Vector2
+
+	return (
+		start_position.distance_squared_to(projectile_position)
+		<= start_position.distance_squared_to(solid_position)
+	)
+
+func _closest_point_on_segment(
+	point: Vector2,
+	segment_start: Vector2,
+	segment_end: Vector2
+) -> Vector2:
+	var segment: Vector2 = segment_end - segment_start
+	var length_squared: float = segment.length_squared()
+
+	if length_squared <= 0.000001:
+		return segment_start
+
+	var ratio: float = clampf(
+		(point - segment_start).dot(segment) / length_squared,
+		0.0,
+		1.0
+	)
+
+	return segment_start + segment * ratio
 
 func _cast_against_solids(
 	from_position: Vector2,
@@ -179,11 +342,47 @@ func _configure_collision_filter() -> void:
 		return
 
 	if _source_actor.is_in_group("enemy"):
-		# World + Player/Hurtbox.
-		collision_mask = 3
+		# World + Player/Hurtbox + Projectiles.
+		collision_mask = 35
 	elif _source_actor.is_in_group("player"):
-		# World + Enemy/Hurtbox.
-		collision_mask = 5
+		# World + Enemy/Hurtbox + Projectiles.
+		collision_mask = 37
+
+func get_projectile_clash_radius() -> float:
+	return projectile_clash_radius
+
+func resolve_projectile_clash(
+	other_projectile: Node2D,
+	clash_position: Vector2
+) -> void:
+	if _impacted or other_projectile == null:
+		return
+
+	if (
+		other_projectile.has_method("is_active_projectile")
+		and not bool(
+			other_projectile.call("is_active_projectile")
+		)
+	):
+		return
+
+	_start_impact_at(clash_position)
+
+	if other_projectile.has_method("receive_projectile_clash"):
+		other_projectile.call(
+			"receive_projectile_clash",
+			self,
+			clash_position
+		)
+
+func receive_projectile_clash(
+	_other_projectile: Node,
+	clash_position: Vector2
+) -> void:
+	if _impacted:
+		return
+
+	_start_impact_at(clash_position)
 
 func get_source_actor() -> Node:
 	return _source_actor
@@ -196,6 +395,10 @@ func get_projectile_speed() -> float:
 
 func is_active_projectile() -> bool:
 	return not _impacted
+
+func _start_impact_at(impact_position: Vector2) -> void:
+	global_position = impact_position
+	_start_impact()
 
 func _start_impact() -> void:
 	if _impacted:
