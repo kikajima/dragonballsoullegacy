@@ -66,6 +66,7 @@ var _fired: bool = false
 var _startup_left: float = 0.0
 var _lock_left: float = 0.0
 var _charge_time: float = 0.0
+var _charge_ki_spent: float = 0.0
 var _cast_facing: StringName = &"down"
 var _cast_direction: Vector2 = Vector2.DOWN
 var _active_data: SpecialAttackData
@@ -180,6 +181,7 @@ func start_cast(
 	_startup_left = maxf(data.startup_duration, 0.0)
 	_lock_left = 0.0
 	_charge_time = 0.0
+	_charge_ki_spent = 0.0
 	_flurry_hits_left = 0
 	_flurry_bonus_hits_added = 0
 	_flurry_tick_left = 0.0
@@ -222,11 +224,8 @@ func tick_cast(
 			return
 
 	if _active_data.is_charge_attack() and not _fired:
-		if input_held:
-			_charge_time = minf(
-				_charge_time + delta,
-				_active_data.charge_duration
-			)
+		if input_held and get_charge_ratio() < 1.0:
+			_advance_charge(delta)
 			_update_charge_preview(caster)
 			charge_changed.emit(
 				_active_data.ability_id,
@@ -312,6 +311,14 @@ func get_charge_ratio() -> float:
 		1.0
 	)
 
+func get_charge_ki_spent() -> float:
+	return _charge_ki_spent
+
+func get_charge_ki_rate() -> float:
+	if _active_data == null:
+		return 0.0
+	return _active_data.get_charge_ki_drain_rate()
+
 func is_charging() -> bool:
 	return (
 		_casting
@@ -327,24 +334,19 @@ func _tick_continuous_beam(
 	input_held: bool
 ) -> void:
 	if not _fired and _active_data.charge_duration > 0.0:
-		# Charged beams have a preparation phase before the actual beam
-		# exists. Holding the input fills the charge; releasing too early
-		# cancels without consuming Ki or starting cooldown.
-		if not input_held:
-			_finish_cast(false)
+		if input_held and get_charge_ratio() < 1.0:
+			_advance_charge(delta)
+			_update_charge_preview(caster)
+			charge_changed.emit(
+				_active_data.ability_id,
+				get_charge_ratio()
+			)
 			return
 
-		_charge_time = minf(
-			_charge_time + delta,
-			_active_data.charge_duration
-		)
-		_update_charge_preview(caster)
-		charge_changed.emit(
-			_active_data.ability_id,
-			get_charge_ratio()
-		)
-
-		if _charge_time < _active_data.charge_duration:
+		# Releasing a charged beam fires whatever Ki was invested so far.
+		# A full charge still fires automatically while the button is held.
+		if not input_held and get_charge_ratio() <= 0.0:
+			_finish_cast(false)
 			return
 
 		_clear_charge_preview()
@@ -356,7 +358,8 @@ func _tick_continuous_beam(
 
 		_active_beam = _spawn_beam(
 			caster,
-			_active_data
+			_active_data,
+			get_charge_ratio()
 		)
 		_fired = _active_beam != null
 		if not _fired:
@@ -382,6 +385,32 @@ func _tick_continuous_beam(
 			_cast_direction,
 			_beam_spawn_distance(_active_data)
 		)
+
+func _advance_charge(delta: float) -> void:
+	if _active_data == null or not _active_data.is_charge_attack():
+		return
+
+	var rate: float = _active_data.get_charge_ki_drain_rate()
+	if rate <= 0.0:
+		_charge_time = minf(
+			_charge_time + delta,
+			_active_data.charge_duration
+		)
+		return
+
+	var requested: float = rate * maxf(delta, 0.0)
+	var consumed: float = ki_component.consume_up_to(
+		requested,
+		_active_data.ki_cost
+	)
+	if consumed <= 0.0:
+		return
+
+	_charge_ki_spent += consumed
+	_charge_time = minf(
+		_charge_time + consumed / rate,
+		_active_data.charge_duration
+	)
 
 func _tick_flurry(
 	caster: Node2D,
@@ -644,7 +673,8 @@ func _spawn_spread(
 
 func _spawn_beam(
 	caster: Node2D,
-	data: SpecialAttackData
+	data: SpecialAttackData,
+	charge_ratio: float = 0.0
 ) -> SpecialAttackBeam:
 	if beam_scene == null:
 		return null
@@ -665,7 +695,8 @@ func _spawn_beam(
 		_runtime_damage_data(data),
 		_cast_direction,
 		caster,
-		_beam_spawn_distance(data)
+		_beam_spawn_distance(data),
+		charge_ratio
 	)
 	return beam
 
@@ -938,6 +969,7 @@ func _finish_cast(start_cooldown: bool) -> void:
 	_startup_left = 0.0
 	_lock_left = 0.0
 	_charge_time = 0.0
+	_charge_ki_spent = 0.0
 	_flurry_hits_left = 0
 	_flurry_bonus_hits_added = 0
 	_flurry_tick_left = 0.0
