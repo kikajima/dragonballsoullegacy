@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SpecialAttackData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/special_attack_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"special_beam_cannon"
+display_name = "Special Beam Cannon"
+description = "Long narrow piercing-style energy beam."
+attack_type = 1
+cast_pose = 1
+effect_key = &"special_beam"
+ki_cost = 24.0
+cooldown = 1.35
+damage = 38
+startup_duration = 0.32
+cast_lock_duration = 0.62
+beam_range = 240.0
+beam_width = 6.0
+beam_duration = 0.55
