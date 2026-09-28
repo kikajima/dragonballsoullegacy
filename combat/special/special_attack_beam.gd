@@ -392,10 +392,8 @@ func _resolve_nearest_target_length(max_length: float) -> float:
 			# HU2 changes the beam object occupying the victim's tile to
 			# KameHit. Keep the collision at the target's front edge, but
 			# render the impact animation over the target center.
-			_impact_visual_length = clampf(
-				forward_distance,
-				1.0,
-				max_length + HU2_BEAM_TILE_SIZE * 0.5
+			_impact_visual_length = _snap_kame_tile_center(
+				forward_distance
 			)
 
 	return nearest
@@ -487,69 +485,55 @@ func _refresh_kamehameha_visual(length: float) -> void:
 		_clear_kamehameha_visual()
 		return
 
-	# HU2 builds the Kamehameha one 32px BYOND tile at a time:
-	# Start -> Mid... -> Head, with Hit replacing the head on impact.
+	# HU2 does not place the beam endpoint at arbitrary pixel coordinates.
+	# Every beam object occupies one 32x32 BYOND tile:
 	#
-	# The visual endpoint may be farther than the collision endpoint because
-	# KameHit is centered over the victim's tile. Segment count therefore has
-	# to be calculated from the VISUAL endpoint, otherwise the last Mid can
-	# stop one tile early and leave a visible break before KameHit.
-	var first_center: float = minf(
-		HU2_BEAM_TILE_SIZE * 0.5,
-		length * 0.5
-	)
-	var last_center: float = maxf(
-		length - HU2_BEAM_TILE_SIZE * 0.5,
-		first_center
-	)
+	#   Start -> Mid -> Mid -> ... -> Head/Hit
+	#
+	# Keeping every center on this exact grid is critical. If KameHit is
+	# allowed to sit between tiles it overlaps the preceding KameMid and the
+	# two animations visually mix.
+	var first_center: float = HU2_BEAM_TILE_SIZE * 0.5
+	var last_center: float = _snap_kame_tile_center(length)
 
-	if _beam_impacting:
-		last_center = (
-			_impact_visual_length
-			if _impact_visual_length > 0.0
-			else length
-		)
+	if _beam_impacting and _impact_visual_length > 0.0:
+		last_center = _impact_visual_length
 
-	var visual_span: float = maxf(
-		last_center - first_center,
-		0.0
+	last_center = maxf(last_center, first_center)
+
+	var last_tile_index: int = maxi(
+		roundi(
+			(last_center - first_center)
+			/ HU2_BEAM_TILE_SIZE
+		),
+		0
 	)
-	var segment_count: int = maxi(
-		int(ceil(visual_span / HU2_BEAM_TILE_SIZE)) + 1,
-		2
-	)
+	var segment_count: int = last_tile_index + 1
 
 	_ensure_kame_segment_count(segment_count)
 
 	for index in range(segment_count):
 		var segment: AnimatedSprite2D = _kame_segments[index]
+		var is_first: bool = index == 0
+		var is_last: bool = index == segment_count - 1
 		var state: StringName = KAME_MID_STATE
 
-		if index == 0:
+		if is_last and _beam_battle_visual:
+			state = KAME_BATTLE_STATE
+		elif is_last and _beam_impacting:
+			state = KAME_HIT_STATE
+		elif is_last:
+			state = KAME_HEAD_STATE
+		elif is_first:
 			state = KAME_START_STATE
-		elif index == segment_count - 1:
-			if _beam_battle_visual:
-				state = KAME_BATTLE_STATE
-			elif _beam_impacting:
-				state = KAME_HIT_STATE
-			else:
-				state = KAME_HEAD_STATE
 
-		var x_position: float
-		if index == segment_count - 1:
-			x_position = last_center
-		else:
-			# Keep every intermediate tile no farther than 32px from the
-			# next one. This mirrors BYOND's get_step() beam construction.
-			x_position = minf(
-				first_center
-					+ HU2_BEAM_TILE_SIZE * float(index),
-				last_center
-			)
-
-		segment.position = Vector2(x_position, 0.0)
-		# The parent rotates the tile positions along the beam. Cancel that
-		# rotation on the sprite itself and use HU2's actual DMI direction.
+		segment.position = Vector2(
+			first_center
+				+ HU2_BEAM_TILE_SIZE * float(index),
+			0.0
+		)
+		# The parent rotates tile positions along the beam. The DMI state
+		# itself already contains the proper NORTH/SOUTH/EAST/WEST art.
 		segment.rotation = -rotation
 		segment.visible = true
 		segment.call(
@@ -562,6 +546,24 @@ func _refresh_kamehameha_visual(length: float) -> void:
 		)
 
 	_synchronize_kame_segments()
+
+func _snap_kame_tile_center(distance: float) -> float:
+	var first_center: float = HU2_BEAM_TILE_SIZE * 0.5
+	if distance <= first_center:
+		return first_center
+
+	var tile_index: int = maxi(
+		roundi(
+			(distance - first_center)
+			/ HU2_BEAM_TILE_SIZE
+		),
+		0
+	)
+
+	return (
+		first_center
+		+ HU2_BEAM_TILE_SIZE * float(tile_index)
+	)
 
 func _synchronize_kame_segments() -> void:
 	if _kame_segments.is_empty():
