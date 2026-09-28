@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="PackedScene" path="res://systems/training/training_gravity_console.tscn" id="1_gravity"]
 [ext_resource type="PackedScene" path="res://systems/training/training_punching_bag.tscn" id="2_bag"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://world/checkpoint_area.tscn" id="6_checkpoint"]
 [ext_resource type="PackedScene" path="res://world/location_area.tscn" id="7_location"]
 [ext_resource type="PackedScene" path="res://systems/training/recovery_station.tscn" id="8_recovery"]
+[ext_resource type="Script" path="res://systems/training/capsule_training_chamber.gd" id="9_chamber"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(820, 18)
@@ -19,6 +20,7 @@ size = Vector2(18, 520)
 size = Vector2(180, 70)
 
 [node name="CapsuleTrainingChamber" type="Node2D"]
+script = ExtResource("9_chamber")
 
 [node name="Floor" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(0, 0, 820, 0, 820, 520, 0, 520)
