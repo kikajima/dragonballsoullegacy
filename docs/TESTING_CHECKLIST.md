@@ -193,3 +193,16 @@ Se algo quebrar, validar nesta ordem:
 - Switching to `Boss` should create a major HP increase and the highest reward multiplier.
 - Kill/respawn the same debug enemy multiple times and confirm the multipliers are **not** applied repeatedly.
 - Fire a projectile with a wall between the projectile and enemy; the AI should not dodge/block a shot that will be stopped by world geometry first.
+
+
+## 18. Projectile clash collisions
+
+- Fire a Player Ki Blast directly against an enemy Ki Blast.
+- The two projectiles must stop at the collision point.
+- Both should enter their impact visual instead of crossing through each other.
+- Neither projectile should damage Player or enemy after the clash.
+- Repeat at close range and long range.
+- Repeat with diagonal enemy shots.
+- Fire two shots that pass beside each other; they must not clash when their collision radii do not overlap.
+- Confirm a wall closer than the opposing projectile still absorbs the shot first.
+- Confirm consecutive Ki Blasts travelling in the same direction do not destroy each other unless their actual collision shapes overlap.
