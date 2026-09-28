@@ -780,64 +780,14 @@ func _process_respawn_collision(delta: float) -> void:
 	if _respawn_collision_time_left > 0.0:
 		return
 
-	# Respawn itself is never delayed by attacks elsewhere in the scene.
-	# Only keep the fighter intangible if a hostile beam/projectile is
-	# actually crossing the respawn point.
-	if _respawn_point_under_active_attack():
-		_respawn_collision_time_left = 0.08
-		return
-
+	# The fighter becomes hittable again after the short overlap grace even
+	# if a beam is currently crossing the spawn point. Sustained attacks
+	# must be able to damage a newly respawned target instead of freezing it.
 	_resolve_respawn_overlap()
 
 	_respawn_collision_pending = false
 	body_collision.set_deferred("disabled", false)
 	hurtbox.set_deferred("monitorable", true)
-
-func _respawn_point_under_active_attack() -> bool:
-	for node in get_tree().get_nodes_in_group("active_special_beam"):
-		var beam := node as Node2D
-		if beam == null:
-			continue
-
-		var source: Node = null
-		if beam.has_method("get_source_actor"):
-			source = beam.call("get_source_actor") as Node
-
-		if source != null and source.is_in_group("enemy"):
-			continue
-
-		if (
-			beam.has_method("affects_global_point")
-			and bool(
-				beam.call(
-					"affects_global_point",
-					global_position,
-					10.0
-				)
-			)
-		):
-			return true
-
-	for node in get_tree().get_nodes_in_group("combat_projectile"):
-		var projectile := node as Node2D
-		if projectile == null:
-			continue
-
-		if projectile.has_method("is_active_projectile"):
-			if not bool(projectile.call("is_active_projectile")):
-				continue
-
-		var source: Node = null
-		if projectile.has_method("get_source_actor"):
-			source = projectile.call("get_source_actor") as Node
-
-		if source != null and source.is_in_group("enemy"):
-			continue
-
-		if projectile.global_position.distance_to(global_position) <= 14.0:
-			return true
-
-	return false
 
 func _resolve_respawn_overlap() -> void:
 	var player := get_tree().get_first_node_in_group(
