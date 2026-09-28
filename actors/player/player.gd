@@ -36,6 +36,7 @@ var kick_move_speed_scale: float = 0.70
 @onready var consumable_component: ConsumableComponent = $Components/ConsumableComponent
 @onready var combo_tracker_component: ComboTrackerComponent = $Components/ComboTrackerComponent
 @onready var ki_blast_component: KiBlastComponent = $Components/KiBlastComponent
+@onready var special_attack_component: SpecialAttackComponent = $Components/SpecialAttackComponent
 @onready var attack_hitbox: HitboxComponent = $Combat/AttackHitbox
 @onready var hurtbox: HurtboxComponent = $Hurtbox
 @onready var animation_controller: PlayerAnimationController = $Visuals/AnimationController
@@ -73,6 +74,10 @@ func _physics_process(delta: float) -> void:
 
 	facing_component.update_from_direction(move_intent)
 
+	if special_attack_component.is_casting():
+		_process_special_attack(delta)
+		return
+
 	if ki_blast_component.is_casting():
 		_process_ki_blast(move_intent, delta)
 		return
@@ -93,6 +98,9 @@ func _physics_process(delta: float) -> void:
 
 	charge_aura.visible = false
 
+	if input_controller.is_next_special_pressed():
+		special_attack_component.select_next()
+
 	if input_controller.is_quick_item_pressed():
 		use_inventory_item(&"senzu_bean")
 
@@ -103,6 +111,21 @@ func _physics_process(delta: float) -> void:
 			animation_controller.update_visual(
 				STATE_IDLE,
 				facing_component.current_facing,
+				delta
+			)
+			return
+
+	if input_controller.is_special_attack_pressed():
+		if special_attack_component.start_cast(
+			facing_component.current_facing,
+			_facing_vector(facing_component.current_facing)
+		):
+			var special_state := special_attack_component.get_cast_state()
+			state_machine.change_state(special_state)
+			movement_component.stop(self)
+			animation_controller.update_visual(
+				special_state,
+				special_attack_component.get_cast_facing(),
 				delta
 			)
 			return
@@ -263,6 +286,29 @@ func _process_charge_ki(delta: float) -> void:
 		charge_aura.visible = false
 		animation_controller.freeze_charge_complete()
 
+func _process_special_attack(delta: float) -> void:
+	guard_component.set_guarding(false)
+	charge_aura.visible = false
+	movement_component.stop(self)
+
+	special_attack_component.tick_cast(self, delta)
+
+	if special_attack_component.is_casting():
+		var cast_state := special_attack_component.get_cast_state()
+		state_machine.change_state(cast_state)
+		animation_controller.update_visual(
+			cast_state,
+			special_attack_component.get_cast_facing(),
+			delta
+		)
+	else:
+		state_machine.change_state(STATE_IDLE)
+		animation_controller.update_visual(
+			STATE_IDLE,
+			facing_component.current_facing,
+			delta
+		)
+
 func _process_ki_blast(move_intent: Vector2, delta: float) -> void:
 	guard_component.set_guarding(false)
 	charge_aura.visible = false
@@ -353,6 +399,7 @@ func _on_hit_received(_damage: int, source_position: Vector2) -> void:
 	combo_tracker_component.break_combo()
 	melee_combat_component.cancel_attack()
 	ki_blast_component.cancel_cast()
+	special_attack_component.cancel_cast()
 
 	var toward_source := source_position - global_position
 	facing_component.update_from_direction(toward_source)
@@ -444,6 +491,19 @@ func _update_movement_state(move_intent: Vector2) -> void:
 		state_machine.change_state(STATE_RUN)
 	else:
 		state_machine.change_state(STATE_WALK)
+
+func _facing_vector(facing: StringName) -> Vector2:
+	match facing:
+		&"up":
+			return Vector2.UP
+		&"down":
+			return Vector2.DOWN
+		&"left":
+			return Vector2.LEFT
+		&"right":
+			return Vector2.RIGHT
+
+	return Vector2.DOWN
 
 func get_current_state() -> StringName:
 	return state_machine.current_state
