@@ -96,6 +96,7 @@ var initial_facing: String = "left"
 @onready var ai_component: EnemyAIComponent = $Components/EnemyAIComponent
 @onready var ki_component: KiComponent = $Components/KiComponent
 @onready var ki_blast_component: KiBlastComponent = $Components/KiBlastComponent
+@onready var status_effect_component: StatusEffectComponent = $Components/StatusEffectComponent
 @onready var experience_reward_component: ExperienceRewardComponent = $Components/ExperienceRewardComponent
 @onready var hurtbox: HurtboxComponent = $Hurtbox
 @onready var body_collision: CollisionShape2D = $CollisionShape2D
@@ -134,6 +135,10 @@ func _physics_process(delta: float) -> void:
 
 	if _respawn_collision_pending:
 		_process_respawn_collision(delta)
+		return
+
+	if status_effect_component.has_status(&"stun"):
+		_process_stunned()
 		return
 
 	_attack_cooldown_left = maxf(
@@ -419,6 +424,15 @@ func _process_ranged_attack(delta: float) -> void:
 		)
 		state_machine.change_state(STATE_IDLE)
 
+	_play_current_animation()
+
+func _process_stunned() -> void:
+	movement_component.stop(self)
+	guard_component.set_guarding(false)
+	ai_component.cancel_rush()
+	melee_combat_component.cancel_attack()
+	ki_blast_component.cancel_cast()
+	state_machine.change_state(STATE_IDLE)
 	_play_current_animation()
 
 func _process_ai_guard() -> void:
