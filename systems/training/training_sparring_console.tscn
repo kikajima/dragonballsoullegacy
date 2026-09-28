@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://systems/training/training_sparring_console.gd" id="1"]
+[ext_resource type="PackedScene" path="res://actors/enemies/debug_goku_enemy.tscn" id="2_enemy"]
+
+[sub_resource type="RectangleShape2D" id="Shape"]
+size = Vector2(34, 26)
+
+[node name="SparringConsole" type="Area2D"]
+collision_layer = 64
+collision_mask = 0
+monitoring = false
+monitorable = true
+script = ExtResource("1")
+partner_scene = ExtResource("2_enemy")
+
+[node name="Visual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-17, -13, 17, -13, 17, 13, -17, 13)
+color = Color(0.34, 0.2, 0.42, 1)
+
+[node name="Screen" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-11, -8, 11, -8, 11, 5, -11, 5)
+color = Color(0.95, 0.45, 1, 0.85)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Shape")
