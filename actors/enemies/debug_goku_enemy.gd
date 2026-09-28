@@ -42,8 +42,9 @@ var block_sheet_path: String = "res://assets/sprites/characters/goku/processed/g
 @export var disengage_range: float = 220.0
 @export var leash_range: float = 260.0
 @export var return_home_tolerance: float = 3.0
-@export var attack_range: float = 25.0
-@export var attack_cooldown: float = 0.55
+@export var attack_range: float = 36.0
+@export var attack_cooldown: float = 0.60
+@export var facing_change_cooldown: float = 0.16
 
 @export var pickup_scene: PackedScene
 @export_range(0, 9999, 1)
@@ -75,6 +76,7 @@ var initial_facing: String = "left"
 
 var _hurt_time_left: float = 0.0
 var _attack_cooldown_left: float = 0.0
+var _facing_change_time_left: float = 0.0
 var _flash_tween: Tween
 var _spawn_position: Vector2
 var _current_facing: StringName = &"left"
@@ -103,6 +105,10 @@ func _physics_process(delta: float) -> void:
 
 	_attack_cooldown_left = maxf(
 		_attack_cooldown_left - delta,
+		0.0
+	)
+	_facing_change_time_left = maxf(
+		_facing_change_time_left - delta,
 		0.0
 	)
 	ai_component.tick(delta)
@@ -184,6 +190,9 @@ func _physics_process(delta: float) -> void:
 
 	if distance_to_target <= attack_range:
 		movement_component.stop(self)
+		_current_facing = _facing_toward(
+			_target.global_position
+		)
 
 		if _attack_cooldown_left <= 0.0:
 			_start_attack()
@@ -684,10 +693,24 @@ func _update_facing_from_direction(direction: Vector2) -> void:
 	if direction.is_zero_approx():
 		return
 
+	var next_facing: StringName
+
 	if absf(direction.x) > absf(direction.y):
-		_current_facing = &"right" if direction.x > 0.0 else &"left"
+		next_facing = &"right" if direction.x > 0.0 else &"left"
 	else:
-		_current_facing = &"down" if direction.y > 0.0 else &"up"
+		next_facing = &"down" if direction.y > 0.0 else &"up"
+
+	if next_facing == _current_facing:
+		return
+
+	if _facing_change_time_left > 0.0:
+		return
+
+	_current_facing = next_facing
+	_facing_change_time_left = maxf(
+		facing_change_cooldown,
+		0.0
+	)
 
 func _facing_toward(source_position: Vector2) -> StringName:
 	var direction := source_position - global_position
