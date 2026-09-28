@@ -27,6 +27,9 @@ var block_sheet_path: String = "res://assets/sprites/characters/goku/processed/g
 var ki_blast_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_ki_blast.png"
 
 @export_file("*.png")
+var beam_cast_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_beam_cast.png"
+
+@export_file("*.png")
 var kick_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_kick.png"
 
 @export_file("*.png")
@@ -43,6 +46,8 @@ var charge_ki_sheet_path: String = "res://assets/sprites/characters/goku/process
 @export var ki_blast_prepare_columns: PackedInt32Array = PackedInt32Array([0])
 @export var ki_blast_1_columns: PackedInt32Array = PackedInt32Array([1])
 @export var ki_blast_2_columns: PackedInt32Array = PackedInt32Array([2])
+@export var special_projectile_columns: PackedInt32Array = PackedInt32Array([1])
+@export var special_beam_columns: PackedInt32Array = PackedInt32Array([0])
 @export var kick_1_columns: PackedInt32Array = PackedInt32Array([0, 1, 0])
 @export var kick_2_columns: PackedInt32Array = PackedInt32Array([2, 3, 2])
 @export var charge_ki_columns: PackedInt32Array = PackedInt32Array([0, 1])
@@ -235,6 +240,29 @@ func _try_build_sprite_frames() -> void:
 			1.0,
 			false
 		)
+		_add_directional_animation(
+			frames,
+			ki_blast_sheet,
+			&"special_projectile",
+			special_projectile_columns,
+			1.0,
+			false
+		)
+		built_any_animation = true
+
+	var beam_cast_sheet := _load_valid_sheet(
+		beam_cast_sheet_path,
+		_required_columns(-1, special_beam_columns)
+	)
+	if beam_cast_sheet != null:
+		_add_directional_animation(
+			frames,
+			beam_cast_sheet,
+			&"special_beam",
+			special_beam_columns,
+			1.0,
+			true
+		)
 		built_any_animation = true
 
 	var charge_ki_sheet := _load_valid_single_row_sheet(
@@ -388,6 +416,7 @@ func _is_one_shot_state(state: StringName) -> bool:
 		or String(state).begins_with("kick_")
 		or state == &"hurt"
 		or String(state).begins_with("ki_blast_")
+		or String(state).begins_with("special_")
 		or state == &"charge_ki"
 	)
 
