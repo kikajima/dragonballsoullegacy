@@ -57,6 +57,15 @@ func _process(_delta: float) -> void:
 		info_label.text = "O  %.1fs   R NEXT" % cooldown
 		return
 
+	if data.is_transformation():
+		if _special.is_transformation_active(
+			data.transformation_id
+		):
+			info_label.text = "ACTIVE  O REVERT   R NEXT"
+		else:
+			info_label.text = "O TRANSFORM   R NEXT"
+		return
+
 	if data.is_charge_attack():
 		info_label.text = (
 			"HOLD O  %.0f KI   R NEXT"
