@@ -42,7 +42,7 @@ var kick_move_speed_scale: float = 0.70
 @onready var attack_hitbox: HitboxComponent = $Combat/AttackHitbox
 @onready var hurtbox: HurtboxComponent = $Hurtbox
 @onready var animation_controller: PlayerAnimationController = $Visuals/AnimationController
-@onready var charge_aura: Polygon2D = $Visuals/ChargeAura
+@onready var charge_aura: AnimatedSprite2D = $Visuals/ChargeAura
 @onready var transformation_aura: Polygon2D = $Visuals/TransformationAura
 @onready var interaction_sensor: InteractionSensor = $InteractionSensor
 
