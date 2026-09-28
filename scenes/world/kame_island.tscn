@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://scenes/world/kame_island.gd" id="1_island"]
 [ext_resource type="Texture2D" path="res://assets/vendor/hu2/Icons/Images/NewKameHouse.png" id="2_house"]
@@ -9,6 +9,8 @@
 [ext_resource type="PackedScene" path="res://world/location_area.tscn" id="7_location"]
 [ext_resource type="PackedScene" path="res://world/world_portal.tscn" id="8_portal"]
 [ext_resource type="PackedScene" path="res://actors/npcs/turtle_npc.tscn" id="9_turtle"]
+[ext_resource type="Script" path="res://world/world_camera_bounds.gd" id="10_bounds"]
+[ext_resource type="Texture2D" path="res://assets/vendor/hu2/Icons/Images/CapsuleShip.png" id="11_ship"]
 
 [sub_resource type="RectangleShape2D" id="HouseCollision"]
 size = Vector2(118, 78)
@@ -30,6 +32,10 @@ size = Vector2(38, 28)
 
 [node name="KameIsland" type="Node2D"]
 script = ExtResource("1_island")
+
+[node name="CameraBounds" type="Node" parent="."]
+script = ExtResource("10_bounds")
+bounds = Rect2(0, 0, 960, 544)
 
 [node name="Terrain" type="Node2D" parent="."]
 
@@ -206,6 +212,12 @@ target_spawn = Vector2(272, 305)
 interaction_label = "Enter Kame House"
 reset_training_environment = false
 
+[node name="Visual" parent="KameHouseEntrance"]
+visible = false
+
+[node name="Marker" parent="KameHouseEntrance"]
+visible = false
+
 [node name="IslandCheckpoint" parent="." instance=ExtResource("6_checkpoint")]
 position = Vector2(480, 410)
 checkpoint_id = &"kame_island"
@@ -215,8 +227,20 @@ position = Vector2(480, 285)
 scale = Vector2(3.6, 2.25)
 location_name = "MASTER ROSHI'S ISLAND"
 
+[node name="TravelCapsule" type="Sprite2D" parent="."]
+position = Vector2(805, 396)
+scale = Vector2(0.58, 0.58)
+texture = ExtResource("11_ship")
+z_index = 2
+
 [node name="WestCityBoat" parent="." instance=ExtResource("8_portal")]
 position = Vector2(748, 391)
 target_scene = "res://scenes/world/west_city_outskirts.tscn"
 target_spawn = Vector2(240, 185)
-interaction_label = "Travel to West City"
+interaction_label = "Fly to West City"
+
+[node name="Visual" parent="WestCityBoat"]
+visible = false
+
+[node name="Marker" parent="WestCityBoat"]
+visible = false
