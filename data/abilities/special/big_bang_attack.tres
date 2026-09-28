@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SpecialAttackData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/special_attack_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"big_bang_attack"
+display_name = "Big Bang Attack"
+description = "Heavy explosive energy sphere."
+attack_type = 0
+cast_pose = 0
+effect_key = &"big_bang"
+ki_cost = 28.0
+cooldown = 1.45
+damage = 44
+startup_duration = 0.45
+cast_lock_duration = 0.58
+projectile_speed = 180.0
+projectile_scale = 1.2
+projectile_radius = 10.0
