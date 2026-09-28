@@ -36,6 +36,7 @@ func setup(
 	source_actor: Node = null
 ) -> void:
 	_source_actor = source_actor
+	_configure_collision_filter()
 
 	if damage_override >= 0:
 		damage = damage_override
@@ -172,6 +173,17 @@ func _handle_solid_body(body: Node2D) -> void:
 
 	if collision_body.collision_layer & 1 != 0:
 		_start_impact()
+
+func _configure_collision_filter() -> void:
+	if _source_actor == null:
+		return
+
+	if _source_actor.is_in_group("enemy"):
+		# World + Player/Hurtbox.
+		collision_mask = 3
+	elif _source_actor.is_in_group("player"):
+		# World + Enemy/Hurtbox.
+		collision_mask = 5
 
 func get_source_actor() -> Node:
 	return _source_actor
