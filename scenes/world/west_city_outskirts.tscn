@@ -1,7 +1,6 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="PackedScene" path="res://actors/enemies/debug_goku_enemy.tscn" id="1_enemy"]
-[ext_resource type="PackedScene" path="res://actors/npcs/debug_mentor.tscn" id="2_mentor"]
 [ext_resource type="PackedScene" path="res://world/checkpoint_area.tscn" id="3_checkpoint"]
 [ext_resource type="PackedScene" path="res://world/location_area.tscn" id="4_location"]
 [ext_resource type="PackedScene" path="res://world/world_portal.tscn" id="5_portal"]
@@ -96,11 +95,16 @@ collision_layer = 1
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Right"]
 shape = SubResource("WallVertical")
 
-[node name="MasterRoshiGuide" parent="." instance=ExtResource("2_mentor")]
-position = Vector2(335, 195)
-
 [node name="TrainingFighter" parent="." instance=ExtResource("1_enemy")]
 position = Vector2(500, 205)
+dmi_sprite_path = "res://assets/vendor/hu2/Icons/Characters/Yamcha.dmi"
+display_name = "Yamcha"
+enemy_rank = "Sparring"
+difficulty_scale = 1.05
+reward_scale = 0.9
+min_zeni_drop = 0
+max_zeni_drop = 0
+senzu_drop_chance = 0.0
 
 [node name="WestCityCheckpoint" parent="." instance=ExtResource("3_checkpoint")]
 position = Vector2(250, 185)
