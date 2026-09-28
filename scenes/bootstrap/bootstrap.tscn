@@ -1,6 +1,6 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=24 format=3]
 
-[ext_resource type="PackedScene" path="res://scenes/debug/debug_room.tscn" id="1_room"]
+[ext_resource type="PackedScene" path="res://scenes/world/west_city_outskirts.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://ui/hud/combat_hud.tscn" id="3_hud"]
 [ext_resource type="Script" path="res://quests/quest_manager.gd" id="4_quests"]
@@ -21,6 +21,8 @@
 [ext_resource type="Script" path="res://core/stats/game_stats_manager.gd" id="19_stats"]
 [ext_resource type="PackedScene" path="res://ui/transitions/screen_transition.tscn" id="20_transition"]
 [ext_resource type="Script" path="res://core/input/gamepad_profile.gd" id="21_gamepad"]
+[ext_resource type="Script" path="res://systems/training/training_manager.gd" id="22_training"]
+[ext_resource type="PackedScene" path="res://ui/training/training_hud.tscn" id="23_training_hud"]
 
 [node name="Bootstrap" type="Node2D"]
 
@@ -37,6 +39,10 @@ script = ExtResource("6_checkpoint")
 script = ExtResource("7_world")
 world_container_path = NodePath("../WorldContainer")
 player_container_path = NodePath("../PlayerContainer")
+initial_world_path = "res://scenes/world/west_city_outskirts.tscn"
+
+[node name="TrainingManager" type="Node" parent="." groups=["training_manager"]]
+script = ExtResource("22_training")
 
 [node name="GameSession" type="Node" parent="."]
 script = ExtResource("12_session")
@@ -56,11 +62,12 @@ script = ExtResource("19_stats")
 
 [node name="WorldContainer" type="Node2D" parent="." groups=["world_container"]]
 
-[node name="DebugRoom" parent="WorldContainer" instance=ExtResource("1_room")]
+[node name="WestCityOutskirts" parent="WorldContainer" instance=ExtResource("1_room")]
 
 [node name="PlayerContainer" type="Node2D" parent="."]
 
 [node name="Player" parent="PlayerContainer" instance=ExtResource("2_player")]
+position = Vector2(250, 185)
 
 [node name="UIContainer" type="CanvasLayer" parent="."]
 
@@ -73,6 +80,8 @@ script = ExtResource("19_stats")
 [node name="EnemyTargetBar" parent="UIContainer" instance=ExtResource("16_target")]
 
 [node name="ComboCounter" parent="UIContainer" instance=ExtResource("15_combo")]
+
+[node name="TrainingHUD" parent="UIContainer" instance=ExtResource("23_training_hud")]
 
 [node name="InteractionPrompt" parent="UIContainer" instance=ExtResource("17_interaction_prompt")]
 
