@@ -1,13 +1,14 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://ui/combat/combo_counter.gd" id="1_combo"]
+[ext_resource type="Script" path="res://ui/fonts/legacy_bitmap_text.gd" id="2_bitmap"]
 
 [node name="ComboCounter" type="Control"]
 layout_mode = 0
 offset_left = 12.0
 offset_top = 29.0
-offset_right = 68.0
-offset_bottom = 51.0
+offset_right = 91.0
+offset_bottom = 50.0
 mouse_filter = 2
 script = ExtResource("1_combo")
 
@@ -18,23 +19,48 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.02, 0.025, 0.04, 0.62)
+color = Color(0.02, 0.025, 0.04, 0.48)
 mouse_filter = 2
 
-[node name="Hits" type="Label" parent="Panel"]
+[node name="Count" type="Control" parent="Panel"]
 layout_mode = 0
+offset_left = 2.0
 offset_top = 1.0
-offset_right = 56.0
-offset_bottom = 11.0
-text = "2 HITS"
-theme_override_font_sizes/font_size = 7
+offset_right = 34.0
+offset_bottom = 20.0
+mouse_filter = 2
+script = ExtResource("2_bitmap")
+font_mode = 1
+text = "2"
+render_scale = 0.72
+glyph_advance = 14.0
 horizontal_alignment = 1
+vertical_center = true
 
-[node name="Damage" type="Label" parent="Panel"]
+[node name="Hits" type="Control" parent="Panel"]
 layout_mode = 0
-offset_top = 11.0
-offset_right = 56.0
-offset_bottom = 21.0
-text = "20 DMG"
-theme_override_font_sizes/font_size = 5
+offset_left = 34.0
+offset_top = 2.0
+offset_right = 78.0
+offset_bottom = 11.0
+mouse_filter = 2
+script = ExtResource("2_bitmap")
+text = "HITS"
+render_scale = 0.8
+glyph_advance = 6.0
 horizontal_alignment = 1
+vertical_center = true
+
+[node name="Damage" type="Control" parent="Panel"]
+layout_mode = 0
+offset_left = 34.0
+offset_top = 11.0
+offset_right = 78.0
+offset_bottom = 20.0
+mouse_filter = 2
+script = ExtResource("2_bitmap")
+text = "20 DMG"
+render_scale = 0.68
+glyph_advance = 6.0
+horizontal_alignment = 1
+vertical_center = true
