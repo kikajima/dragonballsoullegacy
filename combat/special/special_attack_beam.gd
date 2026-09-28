@@ -447,6 +447,13 @@ func _refresh_kamehameha_visual(length: float) -> void:
 		length - HU2_BEAM_TILE_SIZE * 0.5,
 		first_center
 	)
+	if _beam_impacting:
+		# HU2 replaces the beam head with KameHit on the occupied target
+		# tile, so the impact sprite overlaps the character/wall itself.
+		last_center = (
+			length
+			+ maxf(_beam_width * 0.45, 2.0)
+		)
 
 	for index in range(segment_count):
 		var segment := _kame_segments[index]
@@ -472,15 +479,23 @@ func _refresh_kamehameha_visual(length: float) -> void:
 			x_position = minf(x_position, last_center)
 
 		segment.position = Vector2(x_position, 0.0)
+		# The parent rotates the tile positions along the beam. Cancel that
+		# rotation on the sprite itself and use HU2's actual DMI direction.
+		segment.rotation = -rotation
 		segment.visible = true
 		segment.call(
 			"configure",
 			HU2_EFFECT_DMI_PATH,
 			state,
-			"right",
+			_facing_from_direction(_direction),
 			true,
 			true
 		)
+
+func _facing_from_direction(direction: Vector2) -> String:
+	if absf(direction.x) > absf(direction.y):
+		return "right" if direction.x >= 0.0 else "left"
+	return "down" if direction.y >= 0.0 else "up"
 
 func _ensure_kame_segment_count(count: int) -> void:
 	while _kame_segments.size() < count:
