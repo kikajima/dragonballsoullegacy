@@ -60,6 +60,7 @@ var _active_data: SpecialAttackData
 var _active_beam: SpecialAttackBeam
 var _charge_preview: SpecialChargePreview
 var _flurry_hits_left: int = 0
+var _flurry_bonus_hits_added: int = 0
 var _flurry_tick_left: float = 0.0
 
 func _ready() -> void:
@@ -164,6 +165,7 @@ func start_cast(
 	_lock_left = 0.0
 	_charge_time = 0.0
 	_flurry_hits_left = 0
+	_flurry_bonus_hits_added = 0
 	_flurry_tick_left = 0.0
 	_cast_facing = facing
 	_cast_direction = (
@@ -228,6 +230,30 @@ func tick_cast(
 	_lock_left = maxf(_lock_left - delta, 0.0)
 	if _lock_left <= 0.0:
 		_finish_cast(true)
+
+func add_flurry_bonus_hit() -> bool:
+	if (
+		not _casting
+		or _active_data == null
+		or _active_data.attack_type
+			!= SpecialAttackData.AttackType.FLURRY
+		or not _fired
+	):
+		return false
+
+	if (
+		_flurry_bonus_hits_added
+		>= _active_data.flurry_bonus_hit_limit
+	):
+		return false
+
+	_flurry_bonus_hits_added += 1
+	_flurry_hits_left += 1
+	_lock_left += maxf(
+		_active_data.flurry_hit_interval,
+		0.05
+	)
+	return true
 
 func cancel_cast() -> void:
 	if not _casting:
@@ -769,6 +795,7 @@ func _finish_cast(start_cooldown: bool) -> void:
 	_lock_left = 0.0
 	_charge_time = 0.0
 	_flurry_hits_left = 0
+	_flurry_bonus_hits_added = 0
 	_flurry_tick_left = 0.0
 	_active_data = null
 
