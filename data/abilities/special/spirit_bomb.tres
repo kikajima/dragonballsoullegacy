@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SpecialAttackData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/special_attack_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"spirit_bomb"
+display_name = "Spirit Bomb"
+description = "Large slow-moving energy sphere."
+attack_type = 0
+cast_pose = 0
+effect_key = &"spirit_bomb"
+ki_cost = 40.0
+cooldown = 2.5
+damage = 55
+startup_duration = 0.6
+cast_lock_duration = 0.75
+projectile_speed = 135.0
+projectile_scale = 1.3
+projectile_radius = 12.0
