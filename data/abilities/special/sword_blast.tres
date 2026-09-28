@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SpecialAttackData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/special_attack_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"sword_blast"
+display_name = "Sword Blast"
+description = "Fast travelling wave of energy."
+attack_type = 0
+cast_pose = 0
+effect_key = &"sword_blast"
+ki_cost = 20.0
+cooldown = 1.0
+damage = 30
+startup_duration = 0.2
+cast_lock_duration = 0.34
+projectile_speed = 260.0
+projectile_scale = 1.15
+projectile_radius = 7.0
