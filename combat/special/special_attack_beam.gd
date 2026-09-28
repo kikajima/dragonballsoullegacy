@@ -236,6 +236,17 @@ func _apply_stun(receiver: Area2D) -> void:
 		)
 
 func _resolve_beam_length(max_range: float) -> float:
+	var environment_length: float = _resolve_environment_length(max_range)
+
+	if _pierces_targets:
+		return environment_length
+
+	return minf(
+		environment_length,
+		_resolve_nearest_target_length(environment_length)
+	)
+
+func _resolve_environment_length(max_range: float) -> float:
 	var end_position: Vector2 = (
 		global_position
 		+ _direction * max_range
@@ -263,6 +274,62 @@ func _resolve_beam_length(max_range: float) -> float:
 	) as Vector2
 
 	return global_position.distance_to(hit_position)
+
+func _resolve_nearest_target_length(max_length: float) -> float:
+	if max_length <= 0.0:
+		return 0.0
+
+	var probe := RectangleShape2D.new()
+	probe.size = Vector2(
+		max_length,
+		maxf(_beam_width, 2.0)
+	)
+
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = probe
+	query.transform = Transform2D(
+		_direction.angle(),
+		global_position + _direction * max_length * 0.5
+	)
+	query.collision_mask = hit_area.collision_mask
+	query.collide_with_bodies = false
+	query.collide_with_areas = true
+
+	var hits: Array[Dictionary] = (
+		get_world_2d()
+		.direct_space_state
+		.intersect_shape(query, 32)
+	)
+
+	var nearest: float = max_length
+
+	for hit in hits:
+		var collider := hit.get("collider") as Area2D
+		if (
+			collider == null
+			or not collider.has_method("receive_hit")
+		):
+			continue
+
+		var forward_distance: float = (
+			collider.global_position - global_position
+		).dot(_direction)
+
+		if forward_distance <= 0.0:
+			continue
+
+		# Keep a tiny overlap with the hurtbox so the shortened collision
+		# rectangle still registers the target at the visual endpoint.
+		nearest = minf(
+			nearest,
+			clampf(
+				forward_distance + 2.0,
+				1.0,
+				max_length
+			)
+		)
+
+	return nearest
 
 func _configure_beam_visual(
 	effect_key: StringName
