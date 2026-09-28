@@ -33,18 +33,14 @@ func _spawn_partner() -> void:
 	if partner_scene == null:
 		return
 
-	var partner := partner_scene.instantiate() as Node2D
+	var partner := partner_scene.instantiate() as DebugGokuEnemy
 	if partner == null:
 		return
 
-	if "respawn_for_debug" in partner:
-		partner.set("respawn_for_debug", false)
-	if "min_zeni_drop" in partner:
-		partner.set("min_zeni_drop", 0)
-	if "max_zeni_drop" in partner:
-		partner.set("max_zeni_drop", 0)
-	if "senzu_drop_chance" in partner:
-		partner.set("senzu_drop_chance", 0.0)
+	partner.respawn_for_debug = false
+	partner.min_zeni_drop = 0
+	partner.max_zeni_drop = 0
+	partner.senzu_drop_chance = 0.0
 
 	get_parent().add_child(partner)
 	partner.global_position = global_position + spawn_offset
