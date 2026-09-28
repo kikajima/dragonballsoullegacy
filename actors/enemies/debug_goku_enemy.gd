@@ -803,12 +803,6 @@ func _apply_tier_difficulty() -> void:
 		min_zeni_drop
 	)
 
-func get_display_name() -> String:
-	return "Training Fighter"
-
-func get_intelligence_tier_name() -> String:
-	return ai_component.get_tier_name()
-
 func _show_defeated_pose() -> void:
 	if sprite.sprite_frames == null:
 		return
