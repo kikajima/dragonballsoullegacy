@@ -1,6 +1,45 @@
 class_name CombatHUD
 extends Control
 
+const DMI_SPRITE_SHEET_SCRIPT = preload(
+	"res://core/assets/dmi_sprite_sheet.gd"
+)
+const HU2_EFFECT_DMI_PATH := (
+	"res://assets/sprites/effects/hu2/Effects.dmi"
+)
+const HU2_GOKU_DMI_PATH := (
+	"res://assets/sprites/characters/goku/hu2/Goku.dmi"
+)
+const SPECIAL_EFFECT_SHEET_PATH := (
+	"res://assets/sprites/effects/legacy/special_attack_sfx.png"
+)
+
+const SPECIAL_DMI_STATES := {
+	&"blue_beam": &"KameHead",
+	&"special_beam": &"sbcHead",
+	&"masenko": &"MasenkoHead",
+	&"big_bang": &"BigBangAttackHead",
+	&"burning_attack": &"BurningAttHead",
+}
+
+const SPECIAL_LEGACY_RECTS := {
+	&"blue_orb": Rect2(51, 33, 28, 14),
+	&"spirit_bomb": Rect2(80, 312, 32, 32),
+	&"sword_blast": Rect2(8, 272, 32, 32),
+}
+
+const SPECIAL_CHARACTER_STATES := {
+	&"cross_slash": &"punch1",
+	&"energy_punch": &"punch1",
+	&"flurry_punch": &"punch2",
+	&"peace_sign_pose": &"face",
+	&"spin_punch": &"punch2",
+	&"super_kick": &"kick1",
+	&"super_namek": &"transform",
+	&"super_saiyan": &"transform",
+	&"two_handed_smash": &"punch2",
+}
+
 @export_file("*.png")
 var hud_sheet_path: String = "res://assets/ui/legacy/processed/hud.png"
 
@@ -34,6 +73,7 @@ var _sheet: Texture2D
 var _player_health: HealthComponent
 var _player_ki: KiComponent
 var _player_experience: ExperienceComponent
+var _special: SpecialAttackComponent
 var _xp_ratio: float = 0.0
 
 func _ready() -> void:
@@ -64,11 +104,11 @@ func _load_hud_sheet() -> void:
 	frame.texture = _atlas_region(FRAME_REGION)
 	frame.visible = true
 
-	# O vídeo de referência começa usando o ícone amarelo.
-	# O azul fica disponível para o futuro sistema de seleção de técnicas.
-	icon.texture = _atlas_region(ICON_YELLOW_REGION)
+	# The old Ki Blast icon is intentionally gone. Ki Blast is a basic
+	# attack now; this slot belongs to the currently selected special.
+	icon.texture = null
 	icon.position = ICON_POSITION
-	icon.visible = true
+	icon.visible = false
 
 	divider.texture = _atlas_region(DIVIDER_REGION)
 	divider.position = DIVIDER_POSITION
@@ -105,6 +145,9 @@ func _bind_player() -> void:
 	_player_experience = player.get_node_or_null(
 		"Components/ExperienceComponent"
 	) as ExperienceComponent
+	_special = player.get_node_or_null(
+		"Components/SpecialAttackComponent"
+	) as SpecialAttackComponent
 
 	if _player_health != null:
 		_player_health.health_changed.connect(_on_health_changed)
@@ -129,6 +172,14 @@ func _bind_player() -> void:
 			_player_experience.experience_to_next_level,
 			_player_experience.current_level
 		)
+
+	if _special != null:
+		_special.selection_changed.connect(
+			_on_special_selection_changed
+		)
+		var selected: SpecialAttackData = _special.get_selected()
+		if selected != null:
+			_set_special_icon(selected)
 
 func _on_health_changed(current_health: int, max_health: int) -> void:
 	var safe_max := maxi(max_health, 1)
@@ -159,14 +210,104 @@ func set_experience_ratio(ratio: float) -> void:
 	_xp_ratio = clampf(ratio, 0.0, 1.0)
 	_set_texture_bar(xp_fill, XP_REGION, _xp_ratio)
 
-# Preparado para o futuro seletor de técnica/ícone.
-func set_energy_icon_blue(use_blue: bool) -> void:
-	if _sheet == null:
+func _on_special_selection_changed(
+	_ability_id: StringName,
+	_display_name: String,
+	_index: int
+) -> void:
+	if _special == null:
 		return
 
-	icon.texture = _atlas_region(
-		ICON_BLUE_REGION if use_blue else ICON_YELLOW_REGION
+	var data: SpecialAttackData = _special.get_selected()
+	if data != null:
+		_set_special_icon(data)
+
+func _set_special_icon(data: SpecialAttackData) -> void:
+	var texture: Texture2D = _resolve_special_icon(data)
+	icon.texture = texture
+	icon.visible = texture != null
+	icon.tooltip_text = data.display_name
+
+func _resolve_special_icon(data: SpecialAttackData) -> Texture2D:
+	if data == null:
+		return null
+
+	var dmi_state_value: Variant = SPECIAL_DMI_STATES.get(
+		data.effect_key,
+		null
 	)
+	if dmi_state_value != null:
+		var texture: Texture2D = _dmi_icon(
+			HU2_EFFECT_DMI_PATH,
+			StringName(String(dmi_state_value)),
+			&"right"
+		)
+		if texture != null:
+			return texture
+
+	var rect_value: Variant = SPECIAL_LEGACY_RECTS.get(
+		data.effect_key,
+		null
+	)
+	if rect_value is Rect2:
+		var legacy: Texture2D = _legacy_special_icon(
+			rect_value as Rect2
+		)
+		if legacy != null:
+			return legacy
+
+	var character_state_value: Variant = (
+		SPECIAL_CHARACTER_STATES.get(
+			data.ability_id,
+			null
+		)
+	)
+	if character_state_value != null:
+		var character_icon: Texture2D = _dmi_icon(
+			HU2_GOKU_DMI_PATH,
+			StringName(String(character_state_value)),
+			&"right"
+		)
+		if character_icon != null:
+			return character_icon
+
+	# Last-resort special icon: an energy frame, never the old Ki Blast
+	# HUD badge.
+	return _dmi_icon(
+		HU2_EFFECT_DMI_PATH,
+		&"BlueEnergy",
+		&"right"
+	)
+
+func _dmi_icon(
+	path: String,
+	state: StringName,
+	facing: StringName
+) -> Texture2D:
+	var dmi = DMI_SPRITE_SHEET_SCRIPT.load_file(path)
+	if dmi == null or not dmi.has_state(state):
+		return null
+
+	return dmi.get_frame_texture(
+		state,
+		facing,
+		0
+	) as Texture2D
+
+func _legacy_special_icon(region: Rect2) -> Texture2D:
+	if not ResourceLoader.exists(SPECIAL_EFFECT_SHEET_PATH):
+		return null
+
+	var sheet: Texture2D = load(
+		SPECIAL_EFFECT_SHEET_PATH
+	) as Texture2D
+	if sheet == null:
+		return null
+
+	var atlas := AtlasTexture.new()
+	atlas.atlas = sheet
+	atlas.region = region
+	return atlas
 
 func _set_texture_bar(
 	target: TextureRect,
