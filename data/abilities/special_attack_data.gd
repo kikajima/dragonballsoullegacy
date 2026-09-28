@@ -90,6 +90,8 @@ var cast_pose: int = CastPose.PROJECTILE
 # Flurry behavior.
 @export_range(1, 12, 1)
 var flurry_hit_count: int = 1
+@export_range(0, 6, 1)
+var flurry_bonus_hit_limit: int = 0
 @export var flurry_hit_interval: float = 0.12
 
 # Status behavior.
