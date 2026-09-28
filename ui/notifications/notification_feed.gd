@@ -3,7 +3,7 @@ extends Control
 
 @export var message_duration: float = 1.8
 
-@onready var label: Label = $Panel/Label
+@onready var label: LegacyBitmapText = $Panel/Label
 
 var _queue: Array[String] = []
 var _time_left: float = 0.0
@@ -39,7 +39,7 @@ func _show_next() -> void:
 		visible = false
 		return
 
-	label.text = _queue.pop_front()
+	label.set_text(_queue.pop_front())
 	_time_left = message_duration
 	visible = true
 
