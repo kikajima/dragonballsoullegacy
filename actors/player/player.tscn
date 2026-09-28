@@ -162,7 +162,7 @@ script = ExtResource("19_inventory")
 
 [node name="AbilityLoadoutComponent" type="Node" parent="Components"]
 script = ExtResource("20_abilities")
-slot_count = 4
+slot_count = 8
 
 [node name="ConsumableComponent" type="Node" parent="Components"]
 script = ExtResource("21_consumable")
