@@ -47,13 +47,35 @@ func setup(
 	data: SpecialAttackData,
 	direction: Vector2,
 	source_actor: Node,
-	spawn_distance: float
+	spawn_distance: float,
+	charge_ratio: float = 0.0
 ) -> void:
 	_source_actor = source_actor
-	_damage = maxi(data.damage, 0)
+
+	var safe_charge: float = clampf(charge_ratio, 0.0, 1.0)
+	var damage_scale: float = lerpf(
+		1.0,
+		maxf(data.charge_damage_multiplier, 1.0),
+		safe_charge
+	)
+	var range_scale: float = lerpf(
+		1.0,
+		maxf(data.charge_range_multiplier, 1.0),
+		safe_charge
+	)
+	var visual_scale: float = lerpf(
+		1.0,
+		maxf(data.charge_scale_multiplier, 1.0),
+		safe_charge
+	)
+
+	_damage = maxi(
+		roundi(float(data.damage) * damage_scale),
+		0
+	)
 	_stun_duration = data.stun_duration
-	_max_range = maxf(data.beam_range, 1.0)
-	_beam_width = maxf(data.beam_width, 2.0)
+	_max_range = maxf(data.beam_range * range_scale, 1.0)
+	_beam_width = maxf(data.beam_width * visual_scale, 2.0)
 	_tick_interval = maxf(
 		data.beam_tick_interval,
 		0.05
