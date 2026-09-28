@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=35 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://actors/player/player_input_controller.gd" id="2_input"]
@@ -26,6 +26,9 @@
 [ext_resource type="Script" path="res://components/status/status_effect_component.gd" id="24_status"]
 [ext_resource type="Script" path="res://components/transformations/transformation_component.gd" id="25_transform"]
 [ext_resource type="Script" path="res://components/combat/combo_tracker_component.gd" id="26_combo"]
+[ext_resource type="Script" path="res://combat/special/special_attack_component.gd" id="27_special"]
+[ext_resource type="PackedScene" path="res://combat/special/special_attack_projectile.tscn" id="28_special_projectile"]
+[ext_resource type="PackedScene" path="res://combat/special/special_attack_beam.tscn" id="29_special_beam"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(10, 8)
@@ -182,6 +185,14 @@ ki_component_path = NodePath("../KiComponent")
 script = ExtResource("26_combo")
 combo_timeout = 1.25
 minimum_visible_hits = 2
+
+[node name="SpecialAttackComponent" type="Node" parent="Components"]
+script = ExtResource("27_special")
+projectile_scene = ExtResource("28_special_projectile")
+beam_scene = ExtResource("29_special_beam")
+ki_component_path = NodePath("../KiComponent")
+loadout_component_path = NodePath("../AbilityLoadoutComponent")
+spawn_distance = 20.0
 
 [node name="Hurtbox" type="Area2D" parent="."]
 collision_layer = 2
