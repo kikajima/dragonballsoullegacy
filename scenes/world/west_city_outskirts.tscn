@@ -122,3 +122,9 @@ position = Vector2(1160, 590)
 target_scene = "res://scenes/world/rocky_wastes.tscn"
 target_spawn = Vector2(130, 585)
 interaction_label = "Travel to Rocky Wastes"
+
+[node name="KameIslandRoute" parent="." instance=ExtResource("5_portal")]
+position = Vector2(125, 590)
+target_scene = "res://scenes/world/kame_island.tscn"
+target_spawn = Vector2(735, 390)
+interaction_label = "Travel to Kame House"
