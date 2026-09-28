@@ -85,6 +85,11 @@ func _physics_process(delta: float) -> void:
 
 	facing_component.update_from_direction(move_intent)
 
+	var training := _get_training_manager()
+	if training != null and training.is_treadmill_active():
+		_process_treadmill_training(training, move_intent, delta)
+		return
+
 	if special_attack_component.is_casting():
 		_process_special_attack(delta)
 		return
@@ -240,6 +245,7 @@ func _get_current_melee_speed_scale() -> float:
 	return (
 		base_scale
 		* transformation_component.get_movement_multiplier()
+		* _get_training_movement_multiplier()
 	)
 
 func _get_locomotion_speed_scale() -> float:
@@ -250,7 +256,72 @@ func _get_locomotion_speed_scale() -> float:
 	return (
 		base_scale
 		* transformation_component.get_movement_multiplier()
+		* _get_training_movement_multiplier()
 	)
+
+func _process_treadmill_training(
+	training: TrainingManager,
+	move_intent: Vector2,
+	delta: float
+) -> void:
+	guard_component.set_guarding(false)
+	charge_aura.visible = false
+	ki_blast_component.cancel_cast()
+	special_attack_component.cancel_cast()
+	melee_combat_component.cancel_attack()
+	movement_component.stop(self)
+
+	global_position = training.get_treadmill_anchor()
+
+	if input_controller.is_interact_pressed():
+		training.stop_training()
+		state_machine.change_state(STATE_IDLE)
+		animation_controller.update_visual(
+			STATE_IDLE,
+			facing_component.current_facing,
+			delta
+		)
+		return
+
+	var input_strength: float = clampf(
+		move_intent.length(),
+		0.0,
+		1.0
+	)
+	var running: bool = (
+		input_strength > 0.05
+		and input_controller.is_run_pressed()
+	)
+
+	if input_strength <= 0.05:
+		state_machine.change_state(STATE_IDLE)
+	else:
+		facing_component.update_from_direction(Vector2.RIGHT)
+		state_machine.change_state(
+			STATE_RUN if running else STATE_WALK
+		)
+
+	training.tick_treadmill(
+		input_strength,
+		running,
+		delta
+	)
+	animation_controller.update_visual(
+		state_machine.current_state,
+		facing_component.current_facing,
+		delta
+	)
+
+func _get_training_manager() -> TrainingManager:
+	return get_tree().get_first_node_in_group(
+		"training_manager"
+	) as TrainingManager
+
+func _get_training_movement_multiplier() -> float:
+	var training := _get_training_manager()
+	if training == null:
+		return 1.0
+	return training.get_movement_multiplier()
 
 func _process_block(_move_intent: Vector2, delta: float) -> void:
 	charge_aura.visible = false
