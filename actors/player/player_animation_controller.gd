@@ -126,7 +126,7 @@ func _animation_name_for_state(
 	state: StringName,
 	facing: StringName
 ) -> StringName:
-	if state == &"charge_ki":
+	if state == &"charge_ki" or state == &"special_transform":
 		return &"charge_ki"
 
 	match state:
