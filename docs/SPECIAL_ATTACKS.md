@@ -123,7 +123,8 @@ The prototype Goku uses the shared two-handed beam casting pose. Character-speci
 
 - one activation starts a rapid multi-hit sequence;
 - multiple front-facing hits occur at fixed intervals;
-- the final hit is stronger;
+- intermediate hits suppress knockback so the target stays inside the combo;
+- the final hit is stronger and restores normal knockback;
 - each hit can briefly interrupt the target.
 
 ### Peace Sign Pose
