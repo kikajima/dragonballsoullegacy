@@ -17,6 +17,9 @@ const MODE_PUNCHING_BAG: StringName = &"punching_bag"
 const MODE_TREADMILL: StringName = &"treadmill"
 const MODE_SPARRING: StringName = &"sparring"
 
+const TRAINING_QUEST_ID: StringName = &"capsule_training_circuit"
+const TRAINING_OBJECTIVE_ID: StringName = &"try_training_station"
+
 const GRAVITY_LEVELS := PackedFloat32Array([1.0, 2.0, 5.0, 10.0])
 
 var active_mode: StringName = MODE_NONE
@@ -53,7 +56,7 @@ func start_training(mode: StringName) -> bool:
 	session_xp = 0
 	combo = 0
 	training_sessions += 1
-	modes_tried[String(mode)] = true
+	_mark_mode_tried(mode)
 	session_changed.emit(active_mode, true)
 	_emit_progress()
 
@@ -87,6 +90,8 @@ func set_gravity(multiplier: float) -> float:
 			resolved = value
 
 	gravity_multiplier = resolved
+	if gravity_multiplier > 1.0:
+		_mark_mode_tried(MODE_GRAVITY)
 	gravity_changed.emit(gravity_multiplier)
 	return gravity_multiplier
 
@@ -248,6 +253,41 @@ func load_state(data: Dictionary) -> void:
 
 	gravity_changed.emit(gravity_multiplier)
 	_emit_progress()
+
+func _mark_mode_tried(mode: StringName) -> void:
+	var key: String = String(mode)
+	if modes_tried.has(key):
+		return
+
+	modes_tried[key] = true
+
+	var quests := get_tree().get_first_node_in_group(
+		"quest_manager"
+	) as QuestManager
+	if quests == null:
+		return
+
+	if (
+		not quests.is_active(TRAINING_QUEST_ID)
+		and not quests.is_completed(TRAINING_QUEST_ID)
+	):
+		quests.start_simple_quest(
+			TRAINING_QUEST_ID,
+			"Capsule Training Circuit",
+			"Try every training system in the Capsule Corp chamber.",
+			TRAINING_OBJECTIVE_ID,
+			"Use a different training system",
+			4,
+			120,
+			&"senzu_bean",
+			1,
+			250
+		)
+
+	quests.advance_objective(
+		TRAINING_OBJECTIVE_ID,
+		1
+	)
 
 func _award_xp(amount: int) -> int:
 	if amount <= 0:
