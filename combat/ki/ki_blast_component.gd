@@ -33,6 +33,10 @@ var _current_variant: int = 0
 var _visual_state: StringName = &"ki_blast_prepare"
 
 var _buffered_facings: Array[StringName] = []
+var _damage_multiplier: float = 1.0
+
+func set_damage_multiplier(value: float) -> void:
+	_damage_multiplier = maxf(value, 0.0)
 
 func start_cast(
 	facing: StringName,
@@ -170,7 +174,10 @@ func _fire(caster: Node2D, facing: StringName) -> bool:
 	projectile.global_position = caster.global_position + direction * spawn_distance
 	projectile.setup(
 		direction,
-		projectile_damage,
+		maxi(
+			roundi(float(projectile_damage) * _damage_multiplier),
+			0
+		),
 		caster
 	)
 
