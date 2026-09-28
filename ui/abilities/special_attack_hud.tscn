@@ -6,7 +6,7 @@
 layout_mode = 0
 offset_left = 12.0
 offset_top = 54.0
-offset_right = 122.0
+offset_right = 174.0
 offset_bottom = 77.0
 mouse_filter = 2
 script = ExtResource("1_hud")
@@ -25,7 +25,7 @@ mouse_filter = 2
 layout_mode = 0
 offset_left = 4.0
 offset_top = 1.0
-offset_right = 106.0
+offset_right = 158.0
 offset_bottom = 11.0
 text = "Kamehameha"
 theme_override_font_sizes/font_size = 6
