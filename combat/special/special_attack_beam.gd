@@ -182,6 +182,7 @@ func _apply_damage_tick() -> void:
 		if (
 			area == null
 			or not area.has_method("receive_hit")
+			or not _is_live_damage_receiver(area)
 		):
 			continue
 		candidates.append(area)
@@ -364,6 +365,7 @@ func _resolve_nearest_target_length(max_length: float) -> float:
 		if (
 			collider == null
 			or not collider.has_method("receive_hit")
+			or not _is_live_damage_receiver(collider)
 		):
 			continue
 
@@ -397,6 +399,25 @@ func _resolve_nearest_target_length(max_length: float) -> float:
 			)
 
 	return nearest
+
+func _is_live_damage_receiver(receiver: Area2D) -> bool:
+	if receiver == null:
+		return false
+
+	if receiver.has_method("can_receive_hit"):
+		return bool(receiver.call("can_receive_hit"))
+
+	var actor: Node = receiver.get_parent()
+	if actor == null:
+		return true
+
+	var health := actor.get_node_or_null(
+		"Components/HealthComponent"
+	) as HealthComponent
+	if health == null:
+		return true
+
+	return not health.is_dead()
 
 func get_source_actor() -> Node:
 	return _source_actor
