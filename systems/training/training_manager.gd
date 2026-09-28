@@ -20,7 +20,7 @@ const MODE_SPARRING: StringName = &"sparring"
 const TRAINING_QUEST_ID: StringName = &"capsule_training_circuit"
 const TRAINING_OBJECTIVE_ID: StringName = &"try_training_station"
 
-const GRAVITY_LEVELS := PackedFloat32Array([1.0, 2.0, 5.0, 10.0])
+const GRAVITY_LEVELS: Array[float] = [1.0, 2.0, 5.0, 10.0]
 
 var active_mode: StringName = MODE_NONE
 var gravity_multiplier: float = 1.0
