@@ -134,6 +134,10 @@ color = Color(0.43, 0.27, 0.13, 1)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Dock"]
 shape = SubResource("DockCollision")
 
+[node name="SeaCollision" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
 [node name="SeaBoundaries" type="Node2D" parent="."]
 
 [node name="TopSea" type="StaticBody2D" parent="SeaBoundaries"]
