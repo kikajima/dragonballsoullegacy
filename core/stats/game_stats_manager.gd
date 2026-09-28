@@ -9,6 +9,8 @@ var damage_taken: int = 0
 var enemies_defeated: int = 0
 var items_received: int = 0
 var zeni_received: int = 0
+var training_xp: int = 0
+var training_sessions: int = 0
 
 func _ready() -> void:
 	call_deferred("_bind_sources")
@@ -19,6 +21,17 @@ func _process(delta: float) -> void:
 
 func register_enemy_defeat() -> void:
 	enemies_defeated += 1
+	stats_changed.emit()
+
+func register_training_xp(amount: int) -> void:
+	if amount <= 0:
+		return
+
+	training_xp += amount
+	stats_changed.emit()
+
+func register_training_session() -> void:
+	training_sessions += 1
 	stats_changed.emit()
 
 func _bind_sources() -> void:
@@ -94,6 +107,8 @@ func serialize_state() -> Dictionary:
 		"enemies_defeated": enemies_defeated,
 		"items_received": items_received,
 		"zeni_received": zeni_received,
+		"training_xp": training_xp,
+		"training_sessions": training_sessions,
 	}
 
 func load_state(data: Dictionary) -> void:
@@ -113,6 +128,14 @@ func load_state(data: Dictionary) -> void:
 	)
 	zeni_received = maxi(
 		int(data.get("zeni_received", 0)),
+		0
+	)
+	training_xp = maxi(
+		int(data.get("training_xp", 0)),
+		0
+	)
+	training_sessions = maxi(
+		int(data.get("training_sessions", 0)),
 		0
 	)
 
