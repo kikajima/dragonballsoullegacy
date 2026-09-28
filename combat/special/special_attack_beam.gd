@@ -212,6 +212,13 @@ func _apply_damage_tick() -> void:
 		_damage_area(nearest)
 
 func _damage_area(area: Area2D) -> void:
+	# HU2 beams repeatedly put the victim in HitStun but do not throw the
+	# target backward on every damage pulse. Suppressing knockback keeps the
+	# victim anchored and prevents the visual beam endpoint from jumping.
+	var suppressed_knockback: KnockbackComponent = (
+		_suppress_receiver_knockback(area)
+	)
+
 	var applied: int = int(
 		area.call(
 			"receive_hit",
@@ -219,6 +226,10 @@ func _damage_area(area: Area2D) -> void:
 			global_position
 		)
 	)
+
+	if suppressed_knockback != null:
+		suppressed_knockback.clear_start_suppression()
+
 	if applied <= 0:
 		return
 
@@ -233,7 +244,23 @@ func _damage_area(area: Area2D) -> void:
 			"register_combat_hit",
 			area,
 			applied
-		)
+	)
+
+func _suppress_receiver_knockback(
+	receiver: Area2D
+) -> KnockbackComponent:
+	var actor: Node = receiver.get_parent()
+	if actor == null:
+		return null
+
+	var knockback: KnockbackComponent = actor.get_node_or_null(
+		"Components/KnockbackComponent"
+	) as KnockbackComponent
+
+	if knockback != null:
+		knockback.suppress_next_start()
+
+	return knockback
 
 func _apply_stun(receiver: Area2D) -> void:
 	if _stun_duration <= 0.0:
@@ -511,6 +538,41 @@ func _refresh_kamehameha_visual(length: float) -> void:
 			_facing_from_direction(_direction),
 			true,
 			true
+		)
+
+	_synchronize_kame_segments()
+
+func _synchronize_kame_segments() -> void:
+	if _kame_segments.is_empty():
+		return
+
+	var reference: AnimatedSprite2D = _kame_segments[0]
+	if (
+		reference == null
+		or reference.sprite_frames == null
+		or not reference.sprite_frames.has_animation(&"effect")
+	):
+		return
+
+	var shared_frame: int = reference.frame
+	var shared_progress: float = reference.frame_progress
+
+	for segment in _kame_segments:
+		if (
+			segment == null
+			or segment == reference
+			or segment.sprite_frames == null
+			or not segment.sprite_frames.has_animation(&"effect")
+		):
+			continue
+
+		var count: int = segment.sprite_frames.get_frame_count(&"effect")
+		if count <= 0:
+			continue
+
+		segment.set_frame_and_progress(
+			clampi(shared_frame, 0, count - 1),
+			shared_progress
 		)
 
 func _facing_from_direction(direction: Vector2) -> String:
