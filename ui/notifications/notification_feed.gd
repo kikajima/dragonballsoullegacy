@@ -92,6 +92,13 @@ func _bind_sources() -> void:
 		save_manager.game_saved.connect(_on_game_saved)
 		save_manager.game_loaded.connect(_on_game_loaded)
 
+	var training := get_tree().get_first_node_in_group(
+		"training_manager"
+	) as TrainingManager
+	if training != null:
+		training.session_changed.connect(_on_training_session_changed)
+		training.gravity_changed.connect(_on_training_gravity_changed)
+
 func _on_xp_gained(amount: int) -> void:
 	push_message("+%d XP" % amount)
 
@@ -154,3 +161,16 @@ func _on_game_saved(_path: String) -> void:
 
 func _on_game_loaded(_path: String) -> void:
 	push_message("Game loaded")
+
+func _on_training_session_changed(
+	mode: StringName,
+	active: bool
+) -> void:
+	var mode_text: String = String(mode).replace("_", " ").capitalize()
+	if active:
+		push_message("Training: %s" % mode_text)
+	else:
+		push_message("Training ended")
+
+func _on_training_gravity_changed(multiplier: float) -> void:
+	push_message("Gravity: %.0fx" % multiplier)
