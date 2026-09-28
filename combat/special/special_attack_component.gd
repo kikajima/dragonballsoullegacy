@@ -316,6 +316,26 @@ func _tick_continuous_beam(
 	delta: float,
 	input_held: bool
 ) -> void:
+	if not _fired and _active_data.charge_duration > 0.0:
+		# Charged beams have a preparation phase before the actual beam
+		# exists. Holding the input fills the charge; releasing too early
+		# cancels without consuming Ki or starting cooldown.
+		if not input_held:
+			_finish_cast(false)
+			return
+
+		_charge_time = minf(
+			_charge_time + delta,
+			_active_data.charge_duration
+		)
+		charge_changed.emit(
+			_active_data.ability_id,
+			get_charge_ratio()
+		)
+
+		if _charge_time < _active_data.charge_duration:
+			return
+
 	if not _fired:
 		if not ki_component.consume(_active_data.ki_cost):
 			_finish_cast(false)
