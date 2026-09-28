@@ -1,0 +1,98 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="PackedScene" path="res://systems/training/training_gravity_console.tscn" id="1_gravity"]
+[ext_resource type="PackedScene" path="res://systems/training/training_punching_bag.tscn" id="2_bag"]
+[ext_resource type="PackedScene" path="res://systems/training/training_treadmill.tscn" id="3_treadmill"]
+[ext_resource type="PackedScene" path="res://systems/training/training_sparring_console.tscn" id="4_spar"]
+[ext_resource type="PackedScene" path="res://world/world_portal.tscn" id="5_portal"]
+[ext_resource type="PackedScene" path="res://world/checkpoint_area.tscn" id="6_checkpoint"]
+[ext_resource type="PackedScene" path="res://world/location_area.tscn" id="7_location"]
+
+[sub_resource type="RectangleShape2D" id="WallHorizontal"]
+size = Vector2(820, 18)
+
+[sub_resource type="RectangleShape2D" id="WallVertical"]
+size = Vector2(18, 520)
+
+[sub_resource type="RectangleShape2D" id="CenterPlatformShape"]
+size = Vector2(180, 70)
+
+[node name="CapsuleTrainingChamber" type="Node2D"]
+
+[node name="Floor" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, 0, 820, 0, 820, 520, 0, 520)
+color = Color(0.09, 0.12, 0.17, 1)
+
+[node name="TrainingFloor" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(60, 75, 760, 75, 760, 390, 60, 390)
+color = Color(0.17, 0.2, 0.26, 1)
+
+[node name="CenterPlatform" type="StaticBody2D" parent="."]
+position = Vector2(410, 305)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Visual" type="Polygon2D" parent="CenterPlatform"]
+polygon = PackedVector2Array(-90, -35, 90, -35, 90, 35, -90, 35)
+color = Color(0.24, 0.28, 0.36, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CenterPlatform"]
+shape = SubResource("CenterPlatformShape")
+
+[node name="Walls" type="Node2D" parent="."]
+
+[node name="Top" type="StaticBody2D" parent="Walls"]
+position = Vector2(410, 9)
+collision_layer = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Top"]
+shape = SubResource("WallHorizontal")
+
+[node name="Bottom" type="StaticBody2D" parent="Walls"]
+position = Vector2(410, 511)
+collision_layer = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Bottom"]
+shape = SubResource("WallHorizontal")
+
+[node name="Left" type="StaticBody2D" parent="Walls"]
+position = Vector2(9, 260)
+collision_layer = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Left"]
+shape = SubResource("WallVertical")
+
+[node name="Right" type="StaticBody2D" parent="Walls"]
+position = Vector2(811, 260)
+collision_layer = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Right"]
+shape = SubResource("WallVertical")
+
+[node name="GravityConsole" parent="." instance=ExtResource("1_gravity")]
+position = Vector2(125, 130)
+
+[node name="PunchingBag" parent="." instance=ExtResource("2_bag")]
+position = Vector2(270, 155)
+
+[node name="Treadmill" parent="." instance=ExtResource("3_treadmill")]
+position = Vector2(440, 155)
+
+[node name="SparringConsole" parent="." instance=ExtResource("4_spar")]
+position = Vector2(615, 135)
+spawn_offset = Vector2(70, 70)
+
+[node name="TrainingCheckpoint" parent="." instance=ExtResource("6_checkpoint")]
+position = Vector2(120, 430)
+checkpoint_id = &"capsule_training"
+
+[node name="ChamberLocation" parent="." instance=ExtResource("7_location")]
+position = Vector2(410, 250)
+scale = Vector2(3.1, 2.2)
+location_name = "CAPSULE CORP TRAINING CHAMBER"
+
+[node name="Exit" parent="." instance=ExtResource("5_portal")]
+position = Vector2(65, 445)
+target_scene = "res://scenes/world/west_city_outskirts.tscn"
+target_spawn = Vector2(910, 340)
+interaction_label = "Exit Training Capsule"
