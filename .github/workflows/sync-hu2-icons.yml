@@ -1,0 +1,87 @@
+name: Sync HU2 Icons
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+    paths:
+      - ".github/workflows/sync-hu2-icons.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout DBSL
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Sparse clone HU2 Icons
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/hu2-icons
+          git clone --depth 1 --branch master --filter=blob:none --sparse \
+            https://github.com/DarkerLegends/HeroesUnited2.git /tmp/hu2-icons
+          git -C /tmp/hu2-icons sparse-checkout set Icons
+
+      - name: Mirror visual assets only
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_SHA="$(git -C /tmp/hu2-icons rev-parse HEAD)"
+
+          mkdir -p assets/vendor/hu2
+          rm -rf assets/vendor/hu2/Icons
+          cp -a /tmp/hu2-icons/Icons assets/vendor/hu2/Icons
+
+          # Do not import HU2 world/map layout.
+          rm -f assets/vendor/hu2/Icons/Map.dmm
+
+          DMI_COUNT="$(find assets/vendor/hu2/Icons -type f -name '*.dmi' | wc -l | tr -d ' ')"
+          PNG_COUNT="$(find assets/vendor/hu2/Icons -type f -name '*.png' | wc -l | tr -d ' ')"
+
+          cat > assets/vendor/hu2/README.md <<EOF
+          # HeroesUnited2 visual asset mirror
+
+          Source: https://github.com/DarkerLegends/HeroesUnited2
+          Source ref: master
+          Source commit: ${SOURCE_SHA}
+
+          Imported scope: `Icons/` visual assets only.
+
+          Included: Characters, HUD, Images, Items, Other/effects, Turfs,
+          and Winter Effects.dmi.
+
+          Excluded: `Icons/Map.dmm` and all HU2 gameplay/code files.
+
+          Counts at sync time:
+          - DMI: ${DMI_COUNT}
+          - PNG: ${PNG_COUNT}
+
+          Licensing note: upstream currently exposes no clear license file.
+          Treat these assets as prototype/reference material until
+          redistribution rights are confirmed.
+          EOF
+
+          # Remove heredoc indentation added by YAML.
+          sed -i 's/^          //' assets/vendor/hu2/README.md
+
+      - name: Commit imported assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "DBSL Asset Sync"
+          git config user.email "actions@users.noreply.github.com"
+          git add assets/vendor/hu2
+          if git diff --cached --quiet; then
+            echo "HU2 Icons already synchronized."
+            exit 0
+          fi
+          git commit -m "assets: mirror HU2 Icons visual assets"
+          git push origin HEAD:develop
