@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://actors/enemies/debug_goku_enemy.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://components/health/health_component.gd" id="2_health"]
@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://components/ki/ki_component.gd" id="14_ki"]
 [ext_resource type="Script" path="res://combat/ki/ki_blast_component.gd" id="15_ki_blast"]
 [ext_resource type="PackedScene" path="res://combat/projectiles/ki_blast_projectile.tscn" id="16_projectile"]
+[ext_resource type="Script" path="res://components/status/status_effect_component.gd" id="17_status"]
 
 [sub_resource type="RectangleShape2D" id="BodyShape"]
 size = Vector2(18, 28)
@@ -131,6 +132,9 @@ startup_duration = 0.16
 repeat_interval = 0.18
 max_buffered_casts = 1
 spawn_distance = 18.0
+
+[node name="StatusEffectComponent" type="Node" parent="Components"]
+script = ExtResource("17_status")
 
 [node name="Hurtbox" type="Area2D" parent="."]
 collision_layer = 4
