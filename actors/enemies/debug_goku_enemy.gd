@@ -26,6 +26,9 @@ var hurt_sheet_path: String = "res://assets/sprites/characters/goku/processed/go
 @export_file("*.png")
 var block_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_block.png"
 
+@export_file("*.png")
+var ki_blast_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_ki_blast.png"
+
 @export var frame_size: Vector2i = Vector2i(32, 32)
 @export var idle_column: int = 0
 @export var walk_columns: PackedInt32Array = PackedInt32Array([2, 3, 4, 5])
@@ -33,6 +36,9 @@ var block_sheet_path: String = "res://assets/sprites/characters/goku/processed/g
 @export var attack_2_columns: PackedInt32Array = PackedInt32Array([4, 5, 6, 7])
 @export var hurt_columns: PackedInt32Array = PackedInt32Array([0, 1])
 @export var block_columns: PackedInt32Array = PackedInt32Array([0])
+@export var ki_blast_prepare_columns: PackedInt32Array = PackedInt32Array([0])
+@export var ki_blast_1_columns: PackedInt32Array = PackedInt32Array([1])
+@export var ki_blast_2_columns: PackedInt32Array = PackedInt32Array([2])
 @export var walk_fps: float = 8.0
 @export var attack_fps: float = 8.0
 @export var hurt_fps: float = 10.0
@@ -42,9 +48,14 @@ var block_sheet_path: String = "res://assets/sprites/characters/goku/processed/g
 @export var disengage_range: float = 220.0
 @export var leash_range: float = 260.0
 @export var return_home_tolerance: float = 3.0
-@export var attack_range: float = 36.0
+@export var attack_range: float = 30.0
 @export var attack_cooldown: float = 0.60
 @export var facing_change_cooldown: float = 0.16
+
+@export var ranged_min_distance: float = 58.0
+@export var ranged_max_distance: float = 150.0
+@export var ranged_attack_cooldown: float = 1.35
+@export var ranged_decision_interval: float = 0.32
 
 @export var pickup_scene: PackedScene
 @export_range(0, 9999, 1)
@@ -70,12 +81,16 @@ var initial_facing: String = "left"
 @onready var melee_combat_component: MeleeCombatComponent = $Components/MeleeCombatComponent
 @onready var guard_component: GuardComponent = $Components/GuardComponent
 @onready var ai_component: EnemyAIComponent = $Components/EnemyAIComponent
+@onready var ki_component: KiComponent = $Components/KiComponent
+@onready var ki_blast_component: KiBlastComponent = $Components/KiBlastComponent
 @onready var experience_reward_component: ExperienceRewardComponent = $Components/ExperienceRewardComponent
 @onready var hurtbox: HurtboxComponent = $Hurtbox
 @onready var body_collision: CollisionShape2D = $CollisionShape2D
 
 var _hurt_time_left: float = 0.0
 var _attack_cooldown_left: float = 0.0
+var _ranged_cooldown_left: float = 0.0
+var _ranged_decision_left: float = 0.0
 var _facing_change_time_left: float = 0.0
 var _flash_tween: Tween
 var _spawn_position: Vector2
@@ -110,6 +125,14 @@ func _physics_process(delta: float) -> void:
 		_attack_cooldown_left - delta,
 		0.0
 	)
+	_ranged_cooldown_left = maxf(
+		_ranged_cooldown_left - delta,
+		0.0
+	)
+	_ranged_decision_left = maxf(
+		_ranged_decision_left - delta,
+		0.0
+	)
 	_facing_change_time_left = maxf(
 		_facing_change_time_left - delta,
 		0.0
@@ -118,6 +141,7 @@ func _physics_process(delta: float) -> void:
 
 	if state_machine.is_state(STATE_HURT):
 		guard_component.set_guarding(false)
+		ki_blast_component.cancel_cast()
 		_process_hurt(delta)
 		return
 
@@ -131,6 +155,10 @@ func _physics_process(delta: float) -> void:
 		_set_idle()
 		return
 
+	if ki_blast_component.is_casting():
+		_process_ranged_attack(delta)
+		return
+
 	var defense_action: int = ai_component.choose_defensive_action(
 		self,
 		_target
@@ -141,6 +169,7 @@ func _physics_process(delta: float) -> void:
 		or ai_component.is_guarding()
 	):
 		melee_combat_component.cancel_attack()
+		ki_blast_component.cancel_cast()
 		_process_ai_guard()
 		return
 
@@ -149,6 +178,7 @@ func _physics_process(delta: float) -> void:
 		or ai_component.is_dodging()
 	):
 		melee_combat_component.cancel_attack()
+		ki_blast_component.cancel_cast()
 		_process_ai_dodge()
 		return
 
@@ -191,6 +221,10 @@ func _physics_process(delta: float) -> void:
 		_start_attack()
 		return
 
+	if _should_start_ranged_attack(distance_to_target):
+		_start_ranged_attack()
+		return
+
 	if distance_to_target <= attack_range:
 		movement_component.stop(self)
 		_current_facing = _facing_toward(
@@ -217,6 +251,92 @@ func _physics_process(delta: float) -> void:
 
 	state_machine.change_state(STATE_WALK)
 	movement_component.move(self, approach_direction)
+	_play_current_animation()
+
+func _should_start_ranged_attack(distance_to_target: float) -> bool:
+	if (
+		distance_to_target < ranged_min_distance
+		or distance_to_target > ranged_max_distance
+	):
+		return false
+
+	if _ranged_cooldown_left > 0.0 or _ranged_decision_left > 0.0:
+		return false
+
+	_ranged_decision_left = maxf(ranged_decision_interval, 0.05)
+
+	if ai_component.profile == null:
+		return false
+
+	if not _has_clear_line_to_target():
+		return false
+
+	return randf() <= ai_component.profile.ranged_attack_chance
+
+func _has_clear_line_to_target() -> bool:
+	if not is_instance_valid(_target):
+		return false
+
+	var query := PhysicsRayQueryParameters2D.create(
+		global_position,
+		_target.global_position
+	)
+	query.collision_mask = 1
+	query.collide_with_bodies = true
+	query.collide_with_areas = false
+
+	var result: Dictionary = (
+		get_world_2d().direct_space_state.intersect_ray(query)
+	)
+
+	return result.is_empty()
+
+func _start_ranged_attack() -> void:
+	if not is_instance_valid(_target):
+		return
+
+	movement_component.stop(self)
+	guard_component.set_guarding(false)
+	melee_combat_component.cancel_attack()
+	_current_facing = _facing_toward(_target.global_position)
+
+	if ki_blast_component.start_cast(_current_facing):
+		state_machine.change_state(
+			ki_blast_component.get_cast_state()
+		)
+		_play_current_animation()
+
+func _process_ranged_attack(delta: float) -> void:
+	if not is_instance_valid(_target):
+		ki_blast_component.cancel_cast()
+		return
+
+	movement_component.stop(self)
+	guard_component.set_guarding(false)
+	_current_facing = _facing_toward(_target.global_position)
+
+	ki_blast_component.tick_cast(
+		self,
+		delta,
+		false,
+		_current_facing
+	)
+
+	if ki_blast_component.is_casting():
+		state_machine.change_state(
+			ki_blast_component.get_cast_state()
+		)
+	else:
+		var cooldown_scale: float = 1.0
+		if ai_component.profile != null:
+			cooldown_scale = ai_component.profile.ranged_cooldown_scale
+
+		_ranged_cooldown_left = maxf(
+			ranged_attack_cooldown * cooldown_scale,
+			0.10
+		)
+		state_machine.change_state(STATE_IDLE)
+
 	_play_current_animation()
 
 func _process_ai_guard() -> void:
@@ -273,6 +393,7 @@ func _process_attack(delta: float) -> void:
 
 func _start_attack() -> void:
 	guard_component.set_guarding(false)
+	ki_blast_component.cancel_cast()
 	if melee_combat_component.start_attack(_current_facing):
 		state_machine.change_state(melee_combat_component.get_attack_state())
 		_play_current_animation()
@@ -285,6 +406,7 @@ func _set_idle() -> void:
 
 func _return_home() -> void:
 	guard_component.set_guarding(false)
+	ki_blast_component.cancel_cast()
 	var to_home: Vector2 = _spawn_position - global_position
 	if to_home.length() <= return_home_tolerance:
 		global_position = _spawn_position
@@ -321,6 +443,7 @@ func _on_hit_received(_damage: int, source_position: Vector2) -> void:
 
 	guard_component.set_guarding(false)
 	ai_component.clear_defense()
+	ki_blast_component.cancel_cast()
 	melee_combat_component.cancel_attack()
 	_current_facing = _facing_toward(source_position)
 	state_machine.change_state(STATE_HURT)
@@ -462,6 +585,13 @@ func _apply_tier_difficulty() -> void:
 		),
 		1
 	)
+	ki_blast_component.projectile_damage = maxi(
+		roundi(
+			float(ki_blast_component.projectile_damage)
+			* profile.damage_multiplier
+		),
+		1
+	)
 
 	experience_reward_component.experience_reward = maxi(
 		roundi(
@@ -579,6 +709,9 @@ func _reset_after_defeat() -> void:
 
 	global_position = _spawn_position
 	_attack_cooldown_left = attack_cooldown
+	_ranged_cooldown_left = ranged_attack_cooldown
+	_ranged_decision_left = 0.0
+	ki_component.restore_full()
 	_defeated = false
 
 	$Visuals.modulate = Color.WHITE
@@ -649,6 +782,35 @@ func _build_sprite_frames() -> void:
 			)
 			built_any = true
 
+	if ResourceLoader.exists(ki_blast_sheet_path):
+		var ki_sheet := load(ki_blast_sheet_path) as Texture2D
+		if ki_sheet != null:
+			_add_directional_animation(
+				frames,
+				ki_sheet,
+				&"ki_blast_prepare",
+				ki_blast_prepare_columns,
+				1.0,
+				true
+			)
+			_add_directional_animation(
+				frames,
+				ki_sheet,
+				&"ki_blast_1",
+				ki_blast_1_columns,
+				1.0,
+				false
+			)
+			_add_directional_animation(
+				frames,
+				ki_sheet,
+				&"ki_blast_2",
+				ki_blast_2_columns,
+				1.0,
+				false
+			)
+			built_any = true
+
 	if built_any:
 		sprite.sprite_frames = frames
 		sprite.visible = true
@@ -712,8 +874,10 @@ func _play_current_animation() -> void:
 	if not sprite.sprite_frames.has_animation(animation_name):
 		return
 
+	var state_text: String = String(state_machine.current_state)
 	var is_one_shot := (
-		String(state_machine.current_state).begins_with("attack_")
+		state_text.begins_with("attack_")
+		or state_text.begins_with("ki_blast_")
 		or state_machine.is_state(STATE_HURT)
 	)
 
