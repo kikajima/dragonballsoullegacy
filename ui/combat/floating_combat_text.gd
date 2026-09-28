@@ -4,7 +4,7 @@ extends Node2D
 @export var lifetime: float = 0.65
 @export var rise_distance: float = 18.0
 
-@onready var label: Label = $Label
+@onready var label: LegacyBitmapText = $Label
 
 var _elapsed: float = 0.0
 var _start_position: Vector2
@@ -18,7 +18,7 @@ func setup(text_value: String, text_color: Color) -> void:
 	# first _process() snaps every damage number back to the world origin.
 	_start_position = position
 	_elapsed = 0.0
-	label.text = text_value
+	label.set_text(text_value)
 	label.modulate = text_color
 
 func _process(delta: float) -> void:
