@@ -39,6 +39,7 @@ var _stopping: bool = false
 var _effect_key: StringName = &""
 var _resolved_length: float = 0.0
 var _beam_impacting: bool = false
+var _impact_visual_length: float = 0.0
 var _beam_battle_visual: bool = false
 var _kame_segments: Array[AnimatedSprite2D] = []
 
@@ -254,6 +255,7 @@ func _apply_stun(receiver: Area2D) -> void:
 
 func _resolve_beam_length(max_range: float) -> float:
 	_beam_impacting = false
+	_impact_visual_length = 0.0
 
 	var environment_length: float = _resolve_environment_length(max_range)
 	if environment_length < max_range - 0.5:
@@ -351,14 +353,21 @@ func _resolve_nearest_target_length(max_length: float) -> float:
 			_beam_width * 0.45,
 			2.0
 		)
-		nearest = minf(
-			nearest,
-			clampf(
-				forward_distance - front_edge_offset,
-				1.0,
-				max_length
-			)
+		var collision_length := clampf(
+			forward_distance - front_edge_offset,
+			1.0,
+			max_length
 		)
+		if collision_length < nearest:
+			nearest = collision_length
+			# HU2 changes the beam object occupying the victim's tile to
+			# KameHit. Keep the collision at the target's front edge, but
+			# render the impact animation over the target center.
+			_impact_visual_length = clampf(
+				forward_distance,
+				1.0,
+				max_length + HU2_BEAM_TILE_SIZE * 0.5
+			)
 
 	return nearest
 
@@ -448,11 +457,13 @@ func _refresh_kamehameha_visual(length: float) -> void:
 		first_center
 	)
 	if _beam_impacting:
-		# HU2 replaces the beam head with KameHit on the occupied target
-		# tile, so the impact sprite overlaps the character/wall itself.
+		# HU2 replaces the beam head with KameHit on the occupied tile.
+		# For characters, _impact_visual_length is their center; for world
+		# collisions we fall back to the resolved collision endpoint.
 		last_center = (
-			length
-			+ maxf(_beam_width * 0.45, 2.0)
+			_impact_visual_length
+			if _impact_visual_length > 0.0
+			else length
 		)
 
 	for index in range(segment_count):
