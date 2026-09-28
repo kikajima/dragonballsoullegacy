@@ -224,8 +224,9 @@ func tick_cast(
 			return
 
 	if _active_data.is_charge_attack() and not _fired:
-		if input_held and get_charge_ratio() < 1.0:
-			_advance_charge(delta)
+		if input_held:
+			if get_charge_ratio() < 1.0:
+				_advance_charge(delta)
 			_update_charge_preview(caster)
 			charge_changed.emit(
 				_active_data.ability_id,
