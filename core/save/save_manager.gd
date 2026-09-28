@@ -6,7 +6,7 @@ signal game_loaded(path: String)
 signal save_failed(reason: String)
 signal load_failed(reason: String)
 
-const SAVE_VERSION: int = 4
+const SAVE_VERSION: int = 5
 
 @export var save_path: String = "user://save_slot_01.json"
 
@@ -27,6 +27,7 @@ func save_game() -> bool:
 		"checkpoint": _serialize_group_node("checkpoint_manager"),
 		"stats": _serialize_group_node("game_stats"),
 		"training": _serialize_group_node("training_manager"),
+		"world": _serialize_group_node("world_manager"),
 	}
 
 	var file := FileAccess.open(save_path, FileAccess.WRITE)
@@ -70,6 +71,12 @@ func load_game() -> bool:
 	if player == null:
 		load_failed.emit("Player not found.")
 		return false
+
+	# Restore the active world before restoring the player's position.
+	_load_group_node_state(
+		"world_manager",
+		data.get("world", {})
+	)
 
 	var player_value: Variant = data.get("player", {})
 	if player_value is Dictionary:
