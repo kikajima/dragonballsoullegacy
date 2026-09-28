@@ -47,9 +47,12 @@ func setup(
 	])
 	_apply_beam_texture(data.effect_key)
 
-	var rect := collision_shape.shape as RectangleShape2D
-	if rect != null:
-		rect.size = Vector2(length, width)
+	var source_rect := collision_shape.shape as RectangleShape2D
+	if source_rect != null:
+		var rect := source_rect.duplicate() as RectangleShape2D
+		if rect != null:
+			rect.size = Vector2(length, width)
+			collision_shape.shape = rect
 
 	collision_shape.position = Vector2(length * 0.5, 0.0)
 
