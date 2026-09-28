@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="SpecialAttackData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/special_attack_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"two_handed_smash"
+display_name = "Two-Handed Smash"
+description = "Charged heavy smash that lunges forward."
+attack_type = 6
+cast_pose = 2
+ki_cost = 12.0
+cooldown = 0.8
+damage = 23
+startup_duration = 0.10
+cast_lock_duration = 0.34
+charge_duration = 1.0
+charge_damage_multiplier = 1.9
+melee_radius = 17.0
+melee_reach = 14.0
+dash_distance = 24.0
