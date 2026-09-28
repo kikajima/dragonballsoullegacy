@@ -58,6 +58,12 @@ var cast_pose: int = CastPose.PROJECTILE
 
 # Hold / charge behavior.
 @export var charge_duration: float = 0.0
+
+# Additional Ki invested while holding a charge. When left at 0, a full
+# charge spends an extra amount equal to ki_cost over charge_duration.
+# Non-chargeable skills never use this value.
+@export var charge_ki_drain_per_second: float = 0.0
+
 @export var charge_damage_multiplier: float = 1.0
 @export var charge_range_multiplier: float = 1.0
 @export var charge_scale_multiplier: float = 1.0
@@ -107,6 +113,18 @@ var flurry_bonus_hit_limit: int = 0
 
 func is_charge_attack() -> bool:
 	return charge_duration > 0.0
+
+func get_charge_ki_drain_rate() -> float:
+	if not is_charge_attack():
+		return 0.0
+
+	if charge_ki_drain_per_second > 0.0:
+		return charge_ki_drain_per_second
+
+	return (
+		maxf(ki_cost, 0.0)
+		/ maxf(charge_duration, 0.001)
+	)
 
 func is_continuous() -> bool:
 	return attack_type == AttackType.CONTINUOUS_BEAM
