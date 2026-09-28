@@ -519,3 +519,72 @@ Contrato preparado para futuros projéteis:
 - responder a `receive_projectile_clash(other, position)`.
 
 Isso permite que futuras técnicas tenham raios de colisão diferentes sem acoplar a regra ao Ki Blast.
+
+
+## Special energy attack catalog
+
+The prototype now has a data-driven special energy layer separate from the rapid Ki Blast.
+
+```text
+R
+↓
+SpecialAttackComponent.select_next()
+↓
+SpecialAttackHUD
+
+O
+↓
+SpecialAttackComponent
+├── SpecialAttackData
+├── KiComponent
+├── AbilityLoadoutComponent cooldowns
+├── SpecialAttackProjectile
+└── SpecialAttackBeam
+```
+
+The initial test catalog contains:
+
+- Kamehameha;
+- Spirit Bomb;
+- Masenko Ha;
+- Special Beam Cannon;
+- Scatter Shot;
+- Big Bang Attack;
+- Burning Attack;
+- Sword Blast.
+
+The basic Ki Blast remains on K and is not replaced by this catalog.
+
+### Casting presentation
+
+Special attacks expose a cast-pose category:
+
+```text
+PROJECTILE
+└── special_projectile_* → reuses the Ki Blast arm-forward pose
+
+BEAM
+└── special_beam_* → uses goku_buus_fury_beam_cast.png
+                     with both hands extended forward
+```
+
+The local assets are:
+
+```text
+assets/sprites/effects/legacy/special_attack_sfx.png
+assets/sprites/characters/goku/processed/goku_buus_fury_beam_cast.png
+```
+
+The original effects atlas is kept local rather than committed to the public repository.
+
+### Technique behavior
+
+`SpecialAttackData` controls Ki cost, cooldown, damage, startup, cast lock, projectile speed/size, beam range/width, spread count and optional stun.
+
+Projectile attacks use the existing `combat_projectile` contract, so they collide with opposing Ki Blasts and other special projectiles instead of passing through them. Projectiles from the same caster ignore each other; this is required for Scatter Shot and rapid sequences.
+
+Beam attacks raycast against World geometry to determine their maximum visible/collision length. Master Roshi and other solid world/NPC blockers therefore stop a beam without receiving combat damage.
+
+Burning Attack applies the reusable `stun` status. The Training Fighter now owns a `StatusEffectComponent` and suspends movement, melee, Ki casting and defensive rush behavior while stunned.
+
+The current values are prototype balance. Charge/sustain timing and character-specific unlock rules can be tuned without changing the projectile/beam architecture.
