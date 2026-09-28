@@ -104,7 +104,7 @@ The prototype Goku uses the shared two-handed beam casting pose. Character-speci
 - release performs a forward lunge;
 - charge increases damage.
 
-### Spin Punch
+### Whirlspin
 
 - radial 360-degree melee hit around the caster.
 
@@ -131,6 +131,16 @@ The prototype Goku uses the shared two-handed beam casting pose. Character-speci
 - no projectile;
 - applies stun to nearby enemies in an area around the caster.
 
+### Super Saiyan / Super Namek
+
+- both are registered as selectable prototype abilities, so they use the same R/O selector as the other LoG2 techniques;
+- activation is routed to `TransformationComponent` instead of being hard-coded into Goku;
+- activating the currently active form reverts to base;
+- transformations drain Ki continuously and end automatically when Ki is exhausted;
+- active transformation data multiplies basic melee, Ki Blast, special-attack damage and movement speed;
+- the prototype shows a persistent aura while transformed;
+- Goku temporarily unlocks both forms for system testing. Future custom characters can restrict forms through progression/race/loadout data.
+
 ## Runtime architecture
 
 ```text
@@ -151,11 +161,17 @@ SpecialAttackComponent
         │   ├── non-piercing
         │   └── piercing
         │
-        └── direct combat
-            ├── melee
-            ├── charged melee
-            ├── flurry
-            └── area status
+        ├── direct combat
+        │   ├── melee
+        │   ├── charged melee
+        │   ├── flurry
+        │   └── area status
+        │
+        └── TransformationComponent
+            ├── activation / revert
+            ├── Ki drain
+            ├── damage multiplier
+            └── movement multiplier
 ```
 
 Character identity is deliberately absent from these rules. The same data and components can be assigned to player-created characters, enemies, elites and bosses later.
