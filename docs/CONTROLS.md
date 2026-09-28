@@ -11,6 +11,8 @@ Mapeamento atual do protótipo.
 | Soco / combo | J |
 | Chute / combo | I |
 | Ki Blast | K |
+| Usar técnica especial | O |
+| Próxima técnica especial | R |
 | Carregar Ki | L |
 | Correr | Segurar Espaço |
 | Defender | Shift esquerdo |
@@ -51,3 +53,26 @@ Um perfil de gamepad é registrado em runtime sem remover os controles de teclad
 | Pausar | Start |
 
 O mapeamento fica em `core/input/gamepad_profile.gd` para poder ser alterado depois sem reescrever o Player.
+
+
+## Special energy attacks
+
+The prototype currently unlocks the complete Legacy of Goku II special-energy test catalog so the effects and combat rules can be validated before character-specific progression is enforced.
+
+- **R:** cycle the selected special technique.
+- **O:** cast the selected technique.
+- **K:** remains the rapid basic Ki Blast.
+- **L:** remains Ki charge.
+
+Current test catalog:
+
+1. Kamehameha
+2. Spirit Bomb
+3. Masenko Ha
+4. Special Beam Cannon
+5. Scatter Shot
+6. Big Bang Attack
+7. Burning Attack
+8. Sword Blast
+
+Projectile techniques reuse the Ki Blast-style casting pose. Beam techniques use the separate two-handed forward casting pose.
