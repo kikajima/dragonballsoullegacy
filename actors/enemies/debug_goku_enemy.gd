@@ -55,8 +55,8 @@ var max_zeni_drop: int = 18
 var senzu_drop_chance: float = 0.10
 @export var respawn_for_debug: bool = true
 @export var respawn_delay: float = 1.2
-@export var respawn_clearance_radius: float = 30.0
-@export var respawn_retry_interval: float = 0.20
+@export var respawn_collision_grace: float = 0.20
+@export var respawn_separation_distance: float = 24.0
 
 @export_enum("up", "down", "left", "right")
 var initial_facing: String = "left"
@@ -82,8 +82,8 @@ var _spawn_position: Vector2
 var _current_facing: StringName = &"left"
 var _target: Node2D
 var _defeated: bool = false
-var _respawn_pending: bool = false
-var _respawn_retry_left: float = 0.0
+var _respawn_collision_pending: bool = false
+var _respawn_collision_time_left: float = 0.0
 
 func _ready() -> void:
 	_spawn_position = global_position
@@ -100,7 +100,10 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if _defeated:
-		_process_respawn_wait(delta)
+		return
+
+	if _respawn_collision_pending:
+		_process_respawn_collision(delta)
 		return
 
 	_attack_cooldown_left = maxf(
@@ -401,7 +404,7 @@ func _on_died() -> void:
 
 	if respawn_for_debug:
 		_flash_tween.tween_interval(respawn_delay)
-		_flash_tween.tween_callback(_begin_respawn_wait)
+		_flash_tween.tween_callback(_reset_after_defeat)
 	else:
 		_flash_tween.tween_callback(queue_free)
 
@@ -504,48 +507,69 @@ func _show_defeated_pose() -> void:
 	sprite.frame = maxi(last_frame, 0)
 	sprite.pause()
 
-func _begin_respawn_wait() -> void:
-	_respawn_pending = true
-	_respawn_retry_left = 0.0
+func _process_respawn_collision(delta: float) -> void:
+	movement_component.stop(self)
 
-func _process_respawn_wait(delta: float) -> void:
-	if not _respawn_pending:
-		return
-
-	_respawn_retry_left = maxf(
-		_respawn_retry_left - delta,
+	_respawn_collision_time_left = maxf(
+		_respawn_collision_time_left - delta,
 		0.0
 	)
 
-	if _respawn_retry_left > 0.0:
+	if _respawn_collision_time_left > 0.0:
 		return
 
-	if not _is_respawn_position_clear():
-		_respawn_retry_left = maxf(
-			respawn_retry_interval,
-			0.05
-		)
-		return
+	_resolve_respawn_overlap()
 
-	_reset_after_defeat()
+	_respawn_collision_pending = false
+	body_collision.set_deferred("disabled", false)
+	hurtbox.set_deferred("monitorable", true)
 
-func _is_respawn_position_clear() -> bool:
+func _resolve_respawn_overlap() -> void:
 	var player := get_tree().get_first_node_in_group(
 		"player"
 	) as Node2D
 
 	if player == null:
-		return true
+		return
 
-	var distance: float = player.global_position.distance_to(
-		_spawn_position
+	var offset: Vector2 = global_position - player.global_position
+	var distance: float = offset.length()
+	var required_distance: float = maxf(
+		respawn_separation_distance,
+		1.0
 	)
 
-	return distance >= maxf(respawn_clearance_radius, 1.0)
+	if distance >= required_distance:
+		return
+
+	var separation_direction: Vector2 = offset.normalized()
+
+	if separation_direction.is_zero_approx():
+		separation_direction = _fallback_respawn_direction(player)
+
+	global_position = (
+		player.global_position
+		+ separation_direction * required_distance
+	)
+
+func _fallback_respawn_direction(player: Node2D) -> Vector2:
+	if player.has_method("get_facing"):
+		var facing_value: Variant = player.call("get_facing")
+		var facing_name: StringName = StringName(str(facing_value))
+
+		match facing_name:
+			&"up":
+				return Vector2.DOWN
+			&"down":
+				return Vector2.UP
+			&"left":
+				return Vector2.RIGHT
+			&"right":
+				return Vector2.LEFT
+
+	return Vector2.RIGHT
 
 func _reset_after_defeat() -> void:
-	_respawn_pending = false
-	_respawn_retry_left = 0.0
 	health_component.restore_full()
 	experience_reward_component.reset_reward()
 	guard_component.set_guarding(false)
@@ -558,8 +582,17 @@ func _reset_after_defeat() -> void:
 	_defeated = false
 
 	$Visuals.modulate = Color.WHITE
-	hurtbox.set_deferred("monitorable", true)
-	body_collision.set_deferred("disabled", false)
+
+	# Respawn is never blocked by the Player. The fighter appears at the
+	# spawn point immediately, stays briefly intangible, then separates
+	# itself if the Player is occupying the same space.
+	hurtbox.set_deferred("monitorable", false)
+	body_collision.set_deferred("disabled", true)
+	_respawn_collision_pending = true
+	_respawn_collision_time_left = maxf(
+		respawn_collision_grace,
+		0.0
+	)
 
 	state_machine.change_state(STATE_IDLE)
 	_play_current_animation()
