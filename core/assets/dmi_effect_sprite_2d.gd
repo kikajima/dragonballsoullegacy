@@ -18,6 +18,31 @@ var facing: String = "down"
 func _ready() -> void:
 	_build_from_dmi()
 
+func configure(
+	path: String,
+	state: StringName,
+	direction_facing: String = "right",
+	should_loop: bool = true,
+	should_play: bool = true
+) -> void:
+	var needs_rebuild := (
+		dmi_path != path
+		or dmi_state != state
+		or facing != direction_facing
+		or loop_animation != should_loop
+	)
+
+	dmi_path = path
+	dmi_state = state
+	facing = direction_facing
+	loop_animation = should_loop
+	play_on_ready = should_play
+
+	if needs_rebuild or sprite_frames == null:
+		_build_from_dmi()
+	elif should_play and not is_playing():
+		play(&"effect")
+
 func _build_from_dmi() -> void:
 	if dmi_path.is_empty() or dmi_state == &"":
 		return
