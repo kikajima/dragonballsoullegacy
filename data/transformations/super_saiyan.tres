@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TransformationData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/transformations/transformation_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+transformation_id = &"super_saiyan"
+display_name = "Super Saiyan"
+minimum_level = 1
+ki_activation_cost = 18.0
+ki_drain_per_second = 5.0
+damage_multiplier = 1.5
+movement_multiplier = 1.15
+aura_color = Color(1.0, 0.82, 0.16, 0.38)
