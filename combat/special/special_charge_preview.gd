@@ -86,7 +86,7 @@ func _update_transform() -> void:
 		# During HU2's charge state the hands are pulled behind the body.
 		# Put the animated Kame start glow on that hand position, then the
 		# beam itself will take over from the front when the cast fires.
-		rotation = _direction.angle()
+		rotation = 0.0
 		global_position = (
 			_caster.global_position
 			- _direction * 7.0
@@ -99,6 +99,11 @@ func _update_transform() -> void:
 			+ _direction * _spawn_distance
 			+ Vector2(0.0, -4.0)
 		)
+
+func _facing_from_direction(direction: Vector2) -> String:
+	if absf(direction.x) > absf(direction.y):
+		return "right" if direction.x >= 0.0 else "left"
+	return "down" if direction.y >= 0.0 else "up"
 
 func _build_visual() -> void:
 	if _effect_key == &"blue_beam":
@@ -117,7 +122,7 @@ func _build_visual() -> void:
 			"configure",
 			HU2_EFFECT_DMI_PATH,
 			KAME_CHARGE_STATE,
-			"right",
+			_facing_from_direction(_direction),
 			true,
 			true
 		)
