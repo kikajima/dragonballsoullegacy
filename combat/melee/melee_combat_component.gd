@@ -43,6 +43,10 @@ var _buffered_attack: bool = false
 var _buffer_time_left: float = 0.0
 var _buffered_facing: StringName = &"down"
 var _buffered_kind: StringName = ATTACK_PUNCH
+var _damage_multiplier: float = 1.0
+
+func set_damage_multiplier(value: float) -> void:
+	_damage_multiplier = maxf(value, 0.0)
 
 func start_attack(
 	facing: StringName,
@@ -160,11 +164,17 @@ func _next_variant(attack_kind: StringName) -> int:
 
 func _configure_hitbox_for_current_attack() -> void:
 	if _current_kind == ATTACK_KICK:
-		attack_hitbox.damage = kick_damage
+		attack_hitbox.damage = maxi(
+			roundi(float(kick_damage) * _damage_multiplier),
+			0
+		)
 		attack_hitbox.offset_distance = kick_offset_distance
 		return
 
-	attack_hitbox.damage = damage
+	attack_hitbox.damage = maxi(
+		roundi(float(damage) * _damage_multiplier),
+		0
+	)
 	attack_hitbox.offset_distance = attack_offset_distance
 
 func _get_attack_duration() -> float:
