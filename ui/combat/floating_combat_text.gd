@@ -13,6 +13,11 @@ func _ready() -> void:
 	_start_position = position
 
 func setup(text_value: String, text_color: Color) -> void:
+	# CombatFeedbackManager positions the node after add_child(), so _ready()
+	# has already run. Capture the actual spawned position here; otherwise the
+	# first _process() snaps every damage number back to the world origin.
+	_start_position = position
+	_elapsed = 0.0
 	label.text = text_value
 	label.modulate = text_color
 
