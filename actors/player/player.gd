@@ -306,7 +306,9 @@ func _process_charge_ki(delta: float) -> void:
 	if ki_is_full:
 		# Ao completar o Ki, força o segundo quadro e congela nele.
 		charge_aura.visible = false
-		animation_controller.freeze_charge_complete()
+		animation_controller.freeze_charge_complete(
+			facing_component.current_facing
+		)
 
 func _process_stunned(delta: float) -> void:
 	guard_component.set_guarding(false)
