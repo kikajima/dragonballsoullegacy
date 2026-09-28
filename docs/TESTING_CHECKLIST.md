@@ -206,3 +206,23 @@ Se algo quebrar, validar nesta ordem:
 - Fire two shots that pass beside each other; they must not clash when their collision radii do not overlap.
 - Confirm a wall closer than the opposing projectile still absorbs the shot first.
 - Confirm consecutive Ki Blasts travelling in the same direction do not destroy each other unless their actual collision shapes overlap.
+
+
+## 19. Special energy attacks
+
+- Confirm the local files exist:
+  - `assets/sprites/effects/legacy/special_attack_sfx.png`;
+  - `assets/sprites/characters/goku/processed/goku_buus_fury_beam_cast.png`.
+- Press R repeatedly and confirm the selector cycles through all eight techniques.
+- Press O and confirm the selected technique consumes Ki and enters cooldown.
+- Projectile techniques must use the Ki Blast-style character pose.
+- Kamehameha and Special Beam Cannon must use the two-handed beam pose.
+- Confirm Player movement is locked during each special cast.
+- Test Kamehameha and Special Beam Cannon horizontally and vertically.
+- Beams must stop at solid world/NPC geometry.
+- Test Spirit Bomb, Masenko Ha, Big Bang Attack, Burning Attack and Sword Blast against the Training Fighter.
+- Burning Attack should temporarily stop the Training Fighter.
+- Scatter Shot must create three diverging projectiles without the three shots destroying each other.
+- Fire a special projectile against an enemy Ki Blast; both should clash and stop.
+- Fire two projectiles from the same Player in the same direction; they should not clash with each other.
+- Verify cooldown text in the SpecialAttackHUD.
