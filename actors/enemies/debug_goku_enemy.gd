@@ -300,7 +300,14 @@ func _start_ranged_attack() -> void:
 	melee_combat_component.cancel_attack()
 	_current_facing = _facing_toward(_target.global_position)
 
-	if ki_blast_component.start_cast(_current_facing):
+	var aim_direction: Vector2 = (
+		_target.global_position - global_position
+	).normalized()
+
+	if ki_blast_component.start_cast(
+		_current_facing,
+		aim_direction
+	):
 		state_machine.change_state(
 			ki_blast_component.get_cast_state()
 		)
@@ -477,6 +484,7 @@ func _on_died() -> void:
 	_defeated = true
 	guard_component.set_guarding(false)
 	ai_component.clear_defense()
+	ki_blast_component.cancel_cast()
 	melee_combat_component.cancel_attack()
 	knockback_component.stop(self)
 	movement_component.stop(self)
