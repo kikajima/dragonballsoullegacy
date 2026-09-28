@@ -1,11 +1,21 @@
 class_name TransformationComponent
 extends Node
 
+const DEFAULT_TRANSFORMATIONS := [
+	preload("res://data/transformations/super_saiyan.tres"),
+	preload("res://data/transformations/super_namek.tres"),
+]
+
 signal transformation_unlocked(transformation_id: StringName)
 signal transformation_started(transformation_id: StringName)
 signal transformation_ended(transformation_id: StringName)
 
 @export var ki_component_path: NodePath
+@export var transformations: Array[TransformationData] = []
+
+# Prototype-only shortcut. Future custom characters can disable this and
+# receive transformations through progression/race/quests.
+@export var unlock_all_for_prototype: bool = true
 
 @onready var ki_component: KiComponent = (
 	get_node(ki_component_path) as KiComponent
@@ -14,6 +24,20 @@ signal transformation_ended(transformation_id: StringName)
 var _unlocked: Dictionary = {}
 var _definitions: Dictionary = {}
 var active_transformation: StringName = &""
+
+func _ready() -> void:
+	if transformations.is_empty():
+		for resource in DEFAULT_TRANSFORMATIONS:
+			transformations.append(resource as TransformationData)
+
+	for definition in transformations:
+		register_transformation(definition)
+		if (
+			unlock_all_for_prototype
+			and definition != null
+			and definition.transformation_id != &""
+		):
+			unlock(definition.transformation_id)
 
 func _process(delta: float) -> void:
 	if active_transformation == &"":
