@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SpecialAttackData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/special_attack_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"spin_punch"
+display_name = "Spin Punch"
+description = "A 360-degree melee strike around the user."
+attack_type = 5
+cast_pose = 2
+ki_cost = 10.0
+cooldown = 0.75
+damage = 20
+startup_duration = 0.14
+cast_lock_duration = 0.34
+melee_radius = 22.0
+melee_reach = 0.0
+melee_is_radial = true
