@@ -44,6 +44,12 @@ var counterattack_chance: float = 0.05
 @export_range(0.0, 1.0, 0.01)
 var strafe_chance: float = 0.03
 
+@export_range(0.0, 1.0, 0.01)
+var ranged_attack_chance: float = 0.15
+
+@export_range(0.5, 2.0, 0.05)
+var ranged_cooldown_scale: float = 1.0
+
 @export_range(0.0, 1.5, 0.05)
 var strafe_weight: float = 0.25
 
