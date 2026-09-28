@@ -650,14 +650,31 @@ func _drop_loot() -> void:
 	if pickup_scene == null:
 		return
 
+	# Death can be triggered from an Area2D overlap callback while the
+	# PhysicsServer2D is still flushing collision queries. Adding a pickup
+	# (also an Area2D) at that moment attempts to change monitoring state and
+	# produces "Can't change this state while flushing queries".
+	#
+	# Defer the complete spawn operation so the pickup enters the scene tree
+	# only after the current physics query has finished.
+	call_deferred("_spawn_loot_deferred", global_position)
+
+func _spawn_loot_deferred(drop_position: Vector2) -> void:
+	if pickup_scene == null or not is_inside_tree():
+		return
+
+	var loot_parent := get_parent()
+	if loot_parent == null:
+		return
+
 	var minimum: int = maxi(min_zeni_drop, 0)
 	var maximum: int = maxi(max_zeni_drop, minimum)
 
 	if maximum > 0:
 		var zeni_drop := pickup_scene.instantiate() as PickupActor
 		if zeni_drop != null:
-			get_parent().add_child(zeni_drop)
-			zeni_drop.global_position = global_position + Vector2(-6.0, 0.0)
+			loot_parent.add_child(zeni_drop)
+			zeni_drop.global_position = drop_position + Vector2(-6.0, 0.0)
 			zeni_drop.configure_currency(
 				randi_range(maxi(minimum, 1), maximum)
 			)
@@ -665,8 +682,8 @@ func _drop_loot() -> void:
 	if randf() <= clampf(senzu_drop_chance, 0.0, 1.0):
 		var item_drop := pickup_scene.instantiate() as PickupActor
 		if item_drop != null:
-			get_parent().add_child(item_drop)
-			item_drop.global_position = global_position + Vector2(6.0, 0.0)
+			loot_parent.add_child(item_drop)
+			item_drop.global_position = drop_position + Vector2(6.0, 0.0)
 			item_drop.configure_item(&"senzu_bean", 1)
 
 func _apply_tier_difficulty() -> void:
