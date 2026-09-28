@@ -17,11 +17,13 @@ const WORLD_ROWS: int = 17
 @onready var shore_tint: Polygon2D = $Terrain/ShoreTint
 @onready var shore_foam_outer: Line2D = $Terrain/ShoreFoamOuter
 @onready var shore_foam_inner: Line2D = $Terrain/ShoreFoamInner
+@onready var sea_collision: StaticBody2D = $SeaCollision
 
 var _ambient_time: float = 0.0
 
 func _ready() -> void:
 	_build_island_tiles()
+	_build_shore_collision()
 
 func _process(delta: float) -> void:
 	_ambient_time += delta
@@ -91,6 +93,57 @@ func _build_island_tiles() -> void:
 					world_position,
 					-10
 				)
+
+func _build_shore_collision() -> void:
+	for row in range(WORLD_ROWS):
+		for column in range(WORLD_COLUMNS):
+			if _is_sand_tile(column, row):
+				continue
+			if not _touches_sand(column, row):
+				continue
+			if _is_dock_opening(column, row):
+				continue
+
+			var shape := RectangleShape2D.new()
+			shape.size = Vector2(TILE_SIZE, TILE_SIZE)
+
+			var collision := CollisionShape2D.new()
+			collision.shape = shape
+			collision.position = Vector2(
+				float(column * TILE_SIZE + TILE_SIZE / 2),
+				float(row * TILE_SIZE + TILE_SIZE / 2)
+			)
+			sea_collision.add_child(collision)
+
+func _touches_sand(column: int, row: int) -> bool:
+	for offset_y in range(-1, 2):
+		for offset_x in range(-1, 2):
+			if offset_x == 0 and offset_y == 0:
+				continue
+
+			var neighbor_x: int = column + offset_x
+			var neighbor_y: int = row + offset_y
+			if (
+				neighbor_x < 0
+				or neighbor_y < 0
+				or neighbor_x >= WORLD_COLUMNS
+				or neighbor_y >= WORLD_ROWS
+			):
+				continue
+
+			if _is_sand_tile(neighbor_x, neighbor_y):
+				return true
+
+	return false
+
+func _is_dock_opening(column: int, row: int) -> bool:
+	# Preserve a narrow southeast opening for the dock/travel capsule.
+	return (
+		column >= 22
+		and column <= 25
+		and row >= 12
+		and row <= 14
+	)
 
 func _is_sand_tile(column: int, row: int) -> bool:
 	var center := Vector2(14.5, 8.3)
