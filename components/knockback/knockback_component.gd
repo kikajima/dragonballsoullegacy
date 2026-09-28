@@ -7,8 +7,22 @@ extends Node
 var _active: bool = false
 var _elapsed: float = 0.0
 var _direction: Vector2 = Vector2.ZERO
+var _suppress_next_start: bool = false
+
+func suppress_next_start() -> void:
+	_suppress_next_start = true
+
+func clear_start_suppression() -> void:
+	_suppress_next_start = false
 
 func start(body: CharacterBody2D, source_position: Vector2) -> void:
+	if _suppress_next_start:
+		_suppress_next_start = false
+		_active = false
+		_elapsed = 0.0
+		body.velocity = Vector2.ZERO
+		return
+
 	_direction = body.global_position - source_position
 
 	if _direction.is_zero_approx():
