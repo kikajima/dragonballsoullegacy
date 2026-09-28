@@ -31,6 +31,7 @@ signal charge_changed(ability_id: StringName, ratio: float)
 @export var abilities: Array[SpecialAttackData] = []
 @export var projectile_scene: PackedScene
 @export var beam_scene: PackedScene
+@export var charge_preview_scene: PackedScene
 @export var ki_component_path: NodePath
 @export var loadout_component_path: NodePath
 @export var spawn_distance: float = 20.0
@@ -57,6 +58,7 @@ var _cast_facing: StringName = &"down"
 var _cast_direction: Vector2 = Vector2.DOWN
 var _active_data: SpecialAttackData
 var _active_beam: SpecialAttackBeam
+var _charge_preview: SpecialChargePreview
 var _flurry_hits_left: int = 0
 var _flurry_tick_left: float = 0.0
 
@@ -207,12 +209,14 @@ func tick_cast(
 				_charge_time + delta,
 				_active_data.charge_duration
 			)
+			_update_charge_preview(caster)
 			charge_changed.emit(
 				_active_data.ability_id,
 				get_charge_ratio()
 			)
 			return
 
+		_clear_charge_preview()
 		_fire_once(caster, get_charge_ratio())
 
 	if not _fired:
@@ -441,6 +445,49 @@ func _fire_once(
 		_active_data.cast_lock_duration,
 		0.01
 	)
+
+func _update_charge_preview(caster: Node2D) -> void:
+	if (
+		_active_data == null
+		or _active_data.attack_type
+			!= SpecialAttackData.AttackType.CHARGED_PROJECTILE
+		or charge_preview_scene == null
+	):
+		return
+
+	if not is_instance_valid(_charge_preview):
+		_charge_preview = (
+			charge_preview_scene.instantiate()
+			as SpecialChargePreview
+		)
+		if _charge_preview == null:
+			return
+
+		var parent: Node = caster.get_tree().current_scene
+		if parent == null:
+			parent = caster.get_parent()
+
+		parent.add_child(_charge_preview)
+		_charge_preview.setup(
+			_active_data.effect_key,
+			caster,
+			_cast_direction,
+			spawn_distance,
+			maxf(
+				_active_data.charge_scale_multiplier,
+				1.0
+			)
+		)
+
+	_charge_preview.set_charge_ratio(
+		get_charge_ratio()
+	)
+
+func _clear_charge_preview() -> void:
+	if is_instance_valid(_charge_preview):
+		_charge_preview.queue_free()
+
+	_charge_preview = null
 
 func _spawn_projectile(
 	caster: Node2D,
@@ -714,6 +761,7 @@ func _finish_cast(start_cooldown: bool) -> void:
 	if is_instance_valid(_active_beam):
 		_active_beam.stop_beam()
 
+	_clear_charge_preview()
 	_active_beam = null
 	_casting = false
 	_fired = false
