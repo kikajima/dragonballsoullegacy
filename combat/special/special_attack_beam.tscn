@@ -5,7 +5,7 @@
 [sub_resource type="RectangleShape2D" id="BeamShape"]
 size = Vector2(160, 8)
 
-[node name="SpecialAttackBeam" type="Node2D"]
+[node name="SpecialAttackBeam" type="Node2D" groups=["active_special_beam"]]
 script = ExtResource("1_beam")
 
 [node name="BeamLine" type="Line2D" parent="."]
