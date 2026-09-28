@@ -50,6 +50,7 @@ var _hurt_time_left: float = 0.0
 var _spawn_position: Vector2
 var _flash_tween: Tween
 var _respawning: bool = false
+var _ki_quest_second_accumulator: float = 0.0
 
 func _ready() -> void:
 	_spawn_position = global_position
@@ -136,6 +137,7 @@ func _physics_process(delta: float) -> void:
 			facing_component.current_facing,
 			_facing_vector(facing_component.current_facing)
 		):
+			_advance_quest_objective(&"use_special_attack", 1)
 			var special_state := special_attack_component.get_cast_state()
 			state_machine.change_state(special_state)
 			movement_component.stop(self)
@@ -361,6 +363,12 @@ func _process_charge_ki(delta: float) -> void:
 	if not ki_is_full:
 		charge_aura.visible = true
 		ki_component.restore(ki_charge_per_second * delta)
+
+		_ki_quest_second_accumulator += delta
+		while _ki_quest_second_accumulator >= 1.0:
+			_ki_quest_second_accumulator -= 1.0
+			_advance_quest_objective(&"charge_ki_second", 1)
+
 		ki_is_full = ki_component.current_ki >= ki_component.max_ki - 0.001
 	else:
 		charge_aura.visible = false
@@ -654,6 +662,16 @@ func _update_movement_state(move_intent: Vector2) -> void:
 		state_machine.change_state(STATE_RUN)
 	else:
 		state_machine.change_state(STATE_WALK)
+
+func _advance_quest_objective(
+	objective_id: StringName,
+	amount: int = 1
+) -> void:
+	var quests := get_tree().get_first_node_in_group(
+		"quest_manager"
+	) as QuestManager
+	if quests != null:
+		quests.advance_objective(objective_id, amount)
 
 func _facing_vector(facing: StringName) -> Vector2:
 	match facing:
