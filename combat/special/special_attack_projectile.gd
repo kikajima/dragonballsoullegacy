@@ -92,13 +92,23 @@ func setup(
 	_speed = data.projectile_speed
 	_damage = data.damage
 	_stun_duration = data.stun_duration
-	_clash_radius = maxf(data.projectile_radius, 1.0)
-	scale = Vector2.ONE * maxf(data.projectile_scale, 0.25)
+	var visual_scale: float = maxf(
+		data.projectile_scale,
+		0.25
+	)
+	_clash_radius = maxf(
+		data.projectile_radius * visual_scale,
+		1.0
+	)
+	sprite.scale = Vector2.ONE * visual_scale
 	rotation = _direction.angle()
 
-	var shape := collision_shape.shape as CircleShape2D
-	if shape != null:
-		shape.radius = _clash_radius
+	var source_shape := collision_shape.shape as CircleShape2D
+	if source_shape != null:
+		var shape := source_shape.duplicate() as CircleShape2D
+		if shape != null:
+			shape.radius = _clash_radius
+			collision_shape.shape = shape
 
 	_configure_collision_filter()
 	_build_visual(data.effect_key)
