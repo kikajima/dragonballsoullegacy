@@ -38,10 +38,12 @@ var kick_move_speed_scale: float = 0.70
 @onready var ki_blast_component: KiBlastComponent = $Components/KiBlastComponent
 @onready var special_attack_component: SpecialAttackComponent = $Components/SpecialAttackComponent
 @onready var status_effect_component: StatusEffectComponent = $Components/StatusEffectComponent
+@onready var transformation_component: TransformationComponent = $Components/TransformationComponent
 @onready var attack_hitbox: HitboxComponent = $Combat/AttackHitbox
 @onready var hurtbox: HurtboxComponent = $Hurtbox
 @onready var animation_controller: PlayerAnimationController = $Visuals/AnimationController
 @onready var charge_aura: Polygon2D = $Visuals/ChargeAura
+@onready var transformation_aura: Polygon2D = $Visuals/TransformationAura
 @onready var interaction_sensor: InteractionSensor = $InteractionSensor
 
 var _hurt_time_left: float = 0.0
@@ -58,6 +60,13 @@ func _ready() -> void:
 	health_component.damaged.connect(_on_damaged)
 	health_component.died.connect(_on_died)
 	experience_component.leveled_up.connect(_on_leveled_up)
+	transformation_component.transformation_started.connect(
+		_on_transformation_started
+	)
+	transformation_component.transformation_ended.connect(
+		_on_transformation_ended
+	)
+	_refresh_transformation_state()
 
 	ability_loadout_component.unlock_ability(&"ki_blast")
 	ability_loadout_component.equip_ability(0, &"ki_blast")
@@ -227,16 +236,24 @@ func _update_active_melee(move_intent: Vector2, delta: float) -> void:
 	)
 
 func _get_current_melee_speed_scale() -> float:
+	var base_scale: float = attack_move_speed_scale
 	if melee_combat_component.get_attack_kind() == MeleeCombatComponent.ATTACK_KICK:
-		return kick_move_speed_scale
+		base_scale = kick_move_speed_scale
 
-	return attack_move_speed_scale
+	return (
+		base_scale
+		* transformation_component.get_movement_multiplier()
+	)
 
 func _get_locomotion_speed_scale() -> float:
+	var base_scale: float = 1.0
 	if state_machine.is_state(STATE_RUN):
-		return run_speed_scale
+		base_scale = run_speed_scale
 
-	return 1.0
+	return (
+		base_scale
+		* transformation_component.get_movement_multiplier()
+	)
 
 func _process_block(_move_intent: Vector2, delta: float) -> void:
 	charge_aura.visible = false
@@ -461,6 +478,40 @@ func _on_leveled_up(new_level: int) -> void:
 	print("Player chegou ao nível %d." % new_level)
 	_flash(Color(1.0, 0.92, 0.35, 1.0))
 
+func _on_transformation_started(
+	_transformation_id: StringName
+) -> void:
+	_refresh_transformation_state()
+
+func _on_transformation_ended(
+	_transformation_id: StringName
+) -> void:
+	_refresh_transformation_state()
+
+func _refresh_transformation_state() -> void:
+	var damage_multiplier: float = (
+		transformation_component.get_damage_multiplier()
+	)
+	melee_combat_component.set_damage_multiplier(
+		damage_multiplier
+	)
+	ki_blast_component.set_damage_multiplier(
+		damage_multiplier
+	)
+	special_attack_component.set_damage_multiplier(
+		damage_multiplier
+	)
+
+	var definition := transformation_component.get_definition(
+		transformation_component.active_transformation
+	)
+	if definition == null:
+		transformation_aura.visible = false
+		return
+
+	transformation_aura.color = definition.aura_color
+	transformation_aura.visible = true
+
 func _on_died() -> void:
 	if _respawning:
 		return
@@ -489,6 +540,7 @@ func _reset_after_defeat() -> void:
 	melee_combat_component.cancel_attack()
 	ki_blast_component.cancel_cast()
 	special_attack_component.cancel_cast()
+	transformation_component.end_transformation()
 	knockback_component.stop(self)
 	guard_component.set_guarding(false)
 	charge_aura.visible = false
