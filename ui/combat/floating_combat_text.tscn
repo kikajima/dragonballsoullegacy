@@ -1,16 +1,21 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://ui/combat/floating_combat_text.gd" id="1_text"]
+[ext_resource type="Script" path="res://ui/fonts/legacy_bitmap_text.gd" id="2_bitmap"]
 
 [node name="FloatingCombatText" type="Node2D"]
 z_index = 50
 script = ExtResource("1_text")
 
-[node name="Label" type="Label" parent="."]
-offset_left = -18.0
-offset_top = -5.0
-offset_right = 18.0
-offset_bottom = 7.0
+[node name="Label" type="Control" parent="."]
+offset_left = -22.0
+offset_top = -6.0
+offset_right = 22.0
+offset_bottom = 6.0
+mouse_filter = 2
+script = ExtResource("2_bitmap")
 text = "-10"
-theme_override_font_sizes/font_size = 7
+render_scale = 0.8
+glyph_advance = 6.0
 horizontal_alignment = 1
+vertical_center = true
