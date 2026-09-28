@@ -815,7 +815,7 @@ func _find_next_available_index(
 	var index: int = from_index
 
 	for _attempt in range(count):
-		index = int(posmod(index + step, count))
+		index = (index + step + count) % count
 		var data: SpecialAttackData = abilities[index]
 		if _is_available(data):
 			return index
