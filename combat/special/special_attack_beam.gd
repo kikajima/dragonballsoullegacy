@@ -6,6 +6,7 @@ const EFFECT_SHEET_PATH := (
 )
 
 @onready var beam_line: Line2D = $BeamLine
+@onready var beam_core: Line2D = $BeamCore
 @onready var hit_area: Area2D = $HitArea
 @onready var collision_shape: CollisionShape2D = (
 	$HitArea/CollisionShape2D
@@ -22,6 +23,8 @@ var _pierces_targets: bool = false
 var _direction: Vector2 = Vector2.RIGHT
 var _spawn_distance: float = 20.0
 var _stopping: bool = false
+var _effect_key: StringName = &""
+var _resolved_length: float = 0.0
 
 func setup(
 	data: SpecialAttackData,
@@ -54,7 +57,8 @@ func setup(
 	else:
 		hit_area.collision_mask = 4
 
-	_apply_beam_texture(data.effect_key)
+	_effect_key = data.effect_key
+	_configure_beam_visual(_effect_key)
 
 	if _source_actor is Node2D:
 		follow_caster(
@@ -118,12 +122,21 @@ func _refresh_geometry() -> void:
 	var length: float = _resolve_beam_length(
 		_max_range
 	)
+	_resolved_length = length
 
 	beam_line.width = _beam_width
 	beam_line.points = PackedVector2Array([
 		Vector2.ZERO,
 		Vector2(length, 0.0),
 	])
+
+	beam_core.width = maxf(_beam_width * 0.42, 2.0)
+	beam_core.points = PackedVector2Array([
+		Vector2.ZERO,
+		Vector2(length, 0.0),
+	])
+
+	queue_redraw()
 
 	var source_rect := (
 		collision_shape.shape as RectangleShape2D
@@ -251,14 +264,31 @@ func _resolve_beam_length(max_range: float) -> float:
 
 	return global_position.distance_to(hit_position)
 
-func _apply_beam_texture(
+func _configure_beam_visual(
 	effect_key: StringName
 ) -> void:
+	# Kamehameha uses a continuous two-layer beam instead of tiling a
+	# non-seamless atlas strip. The previous tiled strip produced the thin,
+	# broken yellow/green line visible in-game.
+	if effect_key == &"blue_beam":
+		beam_line.texture = null
+		beam_line.default_color = Color(0.30, 0.78, 1.0, 1.0)
+		beam_core.texture = null
+		beam_core.default_color = Color(0.90, 0.98, 1.0, 1.0)
+		beam_core.visible = true
+		return
+
+	beam_core.visible = false
+
 	if not ResourceLoader.exists(EFFECT_SHEET_PATH):
+		beam_line.texture = null
+		beam_line.default_color = Color.WHITE
 		return
 
 	var sheet := load(EFFECT_SHEET_PATH) as Texture2D
 	if sheet == null:
+		beam_line.texture = null
+		beam_line.default_color = Color.WHITE
 		return
 
 	var rect := Rect2(176, 33, 32, 6)
@@ -272,4 +302,35 @@ func _apply_beam_texture(
 	beam_line.texture = atlas
 	beam_line.texture_mode = (
 		Line2D.LINE_TEXTURE_TILE
+	)
+
+func _draw() -> void:
+	if _effect_key != &"blue_beam" or _resolved_length <= 0.0:
+		return
+
+	# LoG2-style bright muzzle and terminal cap. These also visually bridge
+	# the beam into the caster's hands instead of leaving a hard gap.
+	var outer_radius: float = maxf(_beam_width * 0.72, 3.0)
+	var inner_radius: float = maxf(_beam_width * 0.38, 1.5)
+	var end_point := Vector2(_resolved_length, 0.0)
+
+	draw_circle(
+		Vector2.ZERO,
+		outer_radius,
+		Color(0.30, 0.78, 1.0, 1.0)
+	)
+	draw_circle(
+		Vector2.ZERO,
+		inner_radius,
+		Color(0.94, 1.0, 1.0, 1.0)
+	)
+	draw_circle(
+		end_point,
+		outer_radius * 0.82,
+		Color(0.30, 0.78, 1.0, 1.0)
+	)
+	draw_circle(
+		end_point,
+		inner_radius * 0.78,
+		Color(0.94, 1.0, 1.0, 1.0)
 	)
