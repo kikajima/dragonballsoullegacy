@@ -80,7 +80,7 @@ collision_layer = 1
 shape = SubResource("WallVertical")
 
 [node name="Bed" type="StaticBody2D" parent="."]
-position = Vector2(116, 128)
+position = Vector2(126, 118)
 collision_layer = 1
 
 [node name="Mattress" type="Polygon2D" parent="Bed"]
@@ -107,7 +107,7 @@ interaction_label = "Rest and Save"
 shape = SubResource("BedShape")
 
 [node name="Table" type="StaticBody2D" parent="."]
-position = Vector2(286, 164)
+position = Vector2(282, 190)
 collision_layer = 1
 
 [node name="Visual" type="Polygon2D" parent="Table"]
@@ -118,7 +118,7 @@ color = Color(0.48, 0.29, 0.18, 1)
 shape = SubResource("TableShape")
 
 [node name="TV" type="Area2D" parent="."]
-position = Vector2(410, 108)
+position = Vector2(270, 86)
 collision_layer = 64
 collision_mask = 0
 monitoring = false
@@ -140,7 +140,7 @@ color = Color(0.28, 0.72, 0.82, 0.55)
 shape = SubResource("InteractShape")
 
 [node name="Fridge" type="Area2D" parent="."]
-position = Vector2(432, 235)
+position = Vector2(424, 124)
 collision_layer = 64
 collision_mask = 0
 monitoring = false
@@ -159,6 +159,40 @@ color = Color(0.3, 0.32, 0.34, 1)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Fridge"]
 shape = SubResource("InteractShape")
 
+[node name="Sofa" type="StaticBody2D" parent="."]
+position = Vector2(352, 246)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Back" type="Polygon2D" parent="Sofa"]
+position = Vector2(0, -12)
+polygon = PackedVector2Array(-52, -15, 52, -15, 52, 15, -52, 15)
+color = Color(0.88, 0.16, 0.12, 1)
+
+[node name="Seat" type="Polygon2D" parent="Sofa"]
+position = Vector2(0, 9)
+polygon = PackedVector2Array(-56, -11, 56, -11, 48, 15, -48, 15)
+color = Color(0.95, 0.25, 0.18, 1)
+
+[node name="LeftArm" type="Polygon2D" parent="Sofa"]
+position = Vector2(-58, 0)
+polygon = PackedVector2Array(-6, -20, 6, -20, 6, 20, -6, 20)
+color = Color(0.8, 0.12, 0.1, 1)
+
+[node name="RightArm" type="Polygon2D" parent="Sofa"]
+position = Vector2(58, 0)
+polygon = PackedVector2Array(-6, -20, 6, -20, 6, 20, -6, 20)
+color = Color(0.8, 0.12, 0.1, 1)
+
+[node name="CoffeeTable" type="StaticBody2D" parent="."]
+position = Vector2(352, 298)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Visual" type="Polygon2D" parent="CoffeeTable"]
+polygon = PackedVector2Array(-32, -14, 32, -14, 32, 14, -32, 14)
+color = Color(0.78, 0.75, 0.69, 1)
+
 [node name="HouseLocation" parent="." instance=ExtResource("6_location")]
 position = Vector2(272, 192)
 scale = Vector2(1.8, 1.15)
@@ -167,5 +201,5 @@ location_name = "KAME HOUSE"
 [node name="Exit" parent="." instance=ExtResource("5_portal")]
 position = Vector2(272, 326)
 target_scene = "res://scenes/world/kame_island.tscn"
-target_spawn = Vector2(480, 340)
+target_spawn = Vector2(482, 374)
 interaction_label = "Go Outside"
