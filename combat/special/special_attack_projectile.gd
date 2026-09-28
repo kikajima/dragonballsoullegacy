@@ -162,6 +162,9 @@ func _on_area_entered(area: Area2D) -> void:
 		return
 
 	if area != self and area.is_in_group("combat_projectile"):
+		if _is_friendly_projectile(area):
+			return
+
 		resolve_projectile_clash(
 			area,
 			(global_position + area.global_position) * 0.5
@@ -300,6 +303,9 @@ func _cast_against_projectiles(
 			if not bool(other.call("is_active_projectile")):
 				continue
 
+		if _is_friendly_projectile(other):
+			continue
+
 		var other_radius: float = 4.0
 		if other.has_method("get_projectile_clash_radius"):
 			other_radius = maxf(
@@ -376,6 +382,22 @@ func _closest_point_on_segment(
 		1.0
 	)
 	return start + segment * ratio
+
+func _is_friendly_projectile(other: Node) -> bool:
+	if (
+		_source_actor == null
+		or other == null
+		or not other.has_method("get_source_actor")
+	):
+		return false
+
+	var source_value: Variant = other.call("get_source_actor")
+	var other_source := source_value as Node
+
+	return (
+		other_source != null
+		and other_source == _source_actor
+	)
 
 func get_source_actor() -> Node:
 	return _source_actor
