@@ -226,3 +226,50 @@ Se algo quebrar, validar nesta ordem:
 - Fire a special projectile against an enemy Ki Blast; both should clash and stop.
 - Fire two projectiles from the same Player in the same direction; they should not clash with each other.
 - Verify cooldown text in the SpecialAttackHUD.
+
+
+## 19. Legacy of Goku II special attack behaviors
+
+- Cycle with R and confirm all prototype techniques are selectable.
+- Kamehameha:
+  - hold O;
+  - beam remains active;
+  - Ki drains continuously;
+  - release O and confirm beam ends.
+- Special Beam Cannon:
+  - hold O;
+  - verify multiple aligned enemies can be hit;
+  - verify scenery stops the beam.
+- Masenko Ha:
+  - tap O for short/weak arc;
+  - hold then release for longer/stronger arc;
+  - confirm damage occurs at landing/explosion.
+- Scatter Shot:
+  - hold/release;
+  - exactly three projectiles should fan outward;
+  - longer charge should increase travel range.
+- Big Bang Attack:
+  - sphere should grow while charging;
+  - release should create a larger explosive projectile at high charge.
+- Spirit Bomb:
+  - sphere should grow above Goku while charging;
+  - projectile should be slow;
+  - impact should create a large area hit and stun nearby enemies.
+- Burning Attack:
+  - direct hit should stun the Training Fighter.
+- Sword Blast:
+  - confirm melee contact and energy wave are both emitted.
+- Energy Punch:
+  - confirm short forward movement and powered melee hit.
+- Super Kick / Two-Handed Smash / Cross Slash:
+  - hold and release;
+  - confirm forward lunge;
+  - high charge should deal more damage.
+- Spin Punch:
+  - place enemies around the player and confirm radial hit behavior.
+- Flurry Punch:
+  - confirm rapid multi-hit sequence rather than one large hit.
+- Peace Sign Pose:
+  - nearby enemy should be stunned without a projectile.
+- Confirm special projectiles still participate in projectile-vs-projectile clashes.
+- Confirm older saves do not permanently hide prototype specials.
