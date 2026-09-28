@@ -143,6 +143,12 @@ func start_cast(
 	if data == null:
 		return false
 
+	if (
+		unlock_all_for_prototype
+		and not loadout_component.is_unlocked(data.ability_id)
+	):
+		loadout_component.unlock_ability(data.ability_id)
+
 	if not loadout_component.can_use(data.ability_id):
 		return false
 
@@ -734,7 +740,7 @@ func _find_next_available_index(
 	var index: int = from_index
 
 	for _attempt in range(count):
-		index = posmod(index + step, count)
+		index = int(posmod(index + step, count))
 		var data: SpecialAttackData = abilities[index]
 		if _is_available(data):
 			return index
@@ -742,11 +748,13 @@ func _find_next_available_index(
 	return -1
 
 func _is_available(data: SpecialAttackData) -> bool:
-	return (
-		data != null
-		and data.ability_id != &""
-		and loadout_component.is_unlocked(data.ability_id)
-	)
+	if data == null or data.ability_id == &"":
+		return false
+
+	if unlock_all_for_prototype:
+		return true
+
+	return loadout_component.is_unlocked(data.ability_id)
 
 func _emit_selection() -> void:
 	var data: SpecialAttackData = get_selected()
