@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1")
 ability_id = &"spin_punch"
-display_name = "Spin Punch"
-description = "A 360-degree melee strike around the user."
+display_name = "Whirlspin"
+description = "A 360-degree spinning melee strike around the user."
 attack_type = 5
 cast_pose = 2
 ki_cost = 10.0
