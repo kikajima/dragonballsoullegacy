@@ -17,5 +17,6 @@ cast_lock_duration = 0.70
 melee_radius = 15.0
 melee_reach = 13.0
 flurry_hit_count = 6
+flurry_bonus_hit_limit = 3
 flurry_hit_interval = 0.11
 stun_duration = 0.15
