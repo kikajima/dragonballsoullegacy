@@ -4,9 +4,22 @@ extends Node2D
 const EFFECT_SHEET_PATH := (
 	"res://assets/sprites/effects/legacy/special_attack_sfx.png"
 )
+const HU2_EFFECT_DMI_PATH := (
+	"res://assets/sprites/effects/hu2/Effects.dmi"
+)
+const DMI_EFFECT_SCRIPT = preload(
+	"res://core/assets/dmi_effect_sprite_2d.gd"
+)
+const HU2_BEAM_TILE_SIZE := 32.0
+const KAME_START_STATE: StringName = &"KameStart"
+const KAME_MID_STATE: StringName = &"KameMid"
+const KAME_HEAD_STATE: StringName = &"KameHead"
+const KAME_HIT_STATE: StringName = &"KameHit"
+const KAME_BATTLE_STATE: StringName = &"KameBattle"
 
 @onready var beam_line: Line2D = $BeamLine
 @onready var beam_core: Line2D = $BeamCore
+@onready var dmi_visuals: Node2D = $DmiVisuals
 @onready var hit_area: Area2D = $HitArea
 @onready var collision_shape: CollisionShape2D = (
 	$HitArea/CollisionShape2D
@@ -25,6 +38,9 @@ var _spawn_distance: float = 20.0
 var _stopping: bool = false
 var _effect_key: StringName = &""
 var _resolved_length: float = 0.0
+var _beam_impacting: bool = false
+var _beam_battle_visual: bool = false
+var _kame_segments: Array[AnimatedSprite2D] = []
 
 func setup(
 	data: SpecialAttackData,
@@ -124,19 +140,20 @@ func _refresh_geometry() -> void:
 	)
 	_resolved_length = length
 
-	beam_line.width = _beam_width
-	beam_line.points = PackedVector2Array([
-		Vector2.ZERO,
-		Vector2(length, 0.0),
-	])
+	if _effect_key != &"blue_beam":
+		beam_line.width = _beam_width
+		beam_line.points = PackedVector2Array([
+			Vector2.ZERO,
+			Vector2(length, 0.0),
+		])
 
-	beam_core.width = maxf(_beam_width * 0.42, 2.0)
-	beam_core.points = PackedVector2Array([
-		Vector2.ZERO,
-		Vector2(length, 0.0),
-	])
-
-	queue_redraw()
+		beam_core.width = maxf(_beam_width * 0.42, 2.0)
+		beam_core.points = PackedVector2Array([
+			Vector2.ZERO,
+			Vector2(length, 0.0),
+		])
+	else:
+		_refresh_kamehameha_visual(length)
 
 	var source_rect := (
 		collision_shape.shape as RectangleShape2D
@@ -236,14 +253,24 @@ func _apply_stun(receiver: Area2D) -> void:
 		)
 
 func _resolve_beam_length(max_range: float) -> float:
+	_beam_impacting = false
+
 	var environment_length: float = _resolve_environment_length(max_range)
+	if environment_length < max_range - 0.5:
+		_beam_impacting = true
 
 	if _pierces_targets:
 		return environment_length
 
+	var target_length := _resolve_nearest_target_length(
+		environment_length
+	)
+	if target_length < environment_length - 0.5:
+		_beam_impacting = true
+
 	return minf(
 		environment_length,
-		_resolve_nearest_target_length(environment_length)
+		target_length
 	)
 
 func _resolve_environment_length(max_range: float) -> float:
@@ -355,20 +382,23 @@ func affects_global_point(
 			<= _beam_width * 0.5 + safe_padding
 	)
 
+func set_beam_battle_visual(active: bool) -> void:
+	_beam_battle_visual = active
+	if _effect_key == &"blue_beam":
+		_refresh_kamehameha_visual(_resolved_length)
+
 func _configure_beam_visual(
 	effect_key: StringName
 ) -> void:
-	# Kamehameha uses a continuous two-layer beam instead of tiling a
-	# non-seamless atlas strip. The previous tiled strip produced the thin,
-	# broken yellow/green line visible in-game.
 	if effect_key == &"blue_beam":
-		beam_line.texture = null
-		beam_line.default_color = Color(0.30, 0.78, 1.0, 1.0)
-		beam_core.texture = null
-		beam_core.default_color = Color(0.90, 0.98, 1.0, 1.0)
-		beam_core.visible = true
+		beam_line.visible = false
+		beam_core.visible = false
+		dmi_visuals.visible = true
 		return
 
+	_clear_kamehameha_visual()
+	dmi_visuals.visible = false
+	beam_line.visible = true
 	beam_core.visible = false
 
 	if not ResourceLoader.exists(EFFECT_SHEET_PATH):
@@ -395,33 +425,82 @@ func _configure_beam_visual(
 		Line2D.LINE_TEXTURE_TILE
 	)
 
-func _draw() -> void:
-	if _effect_key != &"blue_beam" or _resolved_length <= 0.0:
+func _refresh_kamehameha_visual(length: float) -> void:
+	if length <= 0.0:
+		_clear_kamehameha_visual()
 		return
 
-	# LoG2-style bright muzzle and terminal cap. These also visually bridge
-	# the beam into the caster's hands instead of leaving a hard gap.
-	var outer_radius: float = maxf(_beam_width * 0.72, 3.0)
-	var inner_radius: float = maxf(_beam_width * 0.38, 1.5)
-	var end_point := Vector2(_resolved_length, 0.0)
+	# HU2 builds the Kamehameha one 32px BYOND tile at a time:
+	# Start -> Mid... -> Head, with Hit replacing the head on impact.
+	var segment_count := maxi(
+		int(ceil(length / HU2_BEAM_TILE_SIZE)),
+		1
+	)
 
-	draw_circle(
-		Vector2.ZERO,
-		outer_radius,
-		Color(0.30, 0.78, 1.0, 1.0)
+	_ensure_kame_segment_count(segment_count)
+
+	var first_center := minf(
+		HU2_BEAM_TILE_SIZE * 0.5,
+		length * 0.5
 	)
-	draw_circle(
-		Vector2.ZERO,
-		inner_radius,
-		Color(0.94, 1.0, 1.0, 1.0)
+	var last_center := maxf(
+		length - HU2_BEAM_TILE_SIZE * 0.5,
+		first_center
 	)
-	draw_circle(
-		end_point,
-		outer_radius * 0.82,
-		Color(0.30, 0.78, 1.0, 1.0)
-	)
-	draw_circle(
-		end_point,
-		inner_radius * 0.78,
-		Color(0.94, 1.0, 1.0, 1.0)
-	)
+
+	for index in range(segment_count):
+		var segment := _kame_segments[index]
+		var state := KAME_MID_STATE
+
+		if index == 0:
+			state = KAME_START_STATE
+		elif index == segment_count - 1:
+			if _beam_battle_visual:
+				state = KAME_BATTLE_STATE
+			elif _beam_impacting:
+				state = KAME_HIT_STATE
+			else:
+				state = KAME_HEAD_STATE
+
+		var x_position := (
+			first_center
+			+ HU2_BEAM_TILE_SIZE * float(index)
+		)
+		if index == segment_count - 1:
+			x_position = last_center
+		else:
+			x_position = minf(x_position, last_center)
+
+		segment.position = Vector2(x_position, 0.0)
+		segment.visible = true
+		segment.call(
+			"configure",
+			HU2_EFFECT_DMI_PATH,
+			state,
+			"right",
+			true,
+			true
+		)
+
+func _ensure_kame_segment_count(count: int) -> void:
+	while _kame_segments.size() < count:
+		var segment := DMI_EFFECT_SCRIPT.new() as AnimatedSprite2D
+		if segment == null:
+			return
+
+		segment.centered = true
+		segment.z_index = 1
+		dmi_visuals.add_child(segment)
+		_kame_segments.append(segment)
+
+	while _kame_segments.size() > count:
+		var segment := _kame_segments.pop_back()
+		if is_instance_valid(segment):
+			segment.queue_free()
+
+func _clear_kamehameha_visual() -> void:
+	for segment in _kame_segments:
+		if is_instance_valid(segment):
+			segment.queue_free()
+
+	_kame_segments.clear()
