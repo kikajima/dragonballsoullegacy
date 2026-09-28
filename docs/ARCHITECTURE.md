@@ -478,3 +478,44 @@ O bloqueio continua direcional por meio de `GuardComponent`: a IA primeiro vira 
 Projéteis pertencem ao grupo `combat_projectile` e expõem origem/direção para percepção. A IA verifica se a trajetória realmente cruza um corredor próximo do inimigo antes de reagir, evitando esquivas falsas.
 
 Os perfis ficam em `data/enemies/ai/`. O Training Fighter usa `uncommon.tres` para validar o sistema. Detalhes e valores iniciais estão em `docs/ENEMY_AI.md`.
+
+
+## Colisão entre projéteis
+
+Projéteis de combate usam a layer física `Projectiles` e o grupo `combat_projectile`.
+
+O Ki Blast agora detecta outros projéteis por duas camadas:
+
+```text
+Area2D overlap
+      +
+swept segment check por physics frame
+```
+
+A checagem contínua existe para evitar tunneling quando dois projéteis rápidos viajam em direções opostas e cruzariam um ao outro entre dois frames.
+
+Fluxo atual:
+
+```text
+Projectile A  → ←  Projectile B
+        ↓ colisão
+posição média do choque
+        ↓
+A entra em impact
+B entra em impact
+        ↓
+ambos param e desaparecem após impact_duration
+```
+
+Nenhum dos dois causa dano ao personagem após o choque.
+
+Quando uma parede e outro projétil podem ser atingidos no mesmo physics frame, o sistema compara a distância do ponto de colisão e resolve o evento mais próximo primeiro.
+
+Contrato preparado para futuros projéteis:
+
+- pertencer ao grupo `combat_projectile`;
+- expor `is_active_projectile()`;
+- opcionalmente expor `get_projectile_clash_radius()`;
+- responder a `receive_projectile_clash(other, position)`.
+
+Isso permite que futuras técnicas tenham raios de colisão diferentes sem acoplar a regra ao Ki Blast.
