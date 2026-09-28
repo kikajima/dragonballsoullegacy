@@ -619,6 +619,19 @@ func _reset_after_defeat() -> void:
 		"checkpoint_manager"
 	) as CheckpointManager
 	if checkpoint_manager != null:
+		var checkpoint_world: String = (
+			checkpoint_manager.get_checkpoint_world_path()
+		)
+		if not checkpoint_world.is_empty():
+			var world := get_tree().get_first_node_in_group(
+				"world_manager"
+			) as WorldManager
+			if (
+				world != null
+				and world.current_world_path != checkpoint_world
+			):
+				world.load_world(checkpoint_world)
+
 		respawn_position = checkpoint_manager.get_respawn_position(
 			_spawn_position
 		)
