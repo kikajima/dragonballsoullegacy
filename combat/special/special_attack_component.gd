@@ -383,7 +383,8 @@ func _tick_flurry(
 		_perform_melee_hit(
 			caster,
 			_active_data,
-			damage_scale
+			damage_scale,
+			not is_final
 		)
 		_flurry_hits_left -= 1
 		_flurry_tick_left += maxf(
@@ -633,7 +634,8 @@ func _spawn_beam(
 func _perform_melee_hit(
 	caster: Node2D,
 	data: SpecialAttackData,
-	damage_scale: float
+	damage_scale: float,
+	suppress_knockback: bool = false
 ) -> void:
 	var shape := CircleShape2D.new()
 	shape.radius = maxf(data.melee_radius, 1.0)
@@ -681,6 +683,12 @@ func _perform_melee_hit(
 			),
 			0
 		)
+		var suppressed_knockback: KnockbackComponent = null
+		if suppress_knockback:
+			suppressed_knockback = _suppress_receiver_knockback(
+				receiver
+			)
+
 		var applied: int = int(
 			receiver.call(
 				"receive_hit",
@@ -688,6 +696,9 @@ func _perform_melee_hit(
 				caster.global_position
 			)
 		)
+
+		if suppressed_knockback != null:
+			suppressed_knockback.clear_start_suppression()
 
 		if applied <= 0:
 			continue
@@ -701,6 +712,21 @@ func _perform_melee_hit(
 			receiver,
 			applied
 		)
+
+func _suppress_receiver_knockback(
+	receiver: Area2D
+) -> KnockbackComponent:
+	var actor: Node = receiver.get_parent()
+	if actor == null:
+		return null
+
+	var knockback := actor.get_node_or_null(
+		"Components/KnockbackComponent"
+	) as KnockbackComponent
+	if knockback != null:
+		knockback.suppress_next_start()
+
+	return knockback
 
 func _perform_area_status(
 	caster: Node2D,
