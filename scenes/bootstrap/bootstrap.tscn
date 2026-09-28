@@ -1,6 +1,6 @@
 [gd_scene load_steps=24 format=3]
 
-[ext_resource type="PackedScene" path="res://scenes/world/west_city_outskirts.tscn" id="1_room"]
+[ext_resource type="PackedScene" path="res://scenes/world/kame_island.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://ui/hud/combat_hud.tscn" id="3_hud"]
 [ext_resource type="Script" path="res://quests/quest_manager.gd" id="4_quests"]
@@ -39,7 +39,7 @@ script = ExtResource("6_checkpoint")
 script = ExtResource("7_world")
 world_container_path = NodePath("../WorldContainer")
 player_container_path = NodePath("../PlayerContainer")
-initial_world_path = "res://scenes/world/west_city_outskirts.tscn"
+initial_world_path = "res://scenes/world/kame_island.tscn"
 
 [node name="TrainingManager" type="Node" parent="." groups=["training_manager"]]
 script = ExtResource("22_training")
@@ -62,12 +62,12 @@ script = ExtResource("19_stats")
 
 [node name="WorldContainer" type="Node2D" parent="." groups=["world_container"]]
 
-[node name="WestCityOutskirts" parent="WorldContainer" instance=ExtResource("1_room")]
+[node name="KameIsland" parent="WorldContainer" instance=ExtResource("1_room")]
 
 [node name="PlayerContainer" type="Node2D" parent="."]
 
 [node name="Player" parent="PlayerContainer" instance=ExtResource("2_player")]
-position = Vector2(250, 185)
+position = Vector2(480, 405)
 
 [node name="UIContainer" type="CanvasLayer" parent="."]
 
