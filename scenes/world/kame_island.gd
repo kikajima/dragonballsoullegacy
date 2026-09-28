@@ -13,7 +13,8 @@ const WORLD_COLUMNS: int = 30
 const WORLD_ROWS: int = 17
 
 @onready var sea_tiles: Node2D = $Terrain/SeaTiles
-@onready var sand_tiles: Node2D = $Terrain/SandTiles
+@onready var beach_tiles: Node2D = $Terrain/BeachTiles
+@onready var grass_tiles: Node2D = $Terrain/GrassTiles
 @onready var shore_tint: Polygon2D = $Terrain/ShoreTint
 @onready var shore_foam_outer: Line2D = $Terrain/ShoreFoamOuter
 @onready var shore_foam_inner: Line2D = $Terrain/ShoreFoamInner
@@ -81,40 +82,81 @@ func _build_island_tiles() -> void:
 		if texture != null:
 			sand_textures.append(texture)
 
+	var grass_textures: Array[Texture2D] = []
+	for state_name in [
+		&"DarkGrass1",
+		&"DarkGrass2",
+		&"DarkGrass3",
+		&"DarkGrass4",
+	]:
+		var texture: Texture2D = dmi.get_frame_texture(
+			state_name,
+			&"down",
+			0
+		)
+		if texture != null:
+			grass_textures.append(texture)
+
 	if sand_textures.is_empty():
 		push_warning("Kame Island: Dirt tiles missing from NewTurfs.dmi.")
 		return
 
+	if grass_textures.is_empty():
+		push_warning(
+			"Kame Island: DarkGrass tiles missing; using tinted Dirt fallback."
+		)
+		grass_textures = sand_textures.duplicate()
+
 	for row in range(WORLD_ROWS):
 		for column in range(WORLD_COLUMNS):
-			var world_position := Vector2(
+			var world_position: Vector2 = Vector2(
 				float(column * TILE_SIZE + TILE_SIZE / 2),
 				float(row * TILE_SIZE + TILE_SIZE / 2)
 			)
+
 			_add_tile(
 				sea_tiles,
 				water_texture,
 				world_position,
-				-20
+				-20,
+				Color(0.84, 0.97, 1.0, 1.0)
 			)
 
-			if _is_sand_tile(column, row):
-				var texture_index: int = (
-					column * 7 + row * 13
-				) % sand_textures.size()
+			if not _is_island_tile(column, row):
+				continue
+
+			var texture_index: int = (
+				column * 7 + row * 13
+			) % sand_textures.size()
+
+			if _is_beach_tile(column, row):
 				_add_tile(
-					sand_tiles,
+					beach_tiles,
 					sand_textures[texture_index],
 					world_position,
-					-10
+					-10,
+					Color(1.0, 0.91, 0.72, 1.0)
 				)
+				continue
+
+			var grass_index: int = (
+				column * 11 + row * 5
+			) % grass_textures.size()
+
+			_add_tile(
+				grass_tiles,
+				grass_textures[grass_index],
+				world_position,
+				-9,
+				Color(1.0, 1.0, 1.0, 1.0)
+			)
 
 func _build_shore_collision() -> void:
 	for row in range(WORLD_ROWS):
 		for column in range(WORLD_COLUMNS):
-			if _is_sand_tile(column, row):
+			if _is_island_tile(column, row):
 				continue
-			if not _touches_sand(column, row):
+			if not _touches_island(column, row):
 				continue
 			if _is_dock_opening(column, row):
 				continue
@@ -130,7 +172,7 @@ func _build_shore_collision() -> void:
 			)
 			sea_collision.add_child(collision)
 
-func _touches_sand(column: int, row: int) -> bool:
+func _touches_island(column: int, row: int) -> bool:
 	for offset_y in range(-1, 2):
 		for offset_x in range(-1, 2):
 			if offset_x == 0 and offset_y == 0:
@@ -146,7 +188,7 @@ func _touches_sand(column: int, row: int) -> bool:
 			):
 				continue
 
-			if _is_sand_tile(neighbor_x, neighbor_y):
+			if _is_island_tile(neighbor_x, neighbor_y):
 				return true
 
 	return false
@@ -160,20 +202,89 @@ func _is_dock_opening(column: int, row: int) -> bool:
 		and row <= 14
 	)
 
-func _is_sand_tile(column: int, row: int) -> bool:
-	var center := Vector2(14.5, 8.3)
+func _is_island_tile(column: int, row: int) -> bool:
+	var center := Vector2(14.5, 8.25)
 	var point := Vector2(float(column), float(row))
 	var normalized := Vector2(
-		(point.x - center.x) / 9.2,
-		(point.y - center.y) / 5.3
+		(point.x - center.x) / 8.9,
+		(point.y - center.y) / 5.65
+	)
+
+	var radial: float = normalized.length_squared()
+	if radial > 1.0:
+		return false
+
+	# Break up the ellipse slightly so the coastline feels more like the
+	# irregular Buu's Fury island rather than a perfect geometric oval.
+	var coast_noise: int = (
+		column * 17
+		+ row * 23
+		+ column * row * 3
+	) % 11
+
+	if radial > 0.78 and coast_noise <= 1:
+		return false
+
+	# Southeast beach/dock approach.
+	if row >= 13 and (column < 7 or column > 24):
+		return false
+
+	return true
+
+func _is_beach_tile(column: int, row: int) -> bool:
+	if not _is_island_tile(column, row):
+		return false
+
+	# Any land tile touching sea becomes beach. Add a second irregular ring
+	# in selected places so the beach width varies naturally.
+	if _touches_open_water(column, row):
+		return true
+
+	var center := Vector2(14.5, 8.25)
+	var point := Vector2(float(column), float(row))
+	var normalized := Vector2(
+		(point.x - center.x) / 8.9,
+		(point.y - center.y) / 5.65
+	)
+
+	var radial: float = normalized.length_squared()
+	var variation: int = (column * 5 + row * 7) % 9
+	return radial >= 0.57 and variation <= 4
+
+func _touches_open_water(column: int, row: int) -> bool:
+	for offset_y in range(-1, 2):
+		for offset_x in range(-1, 2):
+			if offset_x == 0 and offset_y == 0:
+				continue
+
+			var neighbor_x: int = column + offset_x
+			var neighbor_y: int = row + offset_y
+
+			if (
+				neighbor_x < 0
+				or neighbor_y < 0
+				or neighbor_x >= WORLD_COLUMNS
+				or neighbor_y >= WORLD_ROWS
+			):
+				return true
+
+			if not _is_island_tile_raw(neighbor_x, neighbor_y):
+				return true
+
+	return false
+
+func _is_island_tile_raw(column: int, row: int) -> bool:
+	var center := Vector2(14.5, 8.25)
+	var point := Vector2(float(column), float(row))
+	var normalized := Vector2(
+		(point.x - center.x) / 8.9,
+		(point.y - center.y) / 5.65
 	)
 
 	if normalized.length_squared() > 1.0:
 		return false
 
-	# Flatten the lower shoreline slightly so the dock/portal has a natural
-	# beach approach.
-	if row >= 13 and (column < 10 or column > 19):
+	if row >= 13 and (column < 7 or column > 24):
 		return false
 
 	return true
@@ -182,17 +293,13 @@ func _add_tile(
 	parent: Node2D,
 	texture: Texture2D,
 	position_value: Vector2,
-	z_value: int
+	z_value: int,
+	color_value: Color
 ) -> void:
 	var tile := Sprite2D.new()
 	tile.texture = texture
 	tile.position = position_value
 	tile.centered = true
 	tile.z_index = z_value
-
-	if parent == sand_tiles:
-		tile.modulate = Color(1.0, 0.88, 0.62, 1.0)
-	elif parent == sea_tiles:
-		tile.modulate = Color(0.82, 0.98, 1.0, 1.0)
-
+	tile.modulate = color_value
 	parent.add_child(tile)
