@@ -96,12 +96,37 @@ shape = SubResource("WallVertical")
 
 [node name="FighterA" parent="." instance=ExtResource("1_enemy")]
 position = Vector2(520, 170)
+dmi_sprite_path = "res://assets/vendor/hu2/Icons/Characters/Saibaman.dmi"
+display_name = "Saibaman"
+enemy_rank = "Common"
+difficulty_scale = 0.9
+reward_scale = 1.0
+min_zeni_drop = 6
+max_zeni_drop = 14
+senzu_drop_chance = 0.03
 
 [node name="FighterB" parent="." instance=ExtResource("1_enemy")]
 position = Vector2(850, 250)
+dmi_sprite_path = "res://assets/vendor/hu2/Icons/Characters/Saibaman.dmi"
+display_name = "Veteran Saibaman"
+enemy_rank = "Uncommon"
+difficulty_scale = 1.2
+reward_scale = 1.2
+min_zeni_drop = 10
+max_zeni_drop = 22
+senzu_drop_chance = 0.05
 
 [node name="FighterC" parent="." instance=ExtResource("1_enemy")]
 position = Vector2(1040, 520)
+dmi_sprite_path = "res://assets/vendor/hu2/Icons/Characters/Raditz.dmi"
+display_name = "Raditz"
+enemy_rank = "Elite"
+difficulty_scale = 1.65
+reward_scale = 1.8
+min_zeni_drop = 28
+max_zeni_drop = 55
+senzu_drop_chance = 0.12
+respawn_delay = 4.0
 
 [node name="WastesCheckpoint" parent="." instance=ExtResource("3_checkpoint")]
 position = Vector2(160, 585)
