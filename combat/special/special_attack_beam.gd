@@ -264,7 +264,7 @@ func _resolve_beam_length(max_range: float) -> float:
 	if _pierces_targets:
 		return environment_length
 
-	var target_length := _resolve_nearest_target_length(
+	var target_length: float = _resolve_nearest_target_length(
 		environment_length
 	)
 	if target_length < environment_length - 0.5:
@@ -381,8 +381,8 @@ func affects_global_point(
 	if _stopping or _resolved_length <= 0.0:
 		return false
 
-	var local_point := to_local(point)
-	var safe_padding := maxf(padding, 0.0)
+	var local_point: Vector2 = to_local(point)
+	var safe_padding: float = maxf(padding, 0.0)
 
 	return (
 		local_point.x >= -safe_padding
@@ -441,18 +441,18 @@ func _refresh_kamehameha_visual(length: float) -> void:
 
 	# HU2 builds the Kamehameha one 32px BYOND tile at a time:
 	# Start -> Mid... -> Head, with Hit replacing the head on impact.
-	var segment_count := maxi(
+	var segment_count: int = maxi(
 		int(ceil(length / HU2_BEAM_TILE_SIZE)),
 		1
 	)
 
 	_ensure_kame_segment_count(segment_count)
 
-	var first_center := minf(
+	var first_center: float = minf(
 		HU2_BEAM_TILE_SIZE * 0.5,
 		length * 0.5
 	)
-	var last_center := maxf(
+	var last_center: float = maxf(
 		length - HU2_BEAM_TILE_SIZE * 0.5,
 		first_center
 	)
@@ -467,8 +467,8 @@ func _refresh_kamehameha_visual(length: float) -> void:
 		)
 
 	for index in range(segment_count):
-		var segment := _kame_segments[index]
-		var state := KAME_MID_STATE
+		var segment: AnimatedSprite2D = _kame_segments[index]
+		var state: StringName = KAME_MID_STATE
 
 		if index == 0:
 			state = KAME_START_STATE
@@ -480,7 +480,7 @@ func _refresh_kamehameha_visual(length: float) -> void:
 			else:
 				state = KAME_HEAD_STATE
 
-		var x_position := (
+		var x_position: float = (
 			first_center
 			+ HU2_BEAM_TILE_SIZE * float(index)
 		)
@@ -510,7 +510,9 @@ func _facing_from_direction(direction: Vector2) -> String:
 
 func _ensure_kame_segment_count(count: int) -> void:
 	while _kame_segments.size() < count:
-		var segment := DMI_EFFECT_SCRIPT.new() as AnimatedSprite2D
+		var segment: AnimatedSprite2D = (
+			DMI_EFFECT_SCRIPT.new() as AnimatedSprite2D
+		)
 		if segment == null:
 			return
 
@@ -520,7 +522,9 @@ func _ensure_kame_segment_count(count: int) -> void:
 		_kame_segments.append(segment)
 
 	while _kame_segments.size() > count:
-		var segment := _kame_segments.pop_back()
+		var segment: AnimatedSprite2D = (
+			_kame_segments.pop_back() as AnimatedSprite2D
+		)
 		if is_instance_valid(segment):
 			segment.queue_free()
 
