@@ -28,12 +28,16 @@ var _before_first_shot: bool = false
 var _time_until_shot: float = 0.0
 
 var _cast_facing: StringName = &"down"
+var _direction_override: Vector2 = Vector2.ZERO
 var _current_variant: int = 0
 var _visual_state: StringName = &"ki_blast_prepare"
 
 var _buffered_facings: Array[StringName] = []
 
-func start_cast(facing: StringName) -> bool:
+func start_cast(
+	facing: StringName,
+	direction_override: Vector2 = Vector2.ZERO
+) -> bool:
 	if _casting:
 		return false
 
@@ -47,6 +51,7 @@ func start_cast(facing: StringName) -> bool:
 	_before_first_shot = true
 	_time_until_shot = startup_duration
 	_cast_facing = facing
+	_direction_override = direction_override.normalized()
 	_current_variant = 0
 	_visual_state = &"ki_blast_prepare"
 	_buffered_facings.clear()
@@ -152,7 +157,10 @@ func _fire(caster: Node2D, facing: StringName) -> bool:
 	if projectile == null:
 		return false
 
-	var direction := _facing_vector(_cast_facing)
+	var direction: Vector2 = _direction_override
+	if direction.is_zero_approx():
+		direction = _facing_vector(_cast_facing)
+
 	var parent := caster.get_tree().current_scene
 
 	if parent == null:
@@ -173,6 +181,7 @@ func _finish_cast() -> void:
 	_casting = false
 	_before_first_shot = false
 	_time_until_shot = 0.0
+	_direction_override = Vector2.ZERO
 	cast_finished.emit()
 
 func _facing_vector(facing: StringName) -> Vector2:
