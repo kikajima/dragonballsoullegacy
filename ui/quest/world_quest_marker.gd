@@ -42,9 +42,12 @@ func _refresh() -> void:
 		return
 
 	var ids: Array[StringName] = []
-	for candidate in [quest_id, quest_id_2, quest_id_3]:
-		if candidate != &"":
-			ids.append(candidate)
+	if quest_id != &"":
+		ids.append(quest_id)
+	if quest_id_2 != &"":
+		ids.append(quest_id_2)
+	if quest_id_3 != &"":
+		ids.append(quest_id_3)
 
 	if ids.is_empty():
 		visible = false
