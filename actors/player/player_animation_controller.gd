@@ -73,10 +73,9 @@ func _ready() -> void:
 	_try_build_sprite_frames()
 
 func update_visual(state: StringName, facing: StringName, delta: float) -> void:
-	var animation_name := (
-		&"charge_ki"
-		if state == &"charge_ki"
-		else StringName("%s_%s" % [state, facing])
+	var animation_name: StringName = _animation_name_for_state(
+		state,
+		facing
 	)
 
 	if _has_animation(animation_name):
@@ -95,10 +94,9 @@ func update_visual(state: StringName, facing: StringName, delta: float) -> void:
 	_update_placeholder_motion(state, delta)
 
 func restart_visual(state: StringName, facing: StringName) -> void:
-	var animation_name := (
-		&"charge_ki"
-		if state == &"charge_ki"
-		else StringName("%s_%s" % [state, facing])
+	var animation_name: StringName = _animation_name_for_state(
+		state,
+		facing
 	)
 
 	if not _has_animation(animation_name):
@@ -123,6 +121,23 @@ func freeze_charge_complete() -> void:
 	var last_frame := sprite.sprite_frames.get_frame_count(&"charge_ki") - 1
 	sprite.frame = maxi(last_frame, 0)
 	sprite.pause()
+
+func _animation_name_for_state(
+	state: StringName,
+	facing: StringName
+) -> StringName:
+	if state == &"charge_ki":
+		return &"charge_ki"
+
+	match state:
+		&"special_melee":
+			return StringName("attack_1_%s" % facing)
+		&"special_kick":
+			return StringName("kick_1_%s" % facing)
+		&"special_pose":
+			return StringName("idle_%s" % facing)
+
+	return StringName("%s_%s" % [state, facing])
 
 func _show_sprite_animation(animation_name: StringName, state: StringName) -> void:
 	visuals.position = Vector2.ZERO
