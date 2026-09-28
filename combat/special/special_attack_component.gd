@@ -287,6 +287,16 @@ func get_cast_state() -> StringName:
 	if _active_data == null:
 		return &"special_projectile"
 
+	# HU2 uses a dedicated "charge" character state while preparing a
+	# beam, then switches to "Beam" only when the attack is actually fired.
+	if (
+		_active_data.attack_type
+			== SpecialAttackData.AttackType.CONTINUOUS_BEAM
+		and _active_data.charge_duration > 0.0
+		and not _fired
+	):
+		return &"special_beam_charge"
+
 	return _active_data.get_cast_state()
 
 func get_charge_ratio() -> float:
