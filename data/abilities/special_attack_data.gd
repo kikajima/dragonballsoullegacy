@@ -12,6 +12,7 @@ enum AttackType {
 	FLURRY,
 	AREA_STATUS,
 	SWORD_WAVE,
+	TRANSFORMATION,
 }
 
 enum CastPose {
@@ -20,6 +21,7 @@ enum CastPose {
 	MELEE,
 	KICK,
 	POSE,
+	TRANSFORMATION,
 }
 
 @export var ability_id: StringName = &""
@@ -36,11 +38,12 @@ enum CastPose {
 	"Charged Melee",
 	"Flurry",
 	"Area Status",
-	"Sword Wave"
+	"Sword Wave",
+	"Transformation"
 )
 var attack_type: int = AttackType.PROJECTILE
 
-@export_enum("Projectile", "Beam", "Melee", "Kick", "Pose")
+@export_enum("Projectile", "Beam", "Melee", "Kick", "Pose", "Transformation")
 var cast_pose: int = CastPose.PROJECTILE
 
 @export var effect_key: StringName = &"blue_orb"
@@ -98,11 +101,18 @@ var flurry_bonus_hit_limit: int = 0
 @export var stun_duration: float = 0.0
 @export var area_radius: float = 0.0
 
+# Transformation behavior. The actual stat/drain definition lives in
+# TransformationData; this keeps the special selector generic.
+@export var transformation_id: StringName = &""
+
 func is_charge_attack() -> bool:
 	return charge_duration > 0.0
 
 func is_continuous() -> bool:
 	return attack_type == AttackType.CONTINUOUS_BEAM
+
+func is_transformation() -> bool:
+	return attack_type == AttackType.TRANSFORMATION
 
 func get_cast_state() -> StringName:
 	match cast_pose:
@@ -114,5 +124,7 @@ func get_cast_state() -> StringName:
 			return &"special_kick"
 		CastPose.POSE:
 			return &"special_pose"
+		CastPose.TRANSFORMATION:
+			return &"special_transform"
 		_:
 			return &"special_projectile"
