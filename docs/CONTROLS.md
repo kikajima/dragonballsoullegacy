@@ -76,3 +76,14 @@ Current test catalog:
 8. Sword Blast
 
 Projectile techniques reuse the Ki Blast-style casting pose. Beam techniques use the separate two-handed forward casting pose.
+
+
+## Técnicas especiais
+
+O protótipo atual libera todas as técnicas para Goku, independentemente do personagem original de Legacy of Goku II. Isso é intencional para validar o modelo futuro de personagem customizável do MMORPG.
+
+- **R:** percorre todas as técnicas conhecidas.
+- **O:** executa a técnica selecionada.
+- Técnicas como Kamehameha e Special Beam Cannon ficam ativas enquanto O estiver pressionado.
+- Spirit Bomb, Big Bang Attack, Masenko Ha, Scatter Shot e os golpes melee carregáveis usam **segurar O → soltar O**.
+- A HUD de técnicas mostra quando a habilidade está em carga, sustentada ou em cooldown.
