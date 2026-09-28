@@ -93,6 +93,14 @@ var senzu_drop_chance: float = 0.10
 @export var respawn_collision_grace: float = 0.20
 @export var respawn_separation_distance: float = 24.0
 @export var is_training_partner: bool = false
+@export var display_name: String = "Training Fighter"
+@export var enemy_rank: String = "Common"
+
+@export_range(0.25, 5.0, 0.05)
+var difficulty_scale: float = 1.0
+
+@export_range(0.0, 5.0, 0.05)
+var reward_scale: float = 1.0
 
 @export_enum("up", "down", "left", "right")
 var initial_facing: String = "left"
@@ -134,6 +142,7 @@ func _ready() -> void:
 	_target = get_tree().get_first_node_in_group("player") as Node2D
 
 	_apply_tier_difficulty()
+	_apply_instance_difficulty()
 	_build_sprite_frames()
 	_play_current_animation()
 
@@ -698,6 +707,39 @@ func _spawn_loot_deferred(drop_position: Vector2) -> void:
 			loot_parent.add_child(item_drop)
 			item_drop.global_position = drop_position + Vector2(6.0, 0.0)
 			item_drop.configure_item(&"senzu_bean", 1)
+
+func get_display_name() -> String:
+	return display_name
+
+func get_intelligence_tier_name() -> String:
+	return enemy_rank
+
+func _apply_instance_difficulty() -> void:
+	var safe_scale: float = maxf(difficulty_scale, 0.25)
+
+	health_component.max_health = maxi(
+		roundi(float(health_component.max_health) * safe_scale),
+		1
+	)
+	health_component.restore_full()
+
+	melee_combat_component.set_damage_multiplier(safe_scale)
+	ki_blast_component.set_damage_multiplier(safe_scale)
+
+	movement_component.move_speed *= clampf(
+		sqrt(safe_scale),
+		0.75,
+		1.45
+	)
+
+	experience_reward_component.experience_reward = maxi(
+		roundi(
+			float(experience_reward_component.experience_reward)
+			* safe_scale
+			* maxf(reward_scale, 0.0)
+		),
+		0
+	)
 
 func _apply_tier_difficulty() -> void:
 	if ai_component.profile == null:
