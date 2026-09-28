@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="SpecialAttackData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/special_attack_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"cross_slash"
+display_name = "Cross Slash"
+description = "Charged sword-style melee slash with a short lunge."
+attack_type = 6
+cast_pose = 2
+ki_cost = 12.0
+cooldown = 0.8
+damage = 22
+startup_duration = 0.10
+cast_lock_duration = 0.32
+charge_duration = 0.95
+charge_damage_multiplier = 1.85
+melee_radius = 18.0
+melee_reach = 15.0
+dash_distance = 23.0
