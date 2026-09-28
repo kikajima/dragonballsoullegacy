@@ -16,6 +16,13 @@ func _process(delta: float) -> void:
 		0.0
 	)
 
+func can_receive_hit() -> bool:
+	return (
+		health_component != null
+		and not health_component.is_dead()
+		and monitorable
+	)
+
 func receive_hit(damage: int, source_position: Vector2 = Vector2.ZERO) -> int:
 	if health_component == null or _invulnerability_left > 0.0:
 		return 0
