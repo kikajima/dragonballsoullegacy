@@ -48,6 +48,13 @@ var ki_blast_sheet_path: String = "res://assets/sprites/characters/goku/processe
 @export var disengage_range: float = 220.0
 @export var leash_range: float = 260.0
 @export var return_home_tolerance: float = 3.0
+
+# Aggro uses hysteresis: detection_range is only used to acquire the
+# Player. Once engaged, the enemy keeps pursuing instead of bouncing
+# between chase and return-home at an invisible distance boundary.
+@export var persistent_aggro: bool = true
+@export var use_spawn_leash: bool = false
+@export var hard_disengage_range: float = 1200.0
 @export var attack_range: float = 30.0
 @export var attack_cooldown: float = 0.60
 @export var facing_change_cooldown: float = 0.16
@@ -96,6 +103,8 @@ var _flash_tween: Tween
 var _spawn_position: Vector2
 var _current_facing: StringName = &"left"
 var _target: Node2D
+var _engaged: bool = false
+var _returning_home: bool = false
 var _defeated: bool = false
 var _respawn_collision_pending: bool = false
 var _respawn_collision_time_left: float = 0.0
@@ -196,19 +205,37 @@ func _physics_process(delta: float) -> void:
 		_spawn_position
 	)
 
-	if distance_from_spawn > leash_range:
-		_return_home()
+	if _returning_home:
+		if distance_from_spawn <= return_home_tolerance:
+			_returning_home = false
+			_set_idle()
+		else:
+			_return_home()
 		return
 
-	if distance_to_target > disengage_range:
-		_return_home()
+	if not _engaged:
+		if distance_to_target > detection_range:
+			_set_idle()
+			return
+
+		_engaged = true
+
+	if (
+		use_spawn_leash
+		and distance_from_spawn > leash_range
+	):
+		_begin_return_home()
 		return
 
 	if (
-		distance_to_target > detection_range
-		and distance_from_spawn <= return_home_tolerance
+		not persistent_aggro
+		and distance_to_target > disengage_range
 	):
-		_set_idle()
+		_begin_return_home()
+		return
+
+	if distance_to_target > hard_disengage_range:
+		_begin_return_home()
 		return
 
 	_update_facing_from_direction(to_target)
@@ -236,10 +263,6 @@ func _physics_process(delta: float) -> void:
 		else:
 			state_machine.change_state(STATE_IDLE)
 			_play_current_animation()
-		return
-
-	if distance_to_target > detection_range:
-		_return_home()
 		return
 
 	var approach_direction: Vector2 = (
@@ -411,12 +434,18 @@ func _set_idle() -> void:
 	state_machine.change_state(STATE_IDLE)
 	_play_current_animation()
 
+func _begin_return_home() -> void:
+	_engaged = false
+	_returning_home = true
+	_return_home()
+
 func _return_home() -> void:
 	guard_component.set_guarding(false)
 	ki_blast_component.cancel_cast()
 	var to_home: Vector2 = _spawn_position - global_position
 	if to_home.length() <= return_home_tolerance:
 		global_position = _spawn_position
+		_returning_home = false
 		_set_idle()
 		return
 
@@ -439,6 +468,11 @@ func modify_incoming_damage(
 func _on_hit_received(_damage: int, source_position: Vector2) -> void:
 	if _defeated:
 		return
+
+	# Being hit always establishes aggro, even if the attacker started
+	# outside the normal detection radius.
+	_engaged = true
+	_returning_home = false
 
 	if guard_component.was_last_hit_blocked():
 		_current_facing = _facing_toward(source_position)
@@ -716,6 +750,8 @@ func _reset_after_defeat() -> void:
 	knockback_component.stop(self)
 
 	global_position = _spawn_position
+	_engaged = false
+	_returning_home = false
 	_attack_cooldown_left = attack_cooldown
 	_ranged_cooldown_left = ranged_attack_cooldown
 	_ranged_decision_left = 0.0
