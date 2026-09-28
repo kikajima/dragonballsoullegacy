@@ -92,6 +92,7 @@ var senzu_drop_chance: float = 0.10
 @export var respawn_delay: float = 1.2
 @export var respawn_collision_grace: float = 0.20
 @export var respawn_separation_distance: float = 24.0
+@export var is_training_partner: bool = false
 
 @export_enum("up", "down", "left", "right")
 var initial_facing: String = "left"
@@ -611,22 +612,23 @@ func _on_died() -> void:
 	hurtbox.set_deferred("monitorable", false)
 	body_collision.set_deferred("disabled", true)
 
-	var quest_manager := get_tree().get_first_node_in_group(
-		"quest_manager"
-	) as QuestManager
-	if quest_manager != null:
-		quest_manager.advance_objective(
-			&"defeat_training_dummy",
-			1
-		)
+	if not is_training_partner:
+		var quest_manager := get_tree().get_first_node_in_group(
+			"quest_manager"
+		) as QuestManager
+		if quest_manager != null:
+			quest_manager.advance_objective(
+				&"defeat_training_dummy",
+				1
+			)
 
-	_drop_loot()
+		_drop_loot()
 
-	var stats := get_tree().get_first_node_in_group(
-		"game_stats"
-	) as GameStatsManager
-	if stats != null:
-		stats.register_enemy_defeat()
+		var stats := get_tree().get_first_node_in_group(
+			"game_stats"
+		) as GameStatsManager
+		if stats != null:
+			stats.register_enemy_defeat()
 
 	var awarded_xp: int = 0
 	if is_instance_valid(_target):
