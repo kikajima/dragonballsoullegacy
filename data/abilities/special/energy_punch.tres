@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SpecialAttackData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/special_attack_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"energy_punch"
+display_name = "Energy Punch"
+description = "A powered melee strike that spends Ki for a stronger punch."
+attack_type = 5
+cast_pose = 2
+ki_cost = 8.0
+cooldown = 0.45
+damage = 18
+startup_duration = 0.08
+cast_lock_duration = 0.20
+melee_radius = 15.0
+melee_reach = 13.0
+dash_distance = 6.0
