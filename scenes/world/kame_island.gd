@@ -37,9 +37,24 @@ func _process(delta: float) -> void:
 		1.0,
 		1.0
 	)
-	shore_tint.modulate.a = 0.62 + slow_wave * 0.28
-	shore_foam_outer.modulate.a = 0.42 + fast_wave * 0.48
-	shore_foam_inner.modulate.a = 0.22 + slow_wave * 0.38
+	shore_tint.modulate = Color(
+		1.0,
+		1.0,
+		1.0,
+		0.62 + slow_wave * 0.28
+	)
+	shore_foam_outer.modulate = Color(
+		1.0,
+		1.0,
+		1.0,
+		0.42 + fast_wave * 0.48
+	)
+	shore_foam_inner.modulate = Color(
+		1.0,
+		1.0,
+		1.0,
+		0.22 + slow_wave * 0.38
+	)
 
 func _build_island_tiles() -> void:
 	var dmi = DMI_SPRITE_SHEET_SCRIPT.load_file(TURF_DMI_PATH)
