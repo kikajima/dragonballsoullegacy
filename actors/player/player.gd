@@ -37,6 +37,7 @@ var kick_move_speed_scale: float = 0.70
 @onready var combo_tracker_component: ComboTrackerComponent = $Components/ComboTrackerComponent
 @onready var ki_blast_component: KiBlastComponent = $Components/KiBlastComponent
 @onready var special_attack_component: SpecialAttackComponent = $Components/SpecialAttackComponent
+@onready var status_effect_component: StatusEffectComponent = $Components/StatusEffectComponent
 @onready var attack_hitbox: HitboxComponent = $Combat/AttackHitbox
 @onready var hurtbox: HurtboxComponent = $Hurtbox
 @onready var animation_controller: PlayerAnimationController = $Visuals/AnimationController
@@ -67,6 +68,10 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var move_intent := input_controller.get_move_intent()
+
+	if status_effect_component.has_status(&"stun"):
+		_process_stunned(delta)
+		return
 
 	if state_machine.is_state(STATE_HURT):
 		_process_hurt(delta)
@@ -286,6 +291,20 @@ func _process_charge_ki(delta: float) -> void:
 		charge_aura.visible = false
 		animation_controller.freeze_charge_complete()
 
+func _process_stunned(delta: float) -> void:
+	guard_component.set_guarding(false)
+	charge_aura.visible = false
+	movement_component.stop(self)
+	melee_combat_component.cancel_attack()
+	ki_blast_component.cancel_cast()
+	special_attack_component.cancel_cast()
+	state_machine.change_state(STATE_IDLE)
+	animation_controller.update_visual(
+		STATE_IDLE,
+		facing_component.current_facing,
+		delta
+	)
+
 func _process_special_attack(delta: float) -> void:
 	guard_component.set_guarding(false)
 	charge_aura.visible = false
@@ -347,6 +366,7 @@ func _process_hurt(delta: float) -> void:
 	guard_component.set_guarding(false)
 	charge_aura.visible = false
 	ki_blast_component.cancel_cast()
+	special_attack_component.cancel_cast()
 
 	if knockback_component.is_active():
 		knockback_component.tick(self, delta)
@@ -461,6 +481,7 @@ func _reset_after_defeat() -> void:
 	ki_component.restore_full()
 	melee_combat_component.cancel_attack()
 	ki_blast_component.cancel_cast()
+	special_attack_component.cancel_cast()
 	knockback_component.stop(self)
 	guard_component.set_guarding(false)
 	charge_aura.visible = false
