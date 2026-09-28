@@ -310,6 +310,9 @@ func _process_special_attack(delta: float) -> void:
 	charge_aura.visible = false
 	movement_component.stop(self)
 
+	if input_controller.is_attack_pressed():
+		special_attack_component.add_flurry_bonus_hit()
+
 	special_attack_component.tick_cast(
 		self,
 		delta,
