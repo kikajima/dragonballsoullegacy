@@ -39,5 +39,11 @@ func is_quick_item_pressed() -> bool:
 func is_special_attack_pressed() -> bool:
 	return Input.is_action_just_pressed("special_attack")
 
+func is_special_attack_held() -> bool:
+	return Input.is_action_pressed("special_attack")
+
+func is_special_attack_released() -> bool:
+	return Input.is_action_just_released("special_attack")
+
 func is_next_special_pressed() -> bool:
 	return Input.is_action_just_pressed("next_special")
