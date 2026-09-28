@@ -338,6 +338,7 @@ func _tick_continuous_beam(
 			_charge_time + delta,
 			_active_data.charge_duration
 		)
+		_update_charge_preview(caster)
 		charge_changed.emit(
 			_active_data.ability_id,
 			get_charge_ratio()
@@ -345,6 +346,8 @@ func _tick_continuous_beam(
 
 		if _charge_time < _active_data.charge_duration:
 			return
+
+		_clear_charge_preview()
 
 	if not _fired:
 		if not ki_component.consume(_active_data.ki_cost):
@@ -524,12 +527,20 @@ func _fire_once(
 	)
 
 func _update_charge_preview(caster: Node2D) -> void:
-	if (
-		_active_data == null
-		or _active_data.attack_type
-			!= SpecialAttackData.AttackType.CHARGED_PROJECTILE
-		or charge_preview_scene == null
-	):
+	if _active_data == null or charge_preview_scene == null:
+		return
+
+	var supports_preview := (
+		_active_data.attack_type
+			== SpecialAttackData.AttackType.CHARGED_PROJECTILE
+		or (
+			_active_data.attack_type
+				== SpecialAttackData.AttackType.CONTINUOUS_BEAM
+			and _active_data.effect_key == &"blue_beam"
+			and _active_data.charge_duration > 0.0
+		)
+	)
+	if not supports_preview:
 		return
 
 	if not is_instance_valid(_charge_preview):
