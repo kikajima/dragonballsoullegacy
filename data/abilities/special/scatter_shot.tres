@@ -16,6 +16,7 @@ damage = 12
 startup_duration = 0.16
 cast_lock_duration = 0.30
 charge_duration = 0.9
+charge_damage_multiplier = 1.5
 charge_range_multiplier = 1.8
 projectile_speed = 245.0
 projectile_scale = 0.9
