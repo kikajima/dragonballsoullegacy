@@ -530,15 +530,12 @@ func _update_charge_preview(caster: Node2D) -> void:
 	if _active_data == null or charge_preview_scene == null:
 		return
 
+	# HU2 beam charging is already drawn inside the character's "charge"
+	# DMI state (hands back + blue energy). Do not overlay KameStart here;
+	# KameStart belongs to the fired beam itself.
 	var supports_preview := (
 		_active_data.attack_type
 			== SpecialAttackData.AttackType.CHARGED_PROJECTILE
-		or (
-			_active_data.attack_type
-				== SpecialAttackData.AttackType.CONTINUOUS_BEAM
-			and _active_data.effect_key == &"blue_beam"
-			and _active_data.charge_duration > 0.0
-		)
 	)
 	if not supports_preview:
 		return
