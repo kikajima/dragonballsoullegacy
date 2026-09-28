@@ -1,0 +1,43 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://actors/npcs/master_roshi.gd" id="1"]
+
+[sub_resource type="CircleShape2D" id="InteractionShape"]
+radius = 22.0
+
+[sub_resource type="RectangleShape2D" id="BodyShape"]
+size = Vector2(18, 27)
+
+[sub_resource type="RectangleShape2D" id="KiBlockerShape"]
+size = Vector2(20, 29)
+
+[node name="MasterRoshi" type="StaticBody2D" groups=["npc"]]
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("1")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, -8)
+
+[node name="BodyCollision" type="CollisionShape2D" parent="."]
+position = Vector2(0, -6)
+shape = SubResource("BodyShape")
+
+[node name="KiBlocker" type="Area2D" parent="." groups=["ki_blocker"]]
+position = Vector2(0, -6)
+collision_layer = 1
+collision_mask = 0
+monitoring = false
+monitorable = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KiBlocker"]
+shape = SubResource("KiBlockerShape")
+
+[node name="InteractionArea" type="Area2D" parent="."]
+collision_layer = 64
+collision_mask = 0
+monitoring = false
+monitorable = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea"]
+shape = SubResource("InteractionShape")
