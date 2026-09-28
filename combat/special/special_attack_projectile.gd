@@ -304,9 +304,13 @@ func _on_body_entered(body: Node2D) -> void:
 	if _impacted or _is_arc or body == null:
 		return
 
+	var collision_body := body as CollisionObject2D
+	if collision_body == null:
+		return
+
 	if (
-		body.is_in_group("npc")
-		or body.collision_layer & 1 != 0
+		collision_body.is_in_group("npc")
+		or collision_body.collision_layer & 1 != 0
 	):
 		_resolve_impact(global_position)
 
