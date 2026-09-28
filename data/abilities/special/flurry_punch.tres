@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="SpecialAttackData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/special_attack_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"flurry_punch"
+display_name = "Flurry Punch"
+description = "Rapid multi-hit punches that keep the target under pressure."
+attack_type = 7
+cast_pose = 2
+ki_cost = 14.0
+cooldown = 1.0
+damage = 6
+startup_duration = 0.10
+cast_lock_duration = 0.70
+melee_radius = 15.0
+melee_reach = 13.0
+flurry_hit_count = 6
+flurry_hit_interval = 0.11
+stun_duration = 0.15
