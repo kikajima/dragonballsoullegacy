@@ -1,0 +1,65 @@
+class_name SpecialAttackHUD
+extends Control
+
+@onready var name_label: Label = $Panel/Name
+@onready var info_label: Label = $Panel/Info
+
+var _special: SpecialAttackComponent
+
+func _ready() -> void:
+	call_deferred("_bind_player")
+
+func _process(_delta: float) -> void:
+	if _special == null:
+		return
+
+	var data: SpecialAttackData = _special.get_selected()
+	if data == null:
+		return
+
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null:
+		return
+
+	var loadout := player.get_node_or_null(
+		"Components/AbilityLoadoutComponent"
+	) as AbilityLoadoutComponent
+
+	var cooldown: float = 0.0
+	if loadout != null:
+		cooldown = loadout.get_cooldown_left(data.ability_id)
+
+	if cooldown > 0.0:
+		info_label.text = "O  %.1fs   R NEXT" % cooldown
+	else:
+		info_label.text = "O  %.0f KI   R NEXT" % data.ki_cost
+
+func _bind_player() -> void:
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null:
+		visible = false
+		return
+
+	_special = player.get_node_or_null(
+		"Components/SpecialAttackComponent"
+	) as SpecialAttackComponent
+	if _special == null:
+		visible = false
+		return
+
+	_special.selection_changed.connect(_on_selection_changed)
+	var data: SpecialAttackData = _special.get_selected()
+	if data != null:
+		_on_selection_changed(
+			data.ability_id,
+			data.display_name,
+			0
+		)
+
+func _on_selection_changed(
+	_ability_id: StringName,
+	display_name: String,
+	_index: int
+) -> void:
+	visible = true
+	name_label.text = display_name
