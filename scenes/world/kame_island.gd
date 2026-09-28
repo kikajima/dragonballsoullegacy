@@ -100,4 +100,10 @@ func _add_tile(
 	tile.position = position_value
 	tile.centered = true
 	tile.z_index = z_value
+
+	if parent == sand_tiles:
+		tile.modulate = Color(1.0, 0.88, 0.62, 1.0)
+	elif parent == sea_tiles:
+		tile.modulate = Color(0.82, 0.98, 1.0, 1.0)
+
 	parent.add_child(tile)
