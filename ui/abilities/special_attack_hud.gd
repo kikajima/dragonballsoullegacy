@@ -17,7 +17,9 @@ func _process(_delta: float) -> void:
 	if data == null:
 		return
 
-	var player := get_tree().get_first_node_in_group("player")
+	var player := get_tree().get_first_node_in_group(
+		"player"
+	)
 	if player == null:
 		return
 
@@ -27,15 +29,60 @@ func _process(_delta: float) -> void:
 
 	var cooldown: float = 0.0
 	if loadout != null:
-		cooldown = loadout.get_cooldown_left(data.ability_id)
+		cooldown = loadout.get_cooldown_left(
+			data.ability_id
+		)
+
+	if _special.is_casting():
+		if _special.is_charging():
+			info_label.text = (
+				"HOLD O  %d%%  RELEASE"
+				% roundi(
+					_special.get_charge_ratio() * 100.0
+				)
+			)
+			return
+
+		if data.is_continuous():
+			info_label.text = (
+				"HOLD O  %.0f KI/s"
+				% data.ki_drain_per_second
+			)
+			return
+
+		info_label.text = "CASTING..."
+		return
 
 	if cooldown > 0.0:
 		info_label.text = "O  %.1fs   R NEXT" % cooldown
-	else:
-		info_label.text = "O  %.0f KI   R NEXT" % data.ki_cost
+		return
+
+	if data.is_charge_attack():
+		info_label.text = (
+			"HOLD O  %.0f KI   R NEXT"
+			% data.ki_cost
+		)
+		return
+
+	if data.is_continuous():
+		info_label.text = (
+			"HOLD O  %.0f+%.0f/s  R"
+			% [
+				data.ki_cost,
+				data.ki_drain_per_second,
+			]
+		)
+		return
+
+	info_label.text = (
+		"O  %.0f KI   R NEXT"
+		% data.ki_cost
+	)
 
 func _bind_player() -> void:
-	var player := get_tree().get_first_node_in_group("player")
+	var player := get_tree().get_first_node_in_group(
+		"player"
+	)
 	if player == null:
 		visible = false
 		return
@@ -47,7 +94,10 @@ func _bind_player() -> void:
 		visible = false
 		return
 
-	_special.selection_changed.connect(_on_selection_changed)
+	_special.selection_changed.connect(
+		_on_selection_changed
+	)
+
 	var data: SpecialAttackData = _special.get_selected()
 	if data != null:
 		_on_selection_changed(
