@@ -482,6 +482,18 @@ func _try_build_dmi_sprite_frames() -> bool:
 		false
 	) or built_any
 
+	var beam_charge_state := _find_dmi_state(
+		dmi,
+		[&"charge", &"BeamCharge"]
+	)
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		beam_charge_state,
+		&"special_beam_charge",
+		true
+	) or built_any
+
 	var beam_state := _find_dmi_state(dmi, [&"Beam", &"beam"])
 	built_any = _add_dmi_directional_animation(
 		frames,
