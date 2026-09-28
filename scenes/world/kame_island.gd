@@ -268,26 +268,10 @@ func _touches_open_water(column: int, row: int) -> bool:
 			):
 				return true
 
-			if not _is_island_tile_raw(neighbor_x, neighbor_y):
+			if not _is_island_tile(neighbor_x, neighbor_y):
 				return true
 
 	return false
-
-func _is_island_tile_raw(column: int, row: int) -> bool:
-	var center := Vector2(14.5, 8.25)
-	var point := Vector2(float(column), float(row))
-	var normalized := Vector2(
-		(point.x - center.x) / 8.9,
-		(point.y - center.y) / 5.65
-	)
-
-	if normalized.length_squared() > 1.0:
-		return false
-
-	if row >= 13 and (column < 7 or column > 24):
-		return false
-
-	return true
 
 func _add_tile(
 	parent: Node2D,
