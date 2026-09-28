@@ -310,7 +310,11 @@ func _process_special_attack(delta: float) -> void:
 	charge_aura.visible = false
 	movement_component.stop(self)
 
-	special_attack_component.tick_cast(self, delta)
+	special_attack_component.tick_cast(
+		self,
+		delta,
+		input_controller.is_special_attack_held()
+	)
 
 	if special_attack_component.is_casting():
 		var cast_state := special_attack_component.get_cast_state()
