@@ -168,6 +168,10 @@ func _physics_process(delta: float) -> void:
 		_process_ranged_attack(delta)
 		return
 
+	if ai_component.is_rushing():
+		_process_ai_rush()
+		return
+
 	var defense_action: int = ai_component.choose_defensive_action(
 		self,
 		_target
@@ -248,6 +252,10 @@ func _physics_process(delta: float) -> void:
 		_start_attack()
 		return
 
+	if ai_component.try_begin_rush(distance_to_target):
+		_process_ai_rush()
+		return
+
 	if _should_start_ranged_attack(distance_to_target):
 		_start_ranged_attack()
 		return
@@ -273,7 +281,45 @@ func _physics_process(delta: float) -> void:
 	)
 
 	state_machine.change_state(STATE_WALK)
-	movement_component.move(self, approach_direction)
+	movement_component.move(
+		self,
+		approach_direction,
+		ai_component.get_chase_speed_scale()
+	)
+	_play_current_animation()
+
+func _process_ai_rush() -> void:
+	if not is_instance_valid(_target):
+		ai_component.cancel_rush()
+		_set_idle()
+		return
+
+	var to_target: Vector2 = (
+		_target.global_position - global_position
+	)
+	var distance_to_target: float = to_target.length()
+
+	if distance_to_target <= attack_range:
+		ai_component.cancel_rush()
+		movement_component.stop(self)
+		_current_facing = _facing_toward(
+			_target.global_position
+		)
+
+		if _attack_cooldown_left <= 0.0:
+			_start_attack()
+		else:
+			state_machine.change_state(STATE_IDLE)
+			_play_current_animation()
+		return
+
+	_update_facing_from_direction(to_target)
+	state_machine.change_state(STATE_WALK)
+	movement_component.move(
+		self,
+		to_target.normalized(),
+		ai_component.get_rush_speed_scale()
+	)
 	_play_current_animation()
 
 func _should_start_ranged_attack(distance_to_target: float) -> bool:
@@ -370,6 +416,7 @@ func _process_ranged_attack(delta: float) -> void:
 	_play_current_animation()
 
 func _process_ai_guard() -> void:
+	ai_component.cancel_rush()
 	movement_component.stop(self)
 	guard_component.set_guarding(true)
 
@@ -380,6 +427,7 @@ func _process_ai_guard() -> void:
 	_play_current_animation()
 
 func _process_ai_dodge() -> void:
+	ai_component.cancel_rush()
 	guard_component.set_guarding(false)
 
 	if is_instance_valid(_target):
@@ -416,7 +464,10 @@ func _process_attack(delta: float) -> void:
 		state_machine.change_state(melee_combat_component.get_attack_state())
 		_current_facing = melee_combat_component.get_attack_facing()
 	else:
-		_attack_cooldown_left = attack_cooldown
+		_attack_cooldown_left = (
+			attack_cooldown
+			* ai_component.get_attack_cooldown_scale()
+		)
 		state_machine.change_state(STATE_IDLE)
 
 	_play_current_animation()
@@ -440,6 +491,7 @@ func _begin_return_home() -> void:
 	_return_home()
 
 func _return_home() -> void:
+	ai_component.cancel_rush()
 	guard_component.set_guarding(false)
 	ki_blast_component.cancel_cast()
 	var to_home: Vector2 = _spawn_position - global_position
@@ -484,6 +536,7 @@ func _on_hit_received(_damage: int, source_position: Vector2) -> void:
 
 	guard_component.set_guarding(false)
 	ai_component.clear_defense()
+	ai_component.cancel_rush()
 	ki_blast_component.cancel_cast()
 	melee_combat_component.cancel_attack()
 	_current_facing = _facing_toward(source_position)
@@ -929,6 +982,15 @@ func _play_current_animation() -> void:
 		sprite.play(animation_name)
 	elif not is_one_shot and not sprite.is_playing():
 		sprite.play(animation_name)
+
+	if ai_component.is_rushing() and state_machine.is_state(STATE_WALK):
+		sprite.speed_scale = clampf(
+			ai_component.get_rush_speed_scale() * 0.9,
+			1.20,
+			1.65
+		)
+	else:
+		sprite.speed_scale = 1.0
 
 func _update_facing_from_direction(direction: Vector2) -> void:
 	if direction.is_zero_approx():
