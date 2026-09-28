@@ -111,3 +111,21 @@ Boss > Elite > Uncommon > Common
 ```
 
 A Boss is therefore not only more durable; it also reacts faster and makes better defensive choices. The multipliers are applied once when the enemy enters the scene, so respawning the same debug enemy does not multiply its stats repeatedly.
+
+
+## Aggressive pressure and rushes
+
+Enemy tiers also define an aggression value and a burst-rush profile. Once engaged, enemies are expected to close distance instead of waiting passively at mid range.
+
+The current Training Fighter uses the Uncommon profile:
+
+- aggression: 0.78;
+- rush chance: 46%;
+- rush distance: 65–210 px;
+- rush speed: 1.60x;
+- rush duration: 0.46 s;
+- rush cooldown: 1.25 s.
+
+A rush is a committed action: while rushing, the fighter prioritizes closing the gap instead of immediately switching to a defensive choice. Reaching melee range during a rush transitions directly into a melee attack when its cooldown is ready.
+
+Normal pursuit also scales slightly with aggression, and melee cooldown is shortened for more aggressive tiers. This keeps Boss/Elite enemies from feeling like passive damage sponges while Common enemies remain easier to kite.
