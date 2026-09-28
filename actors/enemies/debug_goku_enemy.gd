@@ -3,6 +3,7 @@ extends CharacterBody2D
 
 const STATE_IDLE: StringName = &"idle"
 const STATE_WALK: StringName = &"walk"
+const STATE_RUN: StringName = &"run"
 const STATE_HURT: StringName = &"hurt"
 const STATE_BLOCK: StringName = &"block"
 const STATE_DEFEATED: StringName = &"defeated"
@@ -16,6 +17,9 @@ const DIRECTION_ROWS := {
 
 @export_file("*.png")
 var sprite_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_base.png"
+
+@export_file("*.png")
+var run_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_run.png"
 
 @export_file("*.png")
 var attack_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_attack.png"
@@ -32,6 +36,7 @@ var ki_blast_sheet_path: String = "res://assets/sprites/characters/goku/processe
 @export var frame_size: Vector2i = Vector2i(32, 32)
 @export var idle_column: int = 0
 @export var walk_columns: PackedInt32Array = PackedInt32Array([2, 3, 4, 5])
+@export var run_columns: PackedInt32Array = PackedInt32Array([0, 1, 2, 3])
 @export var attack_1_columns: PackedInt32Array = PackedInt32Array([0, 1, 2, 3])
 @export var attack_2_columns: PackedInt32Array = PackedInt32Array([4, 5, 6, 7])
 @export var hurt_columns: PackedInt32Array = PackedInt32Array([0, 1])
@@ -40,6 +45,7 @@ var ki_blast_sheet_path: String = "res://assets/sprites/characters/goku/processe
 @export var ki_blast_1_columns: PackedInt32Array = PackedInt32Array([1])
 @export var ki_blast_2_columns: PackedInt32Array = PackedInt32Array([2])
 @export var walk_fps: float = 8.0
+@export var run_fps: float = 12.0
 @export var attack_fps: float = 8.0
 @export var hurt_fps: float = 10.0
 @export var hurt_duration: float = 0.24
@@ -314,7 +320,7 @@ func _process_ai_rush() -> void:
 		return
 
 	_update_facing_from_direction(to_target)
-	state_machine.change_state(STATE_WALK)
+	state_machine.change_state(STATE_RUN)
 	movement_component.move(
 		self,
 		to_target.normalized(),
@@ -853,6 +859,19 @@ func _build_sprite_frames() -> void:
 			_add_movement_animations(frames, movement_sheet)
 			built_any = true
 
+	if ResourceLoader.exists(run_sheet_path):
+		var run_sheet := load(run_sheet_path) as Texture2D
+		if run_sheet != null:
+			_add_directional_animation(
+				frames,
+				run_sheet,
+				&"run",
+				run_columns,
+				run_fps,
+				true
+			)
+			built_any = true
+
 	if ResourceLoader.exists(attack_sheet_path):
 		var attack_sheet := load(attack_sheet_path) as Texture2D
 		if attack_sheet != null:
@@ -965,6 +984,12 @@ func _play_current_animation() -> void:
 		"%s_%s" % [state_machine.current_state, facing]
 	)
 
+	if (
+		state_machine.is_state(STATE_RUN)
+		and not sprite.sprite_frames.has_animation(animation_name)
+	):
+		animation_name = StringName("walk_%s" % facing)
+
 	if not sprite.sprite_frames.has_animation(animation_name):
 		animation_name = StringName("idle_%s" % facing)
 
@@ -983,14 +1008,7 @@ func _play_current_animation() -> void:
 	elif not is_one_shot and not sprite.is_playing():
 		sprite.play(animation_name)
 
-	if ai_component.is_rushing() and state_machine.is_state(STATE_WALK):
-		sprite.speed_scale = clampf(
-			ai_component.get_rush_speed_scale() * 0.9,
-			1.20,
-			1.65
-		)
-	else:
-		sprite.speed_scale = 1.0
+	sprite.speed_scale = 1.0
 
 func _update_facing_from_direction(direction: Vector2) -> void:
 	if direction.is_zero_approx():
