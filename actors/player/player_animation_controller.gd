@@ -551,7 +551,7 @@ func _try_build_dmi_sprite_frames() -> bool:
 
 func _find_dmi_state(dmi, candidates: Array) -> StringName:
 	for candidate in candidates:
-		var state_name := StringName(candidate)
+		var state_name := StringName(String(candidate))
 		if dmi.has_state(state_name):
 			return state_name
 	return DMI_STATE_MISSING
@@ -594,7 +594,7 @@ func _add_dmi_directional_animation(
 		for frame_index in range(frame_count):
 			var frame_texture: AtlasTexture = dmi.get_frame_texture(
 				dmi_state,
-				StringName(facing),
+				StringName(String(facing)),
 				frame_index
 			)
 			if frame_texture == null:
