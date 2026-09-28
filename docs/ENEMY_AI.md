@@ -129,3 +129,14 @@ The current Training Fighter uses the Uncommon profile:
 A rush is a committed action: while rushing, the fighter prioritizes closing the gap instead of immediately switching to a defensive choice. Reaching melee range during a rush transitions directly into a melee attack when its cooldown is ready.
 
 Normal pursuit also scales slightly with aggression, and melee cooldown is shortened for more aggressive tiers. This keeps Boss/Elite enemies from feeling like passive damage sponges while Common enemies remain easier to kite.
+
+
+## Run animation during rush
+
+Rush movement now uses a dedicated `run_*` animation state instead of simply increasing the playback speed of the walk cycle. Goku-based enemies reuse:
+
+```text
+assets/sprites/characters/goku/processed/goku_buus_fury_run.png
+```
+
+with four frames per direction at 12 FPS. If a future enemy has no run sheet, the presentation falls back to its walk animation while preserving the same rush movement behavior.
