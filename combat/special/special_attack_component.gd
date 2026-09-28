@@ -1,6 +1,17 @@
 class_name SpecialAttackComponent
 extends Node
 
+const DEFAULT_ABILITY_RESOURCES := [
+	preload("res://data/abilities/special/kamehameha.tres"),
+	preload("res://data/abilities/special/spirit_bomb.tres"),
+	preload("res://data/abilities/special/masenko_ha.tres"),
+	preload("res://data/abilities/special/special_beam_cannon.tres"),
+	preload("res://data/abilities/special/scatter_shot.tres"),
+	preload("res://data/abilities/special/big_bang_attack.tres"),
+	preload("res://data/abilities/special/burning_attack.tres"),
+	preload("res://data/abilities/special/sword_blast.tres"),
+]
+
 signal selection_changed(
 	ability_id: StringName,
 	display_name: String,
@@ -34,6 +45,10 @@ var _cast_direction: Vector2 = Vector2.DOWN
 var _active_data: SpecialAttackData
 
 func _ready() -> void:
+	if abilities.is_empty():
+		for resource in DEFAULT_ABILITY_RESOURCES:
+			abilities.append(resource as SpecialAttackData)
+
 	for ability in abilities:
 		if ability == null or ability.ability_id == &"":
 			continue
