@@ -335,6 +335,26 @@ func _resolve_nearest_target_length(max_length: float) -> float:
 
 	return nearest
 
+func get_source_actor() -> Node:
+	return _source_actor
+
+func affects_global_point(
+	point: Vector2,
+	padding: float = 0.0
+) -> bool:
+	if _stopping or _resolved_length <= 0.0:
+		return false
+
+	var local_point := to_local(point)
+	var safe_padding := maxf(padding, 0.0)
+
+	return (
+		local_point.x >= -safe_padding
+		and local_point.x <= _resolved_length + safe_padding
+		and absf(local_point.y)
+			<= _beam_width * 0.5 + safe_padding
+	)
+
 func _configure_beam_visual(
 	effect_key: StringName
 ) -> void:
