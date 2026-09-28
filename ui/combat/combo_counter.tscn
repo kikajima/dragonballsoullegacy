@@ -4,10 +4,10 @@
 
 [node name="ComboCounter" type="Control"]
 layout_mode = 0
-offset_left = 206.0
-offset_top = 43.0
-offset_right = 274.0
-offset_bottom = 72.0
+offset_left = 12.0
+offset_top = 29.0
+offset_right = 68.0
+offset_bottom = 51.0
 mouse_filter = 2
 script = ExtResource("1_combo")
 
@@ -18,23 +18,23 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.02, 0.025, 0.04, 0.72)
+color = Color(0.02, 0.025, 0.04, 0.62)
 mouse_filter = 2
 
 [node name="Hits" type="Label" parent="Panel"]
 layout_mode = 0
-offset_top = 2.0
-offset_right = 68.0
-offset_bottom = 15.0
+offset_top = 1.0
+offset_right = 56.0
+offset_bottom = 11.0
 text = "2 HITS"
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 7
 horizontal_alignment = 1
 
 [node name="Damage" type="Label" parent="Panel"]
 layout_mode = 0
-offset_top = 15.0
-offset_right = 68.0
-offset_bottom = 28.0
+offset_top = 11.0
+offset_right = 56.0
+offset_bottom = 21.0
 text = "20 DMG"
-theme_override_font_sizes/font_size = 6
+theme_override_font_sizes/font_size = 5
 horizontal_alignment = 1
