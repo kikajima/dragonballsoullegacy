@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/debug/debug_room.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
@@ -21,6 +21,7 @@
 [ext_resource type="Script" path="res://core/stats/game_stats_manager.gd" id="19_stats"]
 [ext_resource type="PackedScene" path="res://ui/transitions/screen_transition.tscn" id="20_transition"]
 [ext_resource type="Script" path="res://core/input/gamepad_profile.gd" id="21_gamepad"]
+[ext_resource type="PackedScene" path="res://ui/abilities/special_attack_hud.tscn" id="22_special_hud"]
 
 [node name="Bootstrap" type="Node2D"]
 
@@ -73,6 +74,8 @@ script = ExtResource("19_stats")
 [node name="EnemyTargetBar" parent="UIContainer" instance=ExtResource("16_target")]
 
 [node name="ComboCounter" parent="UIContainer" instance=ExtResource("15_combo")]
+
+[node name="SpecialAttackHUD" parent="UIContainer" instance=ExtResource("22_special_hud")]
 
 [node name="InteractionPrompt" parent="UIContainer" instance=ExtResource("17_interaction_prompt")]
 
