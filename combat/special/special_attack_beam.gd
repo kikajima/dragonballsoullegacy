@@ -441,13 +441,11 @@ func _refresh_kamehameha_visual(length: float) -> void:
 
 	# HU2 builds the Kamehameha one 32px BYOND tile at a time:
 	# Start -> Mid... -> Head, with Hit replacing the head on impact.
-	var segment_count: int = maxi(
-		int(ceil(length / HU2_BEAM_TILE_SIZE)),
-		1
-	)
-
-	_ensure_kame_segment_count(segment_count)
-
+	#
+	# The visual endpoint may be farther than the collision endpoint because
+	# KameHit is centered over the victim's tile. Segment count therefore has
+	# to be calculated from the VISUAL endpoint, otherwise the last Mid can
+	# stop one tile early and leave a visible break before KameHit.
 	var first_center: float = minf(
 		HU2_BEAM_TILE_SIZE * 0.5,
 		length * 0.5
@@ -456,15 +454,24 @@ func _refresh_kamehameha_visual(length: float) -> void:
 		length - HU2_BEAM_TILE_SIZE * 0.5,
 		first_center
 	)
+
 	if _beam_impacting:
-		# HU2 replaces the beam head with KameHit on the occupied tile.
-		# For characters, _impact_visual_length is their center; for world
-		# collisions we fall back to the resolved collision endpoint.
 		last_center = (
 			_impact_visual_length
 			if _impact_visual_length > 0.0
 			else length
 		)
+
+	var visual_span: float = maxf(
+		last_center - first_center,
+		0.0
+	)
+	var segment_count: int = maxi(
+		int(ceil(visual_span / HU2_BEAM_TILE_SIZE)) + 1,
+		2
+	)
+
+	_ensure_kame_segment_count(segment_count)
 
 	for index in range(segment_count):
 		var segment: AnimatedSprite2D = _kame_segments[index]
@@ -480,14 +487,17 @@ func _refresh_kamehameha_visual(length: float) -> void:
 			else:
 				state = KAME_HEAD_STATE
 
-		var x_position: float = (
-			first_center
-			+ HU2_BEAM_TILE_SIZE * float(index)
-		)
+		var x_position: float
 		if index == segment_count - 1:
 			x_position = last_center
 		else:
-			x_position = minf(x_position, last_center)
+			# Keep every intermediate tile no farther than 32px from the
+			# next one. This mirrors BYOND's get_step() beam construction.
+			x_position = minf(
+				first_center
+					+ HU2_BEAM_TILE_SIZE * float(index),
+				last_center
+			)
 
 		segment.position = Vector2(x_position, 0.0)
 		# The parent rotates the tile positions along the beam. Cancel that
