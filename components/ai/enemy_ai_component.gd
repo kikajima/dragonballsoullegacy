@@ -23,6 +23,9 @@ var _guard_time_left: float = 0.0
 var _dodge_time_left: float = 0.0
 var _strafe_time_left: float = 0.0
 var _strafe_cooldown_left: float = 0.0
+var _rush_time_left: float = 0.0
+var _rush_cooldown_left: float = 0.0
+var _rush_decision_left: float = 0.0
 
 var _active_action: int = DefensiveAction.NONE
 var _dodge_direction: Vector2 = Vector2.ZERO
@@ -47,6 +50,18 @@ func tick(delta: float) -> void:
 	)
 	_strafe_cooldown_left = maxf(
 		_strafe_cooldown_left - delta,
+		0.0
+	)
+	_rush_time_left = maxf(
+		_rush_time_left - delta,
+		0.0
+	)
+	_rush_cooldown_left = maxf(
+		_rush_cooldown_left - delta,
+		0.0
+	)
+	_rush_decision_left = maxf(
+		_rush_decision_left - delta,
 		0.0
 	)
 
@@ -147,6 +162,54 @@ func get_dodge_direction() -> Vector2:
 
 func get_dodge_speed_scale() -> float:
 	return profile.dodge_speed_scale
+
+func try_begin_rush(distance_to_target: float) -> bool:
+	if is_rushing():
+		return true
+
+	if _rush_cooldown_left > 0.0 or _rush_decision_left > 0.0:
+		return false
+
+	if (
+		distance_to_target < profile.rush_min_distance
+		or distance_to_target > profile.rush_max_distance
+	):
+		return false
+
+	_rush_decision_left = maxf(
+		0.18 + profile.reaction_time * 0.35,
+		0.12
+	)
+
+	if randf() > profile.rush_chance:
+		return false
+
+	_rush_time_left = profile.rush_duration
+	_rush_cooldown_left = profile.rush_cooldown
+	return true
+
+func is_rushing() -> bool:
+	return _rush_time_left > 0.0
+
+func cancel_rush() -> void:
+	_rush_time_left = 0.0
+
+func get_rush_speed_scale() -> float:
+	return profile.rush_speed_multiplier
+
+func get_chase_speed_scale() -> float:
+	return lerpf(
+		1.0,
+		1.18,
+		clampf(profile.aggression, 0.0, 1.0)
+	)
+
+func get_attack_cooldown_scale() -> float:
+	return lerpf(
+		1.0,
+		0.55,
+		clampf(profile.aggression, 0.0, 1.0)
+	)
 
 func get_threat_position() -> Vector2:
 	return _threat_position
