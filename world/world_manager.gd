@@ -6,11 +6,17 @@ signal world_changed(scene_path: String, world: Node)
 
 @export var world_container_path: NodePath
 @export var player_container_path: NodePath
+@export_file("*.tscn")
+var initial_world_path: String = ""
 
 @onready var world_container: Node = get_node(world_container_path)
 @onready var player_container: Node = get_node(player_container_path)
 
 var current_world_path: String = ""
+
+func _ready() -> void:
+	if not initial_world_path.is_empty():
+		current_world_path = initial_world_path
 
 func load_world(
 	scene_path: String,
@@ -71,3 +77,21 @@ func load_world_with_transition(
 		await transition.fade_in()
 
 	return loaded
+
+func serialize_state() -> Dictionary:
+	return {
+		"current_world_path": current_world_path,
+	}
+
+func load_state(data: Dictionary) -> void:
+	var scene_path: String = str(
+		data.get("current_world_path", "")
+	)
+	if (
+		scene_path.is_empty()
+		or scene_path == current_world_path
+		or not ResourceLoader.exists(scene_path)
+	):
+		return
+
+	load_world(scene_path)
