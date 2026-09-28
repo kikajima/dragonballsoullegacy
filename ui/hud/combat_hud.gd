@@ -232,30 +232,8 @@ func _resolve_special_icon(data: SpecialAttackData) -> Texture2D:
 	if data == null:
 		return null
 
-	var dmi_state_value: Variant = SPECIAL_DMI_STATES.get(
-		data.effect_key,
-		null
-	)
-	if dmi_state_value != null:
-		var texture: Texture2D = _dmi_icon(
-			HU2_EFFECT_DMI_PATH,
-			StringName(String(dmi_state_value)),
-			&"right"
-		)
-		if texture != null:
-			return texture
-
-	var rect_value: Variant = SPECIAL_LEGACY_RECTS.get(
-		data.effect_key,
-		null
-	)
-	if rect_value is Rect2:
-		var legacy: Texture2D = _legacy_special_icon(
-			rect_value as Rect2
-		)
-		if legacy != null:
-			return legacy
-
+	# Melee/pose/transformation specials often keep the default effect_key,
+	# so ability-specific character art must win before effect fallbacks.
 	var character_state_value: Variant = (
 		SPECIAL_CHARACTER_STATES.get(
 			data.ability_id,
@@ -271,8 +249,30 @@ func _resolve_special_icon(data: SpecialAttackData) -> Texture2D:
 		if character_icon != null:
 			return character_icon
 
-	# Last-resort special icon: an energy frame, never the old Ki Blast
-	# HUD badge.
+	var dmi_state_value: Variant = SPECIAL_DMI_STATES.get(
+		data.effect_key,
+		null
+	)
+	if dmi_state_value != null:
+		var effect_icon: Texture2D = _dmi_icon(
+			HU2_EFFECT_DMI_PATH,
+			StringName(String(dmi_state_value)),
+			&"right"
+		)
+		if effect_icon != null:
+			return effect_icon
+
+	var rect_value: Variant = SPECIAL_LEGACY_RECTS.get(
+		data.effect_key,
+		null
+	)
+	if rect_value is Rect2:
+		var legacy: Texture2D = _legacy_special_icon(
+			rect_value as Rect2
+		)
+		if legacy != null:
+			return legacy
+
 	return _dmi_icon(
 		HU2_EFFECT_DMI_PATH,
 		&"BlueEnergy",
