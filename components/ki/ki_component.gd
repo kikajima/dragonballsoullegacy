@@ -32,6 +32,23 @@ func consume(amount: float) -> bool:
 	ki_changed.emit(current_ki, max_ki)
 	return true
 
+func consume_up_to(amount: float, reserve: float = 0.0) -> float:
+	if amount <= 0.0:
+		return 0.0
+
+	var available: float = maxf(
+		current_ki - maxf(reserve, 0.0),
+		0.0
+	)
+	var consumed: float = minf(amount, available)
+	if consumed <= 0.0:
+		return 0.0
+
+	current_ki -= consumed
+	ki_consumed.emit(consumed)
+	ki_changed.emit(current_ki, max_ki)
+	return consumed
+
 func restore(amount: float) -> float:
 	if amount <= 0.0:
 		return 0.0
