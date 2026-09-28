@@ -8,3 +8,4 @@ extends Resource
 @export var ki_drain_per_second: float = 0.0
 @export var damage_multiplier: float = 1.0
 @export var movement_multiplier: float = 1.0
+@export var aura_color: Color = Color(1.0, 0.85, 0.2, 0.34)
