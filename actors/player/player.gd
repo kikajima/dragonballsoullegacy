@@ -68,9 +68,6 @@ func _ready() -> void:
 	)
 	_refresh_transformation_state()
 
-	ability_loadout_component.unlock_ability(&"ki_blast")
-	ability_loadout_component.equip_ability(0, &"ki_blast")
-
 func _physics_process(delta: float) -> void:
 	if _respawning:
 		movement_component.stop(self)
