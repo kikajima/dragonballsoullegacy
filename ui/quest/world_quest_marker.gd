@@ -2,6 +2,8 @@ class_name WorldQuestMarker
 extends Node2D
 
 @export var quest_id: StringName = &""
+@export var quest_id_2: StringName = &""
+@export var quest_id_3: StringName = &""
 
 @onready var label: Label = $Label
 
@@ -35,18 +37,29 @@ func _on_quest_updated(
 	_refresh()
 
 func _refresh() -> void:
-	if _quest_manager == null or quest_id == &"":
+	if _quest_manager == null:
 		visible = false
 		return
 
-	if _quest_manager.is_completed(quest_id):
+	var ids: Array[StringName] = []
+	for candidate in [quest_id, quest_id_2, quest_id_3]:
+		if candidate != &"":
+			ids.append(candidate)
+
+	if ids.is_empty():
 		visible = false
 		return
 
-	if _quest_manager.is_active(quest_id):
-		label.text = "?"
+	for id in ids:
+		if _quest_manager.is_completed(id):
+			continue
+
+		if _quest_manager.is_active(id):
+			label.text = "?"
+		else:
+			label.text = "!"
+
 		visible = true
 		return
 
-	label.text = "!"
-	visible = true
+	visible = false
