@@ -1,0 +1,166 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scenes/world/kame_house_interior.gd" id="1_house"]
+[ext_resource type="Script" path="res://world/rest_and_save_spot.gd" id="2_rest"]
+[ext_resource type="Script" path="res://world/info_interactable.gd" id="3_info"]
+[ext_resource type="Script" path="res://world/kame_house_fridge.gd" id="4_fridge"]
+[ext_resource type="PackedScene" path="res://world/world_portal.tscn" id="5_portal"]
+[ext_resource type="PackedScene" path="res://world/location_area.tscn" id="6_location"]
+
+[sub_resource type="RectangleShape2D" id="WallHorizontal"]
+size = Vector2(480, 18)
+
+[sub_resource type="RectangleShape2D" id="WallVertical"]
+size = Vector2(18, 320)
+
+[sub_resource type="RectangleShape2D" id="InteractShape"]
+size = Vector2(44, 36)
+
+[sub_resource type="RectangleShape2D" id="BedShape"]
+size = Vector2(74, 40)
+
+[sub_resource type="RectangleShape2D" id="TableShape"]
+size = Vector2(70, 42)
+
+[node name="KameHouseInterior" type="Node2D"]
+script = ExtResource("1_house")
+
+[node name="Background" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(32, 32, 512, 32, 512, 352, 32, 352)
+color = Color(0.84, 0.67, 0.61, 1)
+
+[node name="Terrain" type="Node2D" parent="."]
+
+[node name="FloorTiles" type="Node2D" parent="Terrain"]
+
+[node name="WallTiles" type="Node2D" parent="Terrain"]
+
+[node name="Walls" type="Node2D" parent="."]
+
+[node name="Top" type="StaticBody2D" parent="Walls"]
+position = Vector2(272, 40)
+collision_layer = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Top"]
+shape = SubResource("WallHorizontal")
+
+[node name="BottomLeft" type="StaticBody2D" parent="Walls"]
+position = Vector2(150, 344)
+collision_layer = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/BottomLeft"]
+shape = SubResource("WallHorizontal")
+scale = Vector2(0.48, 1)
+
+[node name="BottomRight" type="StaticBody2D" parent="Walls"]
+position = Vector2(394, 344)
+collision_layer = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/BottomRight"]
+shape = SubResource("WallHorizontal")
+scale = Vector2(0.48, 1)
+
+[node name="Left" type="StaticBody2D" parent="Walls"]
+position = Vector2(40, 192)
+collision_layer = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Left"]
+shape = SubResource("WallVertical")
+
+[node name="Right" type="StaticBody2D" parent="Walls"]
+position = Vector2(504, 192)
+collision_layer = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Right"]
+shape = SubResource("WallVertical")
+
+[node name="Bed" type="StaticBody2D" parent="."]
+position = Vector2(116, 128)
+collision_layer = 1
+
+[node name="Mattress" type="Polygon2D" parent="Bed"]
+polygon = PackedVector2Array(-37, -20, 37, -20, 37, 20, -37, 20)
+color = Color(0.82, 0.94, 1, 1)
+
+[node name="Pillow" type="Polygon2D" parent="Bed"]
+position = Vector2(-24, 0)
+polygon = PackedVector2Array(-9, -13, 9, -13, 9, 13, -9, 13)
+color = Color(1, 1, 1, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bed"]
+shape = SubResource("BedShape")
+
+[node name="RestInteraction" type="Area2D" parent="Bed"]
+collision_layer = 64
+collision_mask = 0
+monitoring = false
+monitorable = true
+script = ExtResource("2_rest")
+interaction_label = "Rest and Save"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bed/RestInteraction"]
+shape = SubResource("BedShape")
+
+[node name="Table" type="StaticBody2D" parent="."]
+position = Vector2(286, 164)
+collision_layer = 1
+
+[node name="Visual" type="Polygon2D" parent="Table"]
+polygon = PackedVector2Array(-35, -21, 35, -21, 35, 21, -35, 21)
+color = Color(0.48, 0.29, 0.18, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Table"]
+shape = SubResource("TableShape")
+
+[node name="TV" type="Area2D" parent="."]
+position = Vector2(410, 108)
+collision_layer = 64
+collision_mask = 0
+monitoring = false
+monitorable = true
+script = ExtResource("3_info")
+interaction_label = "Watch Training Tips"
+speaker = "Kame House TV"
+text = "MOVEMENT: WASD to move and SPACE to run.|COMBAT: J punches, I kicks, K fires basic Ki Blasts.|SPECIALS: R cycles techniques. Hold or press O depending on the selected skill.|KI: Hold L to recover Ki. Charged techniques consume Ki while charging."
+
+[node name="Screen" type="Polygon2D" parent="TV"]
+polygon = PackedVector2Array(-24, -17, 24, -17, 24, 17, -24, 17)
+color = Color(0.08, 0.12, 0.16, 1)
+
+[node name="Glow" type="Polygon2D" parent="TV"]
+polygon = PackedVector2Array(-19, -12, 19, -12, 19, 12, -19, 12)
+color = Color(0.28, 0.72, 0.82, 0.55)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TV"]
+shape = SubResource("InteractShape")
+
+[node name="Fridge" type="Area2D" parent="."]
+position = Vector2(432, 235)
+collision_layer = 64
+collision_mask = 0
+monitoring = false
+monitorable = true
+script = ExtResource("4_fridge")
+
+[node name="Body" type="Polygon2D" parent="Fridge"]
+polygon = PackedVector2Array(-18, -30, 18, -30, 18, 30, -18, 30)
+color = Color(0.88, 0.92, 0.95, 1)
+
+[node name="Handle" type="Polygon2D" parent="Fridge"]
+position = Vector2(-9, 0)
+polygon = PackedVector2Array(-2, -11, 2, -11, 2, 11, -2, 11)
+color = Color(0.3, 0.32, 0.34, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Fridge"]
+shape = SubResource("InteractShape")
+
+[node name="HouseLocation" parent="." instance=ExtResource("6_location")]
+position = Vector2(272, 192)
+scale = Vector2(1.8, 1.15)
+location_name = "KAME HOUSE"
+
+[node name="Exit" parent="." instance=ExtResource("5_portal")]
+position = Vector2(272, 326)
+target_scene = "res://scenes/world/kame_island.tscn"
+target_spawn = Vector2(480, 340)
+interaction_label = "Go Outside"
