@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="PackedScene" path="res://systems/training/training_gravity_console.tscn" id="1_gravity"]
 [ext_resource type="PackedScene" path="res://systems/training/training_punching_bag.tscn" id="2_bag"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://world/world_portal.tscn" id="5_portal"]
 [ext_resource type="PackedScene" path="res://world/checkpoint_area.tscn" id="6_checkpoint"]
 [ext_resource type="PackedScene" path="res://world/location_area.tscn" id="7_location"]
+[ext_resource type="PackedScene" path="res://systems/training/recovery_station.tscn" id="8_recovery"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(820, 18)
@@ -81,6 +82,9 @@ position = Vector2(440, 155)
 [node name="SparringConsole" parent="." instance=ExtResource("4_spar")]
 position = Vector2(615, 135)
 spawn_offset = Vector2(70, 70)
+
+[node name="RecoveryStation" parent="." instance=ExtResource("8_recovery")]
+position = Vector2(705, 430)
 
 [node name="TrainingCheckpoint" parent="." instance=ExtResource("6_checkpoint")]
 position = Vector2(120, 430)
