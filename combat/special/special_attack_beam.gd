@@ -320,10 +320,14 @@ func _resolve_nearest_target_length(max_length: float) -> float:
 
 		# Keep a tiny overlap with the hurtbox so the shortened collision
 		# rectangle still registers the target at the visual endpoint.
+		var front_edge_offset: float = maxf(
+			_beam_width * 0.45,
+			2.0
+		)
 		nearest = minf(
 			nearest,
 			clampf(
-				forward_distance + 2.0,
+				forward_distance - front_edge_offset,
 				1.0,
 				max_length
 			)
