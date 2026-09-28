@@ -1,6 +1,12 @@
 class_name DebugGokuEnemy
 extends CharacterBody2D
 
+const DMI_SPRITE_SHEET_SCRIPT = preload(
+	"res://core/assets/dmi_sprite_sheet.gd"
+)
+const DMI_ANIMATION_FPS := 10.0
+const DMI_STATE_MISSING: StringName = &"__missing__"
+
 const STATE_IDLE: StringName = &"idle"
 const STATE_WALK: StringName = &"walk"
 const STATE_RUN: StringName = &"run"
@@ -14,6 +20,11 @@ const DIRECTION_ROWS := {
 	&"right": 2,
 	&"up": 3,
 }
+
+@export_file("*.dmi")
+var dmi_sprite_path: String = "res://assets/sprites/characters/goku/hu2/Goku.dmi"
+
+@export var prefer_dmi_sprite: bool = true
 
 @export_file("*.png")
 var sprite_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_base.png"
@@ -881,6 +892,11 @@ func _flash(color: Color) -> void:
 	)
 
 func _build_sprite_frames() -> void:
+	if prefer_dmi_sprite and _try_build_dmi_sprite_frames():
+		sprite.visible = true
+		placeholder.visible = false
+		return
+
 	var frames := SpriteFrames.new()
 	if frames.has_animation(&"default"):
 		frames.remove_animation(&"default")
@@ -968,6 +984,161 @@ func _build_sprite_frames() -> void:
 	else:
 		sprite.visible = false
 		placeholder.visible = true
+
+func _try_build_dmi_sprite_frames() -> bool:
+	if not FileAccess.file_exists(dmi_sprite_path):
+		return false
+
+	var dmi = DMI_SPRITE_SHEET_SCRIPT.load_file(dmi_sprite_path)
+	if dmi == null:
+		return false
+
+	var frames := SpriteFrames.new()
+	if frames.has_animation(&"default"):
+		frames.remove_animation(&"default")
+
+	var built_any := false
+
+	var movement_state := _find_dmi_state(
+		dmi,
+		[&"", &"movement", &"walk"]
+	)
+	if movement_state != DMI_STATE_MISSING:
+		built_any = _add_dmi_animation(
+			frames, dmi, movement_state, &"idle", true, true
+		) or built_any
+		built_any = _add_dmi_animation(
+			frames, dmi, movement_state, &"walk", true
+		) or built_any
+
+	var run_state := _find_dmi_state(
+		dmi,
+		[&"Sprint", &"sprint", &"fly"]
+	)
+	built_any = _add_dmi_animation(
+		frames, dmi, run_state, &"run", true
+	) or built_any
+
+	built_any = _add_dmi_animation(
+		frames,
+		dmi,
+		_find_dmi_state(dmi, [&"punch1"]),
+		&"attack_1",
+		false
+	) or built_any
+
+	built_any = _add_dmi_animation(
+		frames,
+		dmi,
+		_find_dmi_state(dmi, [&"punch2", &"punch1"]),
+		&"attack_2",
+		false
+	) or built_any
+
+	built_any = _add_dmi_animation(
+		frames,
+		dmi,
+		_find_dmi_state(dmi, [&"HitStun", &"hitstun"]),
+		&"hurt",
+		false
+	) or built_any
+
+	built_any = _add_dmi_animation(
+		frames,
+		dmi,
+		_find_dmi_state(dmi, [&"Guard", &"guard"]),
+		&"block",
+		true
+	) or built_any
+
+	built_any = _add_dmi_animation(
+		frames,
+		dmi,
+		_find_dmi_state(dmi, [&"KiBlastCharge", &"kiblast"]),
+		&"ki_blast_prepare",
+		true
+	) or built_any
+
+	built_any = _add_dmi_animation(
+		frames,
+		dmi,
+		_find_dmi_state(dmi, [&"kiblast", &"KiBlast"]),
+		&"ki_blast_1",
+		false
+	) or built_any
+
+	built_any = _add_dmi_animation(
+		frames,
+		dmi,
+		_find_dmi_state(dmi, [&"KiBlast2", &"kiblast"]),
+		&"ki_blast_2",
+		false
+	) or built_any
+
+	if not built_any:
+		return false
+
+	frame_size = dmi.frame_size
+	sprite.sprite_frames = frames
+	return true
+
+func _find_dmi_state(dmi, candidates: Array) -> StringName:
+	for candidate in candidates:
+		var state_name := StringName(String(candidate))
+		if dmi.has_state(state_name):
+			return state_name
+	return DMI_STATE_MISSING
+
+func _add_dmi_animation(
+	frames: SpriteFrames,
+	dmi,
+	dmi_state: StringName,
+	animation_state: StringName,
+	loop: bool,
+	first_frame_only: bool = false
+) -> bool:
+	if (
+		dmi_state == DMI_STATE_MISSING
+		or not dmi.has_state(dmi_state)
+	):
+		return false
+
+	var source_frame_count: int = dmi.get_frame_count(dmi_state)
+	if source_frame_count <= 0:
+		return false
+
+	var frame_count := 1 if first_frame_only else source_frame_count
+	var added_any := false
+
+	for facing in DIRECTION_ROWS:
+		var animation_name := StringName(
+			"%s_%s" % [animation_state, facing]
+		)
+
+		frames.add_animation(animation_name)
+		frames.set_animation_loop(animation_name, loop)
+		frames.set_animation_speed(
+			animation_name,
+			DMI_ANIMATION_FPS
+		)
+
+		for frame_index in range(frame_count):
+			var frame_texture: AtlasTexture = dmi.get_frame_texture(
+				dmi_state,
+				StringName(String(facing)),
+				frame_index
+			)
+			if frame_texture == null:
+				continue
+
+			frames.add_frame(
+				animation_name,
+				frame_texture,
+				dmi.get_frame_delay(dmi_state, frame_index)
+			)
+			added_any = true
+
+	return added_any
 
 func _add_movement_animations(frames: SpriteFrames, sheet: Texture2D) -> void:
 	for facing in DIRECTION_ROWS:
