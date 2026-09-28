@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://actors/npcs/master_roshi.gd" id="1"]
+[ext_resource type="PackedScene" path="res://ui/quest/world_quest_marker.tscn" id="2_marker"]
 
 [sub_resource type="CircleShape2D" id="InteractionShape"]
 radius = 22.0
@@ -41,3 +42,9 @@ monitorable = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea"]
 shape = SubResource("InteractionShape")
+
+[node name="QuestMarker" parent="." instance=ExtResource("2_marker")]
+position = Vector2(0, -28)
+quest_id = &"training_basics"
+quest_id_2 = &"roshi_ki_control"
+quest_id_3 = &"roshi_special_training"
