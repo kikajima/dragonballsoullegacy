@@ -380,7 +380,7 @@ func _tick_continuous_beam(
 		_active_beam.follow_caster(
 			caster,
 			_cast_direction,
-			spawn_distance
+			_beam_spawn_distance(_active_data)
 		)
 
 func _tick_flurry(
@@ -665,9 +665,18 @@ func _spawn_beam(
 		_runtime_damage_data(data),
 		_cast_direction,
 		caster,
-		spawn_distance
+		_beam_spawn_distance(data)
 	)
 	return beam
+
+func _beam_spawn_distance(data: SpecialAttackData) -> float:
+	# HU2 places the first 32px Kame tile directly adjacent to the 32px
+	# character tile: caster edge at 16px, KameStart centered another 16px
+	# ahead. Starting the beam visual at 16px recreates that seam.
+	if data != null and data.effect_key == &"blue_beam":
+		return 16.0
+
+	return spawn_distance
 
 func _perform_melee_hit(
 	caster: Node2D,
