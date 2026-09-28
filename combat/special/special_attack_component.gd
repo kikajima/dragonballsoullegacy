@@ -17,6 +17,8 @@ const DEFAULT_ABILITY_RESOURCES := [
 	preload("res://data/abilities/special/cross_slash.tres"),
 	preload("res://data/abilities/special/flurry_punch.tres"),
 	preload("res://data/abilities/special/peace_sign_pose.tres"),
+	preload("res://data/abilities/special/super_saiyan.tres"),
+	preload("res://data/abilities/special/super_namek.tres"),
 ]
 
 signal selection_changed(
@@ -34,6 +36,8 @@ signal charge_changed(ability_id: StringName, ratio: float)
 @export var charge_preview_scene: PackedScene
 @export var ki_component_path: NodePath
 @export var loadout_component_path: NodePath
+@export var transformation_component_path: NodePath
+@export var experience_component_path: NodePath
 @export var spawn_distance: float = 20.0
 
 # Prototype convenience only. Character creation can disable this and grant
@@ -47,6 +51,14 @@ signal charge_changed(ability_id: StringName, ratio: float)
 @onready var loadout_component: AbilityLoadoutComponent = get_node(
 	loadout_component_path
 ) as AbilityLoadoutComponent
+
+@onready var transformation_component: TransformationComponent = get_node(
+	transformation_component_path
+) as TransformationComponent
+
+@onready var experience_component: ExperienceComponent = get_node(
+	experience_component_path
+) as ExperienceComponent
 
 var _selected_index: int = 0
 var _casting: bool = false
@@ -62,6 +74,10 @@ var _charge_preview: SpecialChargePreview
 var _flurry_hits_left: int = 0
 var _flurry_bonus_hits_added: int = 0
 var _flurry_tick_left: float = 0.0
+var _damage_multiplier: float = 1.0
+
+func set_damage_multiplier(value: float) -> void:
+	_damage_multiplier = maxf(value, 0.0)
 
 func _ready() -> void:
 	if abilities.is_empty():
@@ -465,6 +481,10 @@ func _fire_once(
 				_cast_direction,
 				charge_ratio
 			)
+		SpecialAttackData.AttackType.TRANSFORMATION:
+			if not _toggle_transformation(_active_data):
+				_finish_cast(false)
+				return
 
 	_fired = true
 	_lock_left = maxf(
@@ -541,7 +561,7 @@ func _spawn_projectile(
 		+ direction.normalized() * spawn_distance
 	)
 	projectile.setup(
-		data,
+		_runtime_damage_data(data),
 		direction,
 		caster,
 		charge_ratio
@@ -603,7 +623,7 @@ func _spawn_beam(
 
 	parent.add_child(beam)
 	beam.setup(
-		data,
+		_runtime_damage_data(data),
 		_cast_direction,
 		caster,
 		spawn_distance
@@ -654,7 +674,11 @@ func _perform_melee_hit(
 		hit_ids[receiver_id] = true
 
 		var resolved_damage: int = maxi(
-			roundi(float(data.damage) * damage_scale),
+			roundi(
+				float(data.damage)
+				* damage_scale
+				* _damage_multiplier
+			),
 			0
 		)
 		var applied: int = int(
@@ -771,6 +795,53 @@ func _report_hit(
 			target,
 			damage
 		)
+
+func _runtime_damage_data(data: SpecialAttackData) -> SpecialAttackData:
+	if data == null or is_equal_approx(_damage_multiplier, 1.0):
+		return data
+
+	var runtime := data.duplicate() as SpecialAttackData
+	if runtime == null:
+		return data
+
+	runtime.damage = maxi(
+		roundi(float(data.damage) * _damage_multiplier),
+		0
+	)
+	return runtime
+
+func _toggle_transformation(data: SpecialAttackData) -> bool:
+	if (
+		data == null
+		or data.transformation_id == &""
+		or transformation_component == null
+	):
+		return false
+
+	if (
+		transformation_component.active_transformation
+		== data.transformation_id
+	):
+		transformation_component.end_transformation()
+		return true
+
+	var current_level: int = 1
+	if experience_component != null:
+		current_level = experience_component.current_level
+
+	return transformation_component.start_transformation(
+		data.transformation_id,
+		current_level
+	)
+
+func is_transformation_active(
+	transformation_id: StringName
+) -> bool:
+	return (
+		transformation_component != null
+		and transformation_component.active_transformation
+		== transformation_id
+	)
 
 func _finish_cast(start_cooldown: bool) -> void:
 	var finished_id: StringName = &""
