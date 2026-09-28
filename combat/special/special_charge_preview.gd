@@ -4,6 +4,13 @@ extends Node2D
 const EFFECT_SHEET_PATH := (
 	"res://assets/sprites/effects/legacy/special_attack_sfx.png"
 )
+const HU2_EFFECT_DMI_PATH := (
+	"res://assets/sprites/effects/hu2/Effects.dmi"
+)
+const DMI_EFFECT_SCRIPT = preload(
+	"res://core/assets/dmi_effect_sprite_2d.gd"
+)
+const KAME_CHARGE_STATE: StringName = &"KameStart"
 
 const PREVIEW_RECTS := {
 	&"big_bang": Rect2i(82, 196, 33, 24),
@@ -11,6 +18,8 @@ const PREVIEW_RECTS := {
 }
 
 @onready var sprite: Sprite2D = $Sprite2D
+
+var _dmi_sprite: AnimatedSprite2D
 
 var _caster: Node2D
 var _direction: Vector2 = Vector2.DOWN
@@ -48,6 +57,14 @@ func _process(_delta: float) -> void:
 
 func set_charge_ratio(ratio: float) -> void:
 	_ratio = clampf(ratio, 0.0, 1.0)
+
+	if _effect_key == &"blue_beam":
+		if is_instance_valid(_dmi_sprite):
+			# Keep HU2's original 32px art, but fade it in as the hands
+			# settle into the charge pose.
+			_dmi_sprite.modulate.a = lerpf(0.45, 1.0, _ratio)
+		return
+
 	var visual_scale: float = lerpf(
 		_base_scale,
 		_max_scale,
@@ -60,11 +77,23 @@ func _update_transform() -> void:
 		return
 
 	if _effect_key == &"spirit_bomb":
+		rotation = 0.0
 		global_position = (
 			_caster.global_position
 			+ Vector2(0.0, -22.0)
 		)
+	elif _effect_key == &"blue_beam":
+		# During HU2's charge state the hands are pulled behind the body.
+		# Put the animated Kame start glow on that hand position, then the
+		# beam itself will take over from the front when the cast fires.
+		rotation = _direction.angle()
+		global_position = (
+			_caster.global_position
+			- _direction * 7.0
+			+ Vector2(0.0, -2.0)
+		)
 	else:
+		rotation = 0.0
 		global_position = (
 			_caster.global_position
 			+ _direction * _spawn_distance
@@ -72,6 +101,31 @@ func _update_transform() -> void:
 		)
 
 func _build_visual() -> void:
+	if _effect_key == &"blue_beam":
+		sprite.visible = false
+
+		if not is_instance_valid(_dmi_sprite):
+			_dmi_sprite = DMI_EFFECT_SCRIPT.new() as AnimatedSprite2D
+			if _dmi_sprite == null:
+				return
+			_dmi_sprite.z_index = 1
+			add_child(_dmi_sprite)
+
+		_dmi_sprite.visible = true
+		_dmi_sprite.modulate = Color(1.0, 1.0, 1.0, 0.45)
+		_dmi_sprite.call(
+			"configure",
+			HU2_EFFECT_DMI_PATH,
+			KAME_CHARGE_STATE,
+			"right",
+			true,
+			true
+		)
+		return
+
+	if is_instance_valid(_dmi_sprite):
+		_dmi_sprite.visible = false
+
 	if not ResourceLoader.exists(EFFECT_SHEET_PATH):
 		sprite.visible = false
 		return
