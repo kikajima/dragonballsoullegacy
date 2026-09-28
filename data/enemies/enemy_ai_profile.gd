@@ -53,6 +53,27 @@ var ranged_cooldown_scale: float = 1.0
 @export_range(0.0, 1.5, 0.05)
 var strafe_weight: float = 0.25
 
+@export_range(0.0, 1.0, 0.01)
+var aggression: float = 0.55
+
+@export_range(0.0, 1.0, 0.01)
+var rush_chance: float = 0.18
+
+@export_range(32.0, 320.0, 1.0)
+var rush_min_distance: float = 70.0
+
+@export_range(48.0, 480.0, 1.0)
+var rush_max_distance: float = 190.0
+
+@export_range(0.15, 1.5, 0.01)
+var rush_duration: float = 0.42
+
+@export_range(1.0, 3.0, 0.05)
+var rush_speed_multiplier: float = 1.45
+
+@export_range(0.2, 5.0, 0.05)
+var rush_cooldown: float = 1.60
+
 @export_range(0.5, 10.0, 0.05)
 var health_multiplier: float = 1.0
 
