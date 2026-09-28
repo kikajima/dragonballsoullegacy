@@ -1,8 +1,9 @@
 class_name ComboCounter
 extends Control
 
-@onready var hits_label: Label = $Panel/Hits
-@onready var damage_label: Label = $Panel/Damage
+@onready var count_text: LegacyBitmapText = $Panel/Count
+@onready var hits_text: LegacyBitmapText = $Panel/Hits
+@onready var damage_text: LegacyBitmapText = $Panel/Damage
 
 var _combo_tracker: ComboTrackerComponent
 
@@ -36,8 +37,6 @@ func _on_combo_changed(hit_count: int, total_damage: int) -> void:
 	if not visible:
 		return
 
-	hits_label.text = "%d HIT" % hit_count
-	if hit_count != 1:
-		hits_label.text += "S"
-
-	damage_label.text = "%d DMG" % total_damage
+	count_text.set_text(str(hit_count))
+	hits_text.set_text("HITS")
+	damage_text.set_text("%d DMG" % total_damage)
