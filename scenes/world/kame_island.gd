@@ -14,9 +14,30 @@ const WORLD_ROWS: int = 17
 
 @onready var sea_tiles: Node2D = $Terrain/SeaTiles
 @onready var sand_tiles: Node2D = $Terrain/SandTiles
+@onready var shore_tint: Polygon2D = $Terrain/ShoreTint
+@onready var shore_foam_outer: Line2D = $Terrain/ShoreFoamOuter
+@onready var shore_foam_inner: Line2D = $Terrain/ShoreFoamInner
+
+var _ambient_time: float = 0.0
 
 func _ready() -> void:
 	_build_island_tiles()
+
+func _process(delta: float) -> void:
+	_ambient_time += delta
+
+	var slow_wave: float = (sin(_ambient_time * 1.25) + 1.0) * 0.5
+	var fast_wave: float = (sin(_ambient_time * 2.4 + 0.8) + 1.0) * 0.5
+
+	sea_tiles.modulate = Color(
+		0.88 + slow_wave * 0.08,
+		0.96 + slow_wave * 0.03,
+		1.0,
+		1.0
+	)
+	shore_tint.modulate.a = 0.62 + slow_wave * 0.28
+	shore_foam_outer.modulate.a = 0.42 + fast_wave * 0.48
+	shore_foam_inner.modulate.a = 0.22 + slow_wave * 0.38
 
 func _build_island_tiles() -> void:
 	var dmi = DMI_SPRITE_SHEET_SCRIPT.load_file(TURF_DMI_PATH)
