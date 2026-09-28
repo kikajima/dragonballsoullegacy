@@ -4,6 +4,8 @@ extends RefCounted
 const PNG_SIGNATURE_SIZE := 8
 const MAX_METADATA_BYTES := 1024 * 1024
 
+static var _loaded_cache: Dictionary = {}
+
 var source_path: String = ""
 var texture: Texture2D
 var frame_size: Vector2i = Vector2i(32, 32)
@@ -11,8 +13,13 @@ var states: Dictionary = {}
 var _sheet_columns: int = 1
 
 static func load_file(path: String) -> DmiSpriteSheet:
+	var cached: Variant = _loaded_cache.get(path, null)
+	if cached is DmiSpriteSheet:
+		return cached as DmiSpriteSheet
+
 	var sheet := DmiSpriteSheet.new()
 	if sheet._load(path):
+		_loaded_cache[path] = sheet
 		return sheet
 	return null
 
