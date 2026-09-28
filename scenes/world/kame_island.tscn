@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scenes/world/kame_island.gd" id="1_island"]
 [ext_resource type="Texture2D" path="res://assets/vendor/hu2/Icons/Images/NewKameHouse.png" id="2_house"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" path="res://actors/npcs/turtle_npc.tscn" id="9_turtle"]
 [ext_resource type="Script" path="res://world/world_camera_bounds.gd" id="10_bounds"]
 [ext_resource type="Texture2D" path="res://assets/vendor/hu2/Icons/Images/CapsuleShip.png" id="11_ship"]
+[ext_resource type="Script" path="res://world/info_interactable.gd" id="12_info"]
 
 [sub_resource type="RectangleShape2D" id="HouseCollision"]
 size = Vector2(118, 78)
@@ -29,6 +30,9 @@ size = Vector2(116, 22)
 
 [sub_resource type="RectangleShape2D" id="SmallRock"]
 size = Vector2(38, 28)
+
+[sub_resource type="RectangleShape2D" id="GuideShape"]
+size = Vector2(34, 26)
 
 [node name="KameIsland" type="Node2D"]
 script = ExtResource("1_island")
@@ -202,6 +206,13 @@ position = Vector2(382, 358)
 [node name="Turtle" parent="." instance=ExtResource("9_turtle")]
 position = Vector2(282, 348)
 
+[node name="TrainingRing" type="Line2D" parent="."]
+z_index = 0
+width = 2.0
+points = PackedVector2Array(555, 315, 665, 315, 688, 348, 665, 385, 555, 385, 532, 348, 555, 315)
+default_color = Color(0.86, 0.67, 0.28, 0.75)
+joint_mode = 1
+
 [node name="TrainingFighter" parent="." instance=ExtResource("5_enemy")]
 position = Vector2(610, 348)
 
@@ -217,6 +228,28 @@ visible = false
 
 [node name="Marker" parent="KameHouseEntrance"]
 visible = false
+
+[node name="BeachGuide" type="Area2D" parent="."]
+position = Vector2(405, 420)
+collision_layer = 64
+collision_mask = 0
+monitoring = false
+monitorable = true
+script = ExtResource("12_info")
+interaction_label = "Read Training Guide"
+speaker = "Island Training Guide"
+text = "START HERE: Talk to Master Roshi and follow his training.|MOVEMENT: WASD moves, SPACE runs. J punches and I kicks.|KI: K fires basic Ki Blasts. Hold L to recover Ki.|SPECIALS: R changes the selected technique. O uses it; some techniques can be charged."
+
+[node name="Sign" type="Polygon2D" parent="BeachGuide"]
+polygon = PackedVector2Array(-17, -13, 17, -13, 17, 13, -17, 13)
+color = Color(0.5, 0.31, 0.14, 1)
+
+[node name="Paper" type="Polygon2D" parent="BeachGuide"]
+polygon = PackedVector2Array(-12, -9, 12, -9, 12, 8, -12, 8)
+color = Color(0.92, 0.88, 0.68, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BeachGuide"]
+shape = SubResource("GuideShape")
 
 [node name="IslandCheckpoint" parent="." instance=ExtResource("6_checkpoint")]
 position = Vector2(480, 410)
