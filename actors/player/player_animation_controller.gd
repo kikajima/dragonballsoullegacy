@@ -1,12 +1,23 @@
 class_name PlayerAnimationController
 extends Node
 
+const DMI_SPRITE_SHEET_SCRIPT = preload(
+	"res://core/assets/dmi_sprite_sheet.gd"
+)
+const DMI_ANIMATION_FPS := 10.0
+const DMI_STATE_MISSING: StringName = &"__missing__"
+
 const DIRECTION_ROWS := {
 	&"down": 0,
 	&"left": 1,
 	&"right": 2,
 	&"up": 3,
 }
+
+@export_file("*.dmi")
+var dmi_sprite_path: String = "res://assets/sprites/characters/goku/hu2/Goku.dmi"
+
+@export var prefer_dmi_sprite: bool = true
 
 @export_file("*.png")
 var sprite_sheet_path: String = "res://assets/sprites/characters/goku/processed/goku_buus_fury_base.png"
@@ -109,16 +120,22 @@ func restart_visual(state: StringName, facing: StringName) -> void:
 	sprite.play(animation_name)
 	sprite.frame = 0
 
-func freeze_charge_complete() -> void:
-	if not _has_animation(&"charge_ki"):
+func freeze_charge_complete(facing: StringName = &"down") -> void:
+	var animation_name := StringName("charge_ki_%s" % facing)
+	if not _has_animation(animation_name):
+		animation_name = &"charge_ki"
+
+	if not _has_animation(animation_name):
 		return
 
 	visuals.position = Vector2.ZERO
 	placeholder.visible = false
 	sprite.visible = true
-	sprite.animation = &"charge_ki"
+	sprite.animation = animation_name
 
-	var last_frame := sprite.sprite_frames.get_frame_count(&"charge_ki") - 1
+	var last_frame := (
+		sprite.sprite_frames.get_frame_count(animation_name) - 1
+	)
 	sprite.frame = maxi(last_frame, 0)
 	sprite.pause()
 
@@ -126,7 +143,20 @@ func _animation_name_for_state(
 	state: StringName,
 	facing: StringName
 ) -> StringName:
-	if state == &"charge_ki" or state == &"special_transform":
+	if state == &"charge_ki":
+		var charge_name := StringName("charge_ki_%s" % facing)
+		if _has_animation(charge_name):
+			return charge_name
+		return &"charge_ki"
+
+	if state == &"special_transform":
+		var transform_name := StringName("transform_%s" % facing)
+		if _has_animation(transform_name):
+			return transform_name
+
+		var charge_name := StringName("charge_ki_%s" % facing)
+		if _has_animation(charge_name):
+			return charge_name
 		return &"charge_ki"
 
 	match state:
@@ -150,6 +180,9 @@ func _show_sprite_animation(animation_name: StringName, state: StringName) -> vo
 		sprite.play(animation_name)
 
 func _try_build_sprite_frames() -> void:
+	if prefer_dmi_sprite and _try_build_dmi_sprite_frames():
+		return
+
 	var frames := SpriteFrames.new()
 	if frames.has_animation(&"default"):
 		frames.remove_animation(&"default")
@@ -297,6 +330,287 @@ func _try_build_sprite_frames() -> void:
 
 	if built_any_animation:
 		sprite.sprite_frames = frames
+
+func _try_build_dmi_sprite_frames() -> bool:
+	if not FileAccess.file_exists(dmi_sprite_path):
+		return false
+
+	var dmi = DMI_SPRITE_SHEET_SCRIPT.load_file(dmi_sprite_path)
+	if dmi == null:
+		return false
+
+	var frames := SpriteFrames.new()
+	if frames.has_animation(&"default"):
+		frames.remove_animation(&"default")
+
+	var built_any := false
+
+	var movement_state := _find_dmi_state(
+		dmi,
+		[&"", &"movement", &"walk"]
+	)
+	if movement_state != DMI_STATE_MISSING:
+		built_any = _add_dmi_directional_animation(
+			frames,
+			dmi,
+			movement_state,
+			&"idle",
+			true,
+			true
+		) or built_any
+		built_any = _add_dmi_directional_animation(
+			frames,
+			dmi,
+			movement_state,
+			&"walk",
+			true
+		) or built_any
+
+	var run_state := _find_dmi_state(
+		dmi,
+		[&"Sprint", &"sprint", &"fly"]
+	)
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		run_state,
+		&"run",
+		true
+	) or built_any
+
+	var attack_1_state := _find_dmi_state(dmi, [&"punch1"])
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		attack_1_state,
+		&"attack_1",
+		false
+	) or built_any
+
+	var attack_2_state := _find_dmi_state(
+		dmi,
+		[&"punch2", &"punch1"]
+	)
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		attack_2_state,
+		&"attack_2",
+		false
+	) or built_any
+
+	var kick_state := _find_dmi_state(dmi, [&"kick1"])
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		kick_state,
+		&"kick_1",
+		false
+	) or built_any
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		kick_state,
+		&"kick_2",
+		false
+	) or built_any
+
+	var hurt_state := _find_dmi_state(
+		dmi,
+		[&"HitStun", &"hitstun"]
+	)
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		hurt_state,
+		&"hurt",
+		false
+	) or built_any
+
+	var guard_state := _find_dmi_state(
+		dmi,
+		[&"Guard", &"guard"]
+	)
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		guard_state,
+		&"block",
+		true
+	) or built_any
+
+	var ki_charge_state := _find_dmi_state(
+		dmi,
+		[&"KiBlastCharge", &"kiblast"]
+	)
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		ki_charge_state,
+		&"ki_blast_prepare",
+		false
+	) or built_any
+
+	var ki_blast_1_state := _find_dmi_state(
+		dmi,
+		[&"kiblast", &"KiBlast"]
+	)
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		ki_blast_1_state,
+		&"ki_blast_1",
+		false
+	) or built_any
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		ki_blast_1_state,
+		&"special_projectile",
+		false
+	) or built_any
+
+	var ki_blast_2_state := _find_dmi_state(
+		dmi,
+		[&"KiBlast2", &"kiblast"]
+	)
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		ki_blast_2_state,
+		&"ki_blast_2",
+		false
+	) or built_any
+
+	var beam_state := _find_dmi_state(dmi, [&"Beam", &"beam"])
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		beam_state,
+		&"special_beam",
+		true
+	) or built_any
+
+	var power_state := _find_dmi_state(
+		dmi,
+		[&"powerup", &"charge"]
+	)
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		power_state,
+		&"charge_ki",
+		true
+	) or built_any
+
+	var transform_state := _find_dmi_state(dmi, [&"transform"])
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		transform_state,
+		&"transform",
+		false
+	) or built_any
+
+	var knockback_state := _find_dmi_state(
+		dmi,
+		[&"KnockBack", &"knockback"]
+	)
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		knockback_state,
+		&"knockback",
+		false
+	) or built_any
+
+	var ko_state := _find_dmi_state(dmi, [&"koed", &"KO"])
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		ko_state,
+		&"koed",
+		true
+	) or built_any
+
+	var land_state := _find_dmi_state(dmi, [&"Land", &"land"])
+	built_any = _add_dmi_directional_animation(
+		frames,
+		dmi,
+		land_state,
+		&"land",
+		false
+	) or built_any
+
+	if not built_any:
+		return false
+
+	frame_size = dmi.frame_size
+	sprite.sprite_frames = frames
+	return true
+
+func _find_dmi_state(dmi, candidates: Array) -> StringName:
+	for candidate in candidates:
+		var state_name := StringName(candidate)
+		if dmi.has_state(state_name):
+			return state_name
+	return DMI_STATE_MISSING
+
+func _add_dmi_directional_animation(
+	frames: SpriteFrames,
+	dmi,
+	dmi_state: StringName,
+	animation_state: StringName,
+	loop: bool,
+	first_frame_only: bool = false
+) -> bool:
+	if (
+		dmi_state == DMI_STATE_MISSING
+		or not dmi.has_state(dmi_state)
+	):
+		return false
+
+	var source_frame_count: int = dmi.get_frame_count(dmi_state)
+	if source_frame_count <= 0:
+		return false
+
+	var frame_count := (
+		1 if first_frame_only else source_frame_count
+	)
+	var added_any := false
+
+	for facing in DIRECTION_ROWS:
+		var animation_name := StringName(
+			"%s_%s" % [animation_state, facing]
+		)
+
+		frames.add_animation(animation_name)
+		frames.set_animation_loop(animation_name, loop)
+		frames.set_animation_speed(
+			animation_name,
+			DMI_ANIMATION_FPS
+		)
+
+		for frame_index in range(frame_count):
+			var frame_texture: AtlasTexture = dmi.get_frame_texture(
+				dmi_state,
+				StringName(facing),
+				frame_index
+			)
+			if frame_texture == null:
+				continue
+
+			frames.add_frame(
+				animation_name,
+				frame_texture,
+				dmi.get_frame_delay(
+					dmi_state,
+					frame_index
+				)
+			)
+			added_any = true
+
+	return added_any
 
 func _add_movement_animations(frames: SpriteFrames, sheet: Texture2D) -> void:
 	for facing in DIRECTION_ROWS:
