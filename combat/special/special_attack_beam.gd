@@ -7,74 +7,180 @@ const EFFECT_SHEET_PATH := (
 
 @onready var beam_line: Line2D = $BeamLine
 @onready var hit_area: Area2D = $HitArea
-@onready var collision_shape: CollisionShape2D = $HitArea/CollisionShape2D
+@onready var collision_shape: CollisionShape2D = (
+	$HitArea/CollisionShape2D
+)
 
 var _source_actor: Node
-var _damage: int = 20
+var _damage: int = 8
 var _stun_duration: float = 0.0
-var _time_left: float = 0.0
-var _hit_targets: Dictionary = {}
-
-func _ready() -> void:
-	hit_area.area_entered.connect(_on_area_entered)
+var _max_range: float = 190.0
+var _beam_width: float = 7.0
+var _tick_interval: float = 0.16
+var _tick_left: float = 0.0
+var _pierces_targets: bool = false
+var _direction: Vector2 = Vector2.RIGHT
+var _spawn_distance: float = 20.0
+var _stopping: bool = false
 
 func setup(
 	data: SpecialAttackData,
 	direction: Vector2,
-	source_actor: Node
+	source_actor: Node,
+	spawn_distance: float
 ) -> void:
 	_source_actor = source_actor
-	_damage = data.damage
+	_damage = maxi(data.damage, 0)
 	_stun_duration = data.stun_duration
-	_time_left = data.beam_duration
-
-	var safe_direction: Vector2 = (
+	_max_range = maxf(data.beam_range, 1.0)
+	_beam_width = maxf(data.beam_width, 2.0)
+	_tick_interval = maxf(
+		data.beam_tick_interval,
+		0.05
+	)
+	_pierces_targets = data.beam_pierces_targets
+	_direction = (
 		Vector2.RIGHT
 		if direction.is_zero_approx()
 		else direction.normalized()
 	)
-	rotation = safe_direction.angle()
+	_spawn_distance = spawn_distance
 
-	var length: float = _resolve_beam_length(
-		data.beam_range
-	)
-	var width: float = maxf(data.beam_width, 2.0)
-
-	beam_line.width = width
-	beam_line.points = PackedVector2Array([
-		Vector2.ZERO,
-		Vector2(length, 0.0),
-	])
-	_apply_beam_texture(data.effect_key)
-
-	var source_rect := collision_shape.shape as RectangleShape2D
-	if source_rect != null:
-		var rect := source_rect.duplicate() as RectangleShape2D
-		if rect != null:
-			rect.size = Vector2(length, width)
-			collision_shape.shape = rect
-
-	collision_shape.position = Vector2(length * 0.5, 0.0)
-
-	if _source_actor != null and _source_actor.is_in_group("enemy"):
+	if (
+		_source_actor != null
+		and _source_actor.is_in_group("enemy")
+	):
 		hit_area.collision_mask = 2
 	else:
 		hit_area.collision_mask = 4
 
+	_apply_beam_texture(data.effect_key)
+
+	if _source_actor is Node2D:
+		follow_caster(
+			_source_actor as Node2D,
+			_direction,
+			_spawn_distance
+		)
+	else:
+		_refresh_geometry()
+
 func _physics_process(delta: float) -> void:
-	_time_left -= delta
-	if _time_left <= 0.0:
-		queue_free()
-
-func _on_area_entered(area: Area2D) -> void:
-	if area == null or not area.has_method("receive_hit"):
+	if _stopping:
 		return
 
-	var id: int = area.get_instance_id()
-	if _hit_targets.has(id):
+	_tick_left -= delta
+	if _tick_left > 0.0:
 		return
-	_hit_targets[id] = true
 
+	_tick_left += _tick_interval
+	_apply_damage_tick()
+
+func follow_caster(
+	caster: Node2D,
+	direction: Vector2,
+	spawn_distance: float
+) -> void:
+	if caster == null:
+		return
+
+	_direction = (
+		Vector2.RIGHT
+		if direction.is_zero_approx()
+		else direction.normalized()
+	)
+	_spawn_distance = spawn_distance
+	global_position = (
+		caster.global_position
+		+ _direction * _spawn_distance
+	)
+	rotation = _direction.angle()
+	_refresh_geometry()
+
+func stop_beam() -> void:
+	if _stopping:
+		return
+
+	_stopping = true
+	hit_area.set_deferred("monitoring", false)
+	hit_area.set_deferred("collision_mask", 0)
+
+	var tween := create_tween()
+	tween.tween_property(
+		self,
+		"modulate:a",
+		0.0,
+		0.08
+	)
+	tween.tween_callback(queue_free)
+
+func _refresh_geometry() -> void:
+	var length: float = _resolve_beam_length(
+		_max_range
+	)
+
+	beam_line.width = _beam_width
+	beam_line.points = PackedVector2Array([
+		Vector2.ZERO,
+		Vector2(length, 0.0),
+	])
+
+	var source_rect := (
+		collision_shape.shape as RectangleShape2D
+	)
+	if source_rect != null:
+		var rect := (
+			source_rect.duplicate() as RectangleShape2D
+		)
+		if rect != null:
+			rect.size = Vector2(
+				length,
+				_beam_width
+			)
+			collision_shape.shape = rect
+
+	collision_shape.position = Vector2(
+		length * 0.5,
+		0.0
+	)
+
+func _apply_damage_tick() -> void:
+	var candidates: Array[Area2D] = []
+
+	for area in hit_area.get_overlapping_areas():
+		if (
+			area == null
+			or not area.has_method("receive_hit")
+		):
+			continue
+		candidates.append(area)
+
+	if candidates.is_empty():
+		return
+
+	if _pierces_targets:
+		for area in candidates:
+			_damage_area(area)
+		return
+
+	var nearest: Area2D = null
+	var nearest_x: float = INF
+
+	for area in candidates:
+		var local_position: Vector2 = to_local(
+			area.global_position
+		)
+		if local_position.x < 0.0:
+			continue
+
+		if local_position.x < nearest_x:
+			nearest_x = local_position.x
+			nearest = area
+
+	if nearest != null:
+		_damage_area(nearest)
+
+func _damage_area(area: Area2D) -> void:
 	var applied: int = int(
 		area.call(
 			"receive_hit",
@@ -82,7 +188,6 @@ func _on_area_entered(area: Area2D) -> void:
 			global_position
 		)
 	)
-
 	if applied <= 0:
 		return
 
@@ -118,16 +223,22 @@ func _apply_stun(receiver: Area2D) -> void:
 		)
 
 func _resolve_beam_length(max_range: float) -> float:
+	var end_position: Vector2 = (
+		global_position
+		+ _direction * max_range
+	)
 	var query := PhysicsRayQueryParameters2D.create(
 		global_position,
-		global_position + Vector2.RIGHT.rotated(rotation) * max_range
+		end_position
 	)
 	query.collision_mask = 1
 	query.collide_with_bodies = true
 	query.collide_with_areas = false
 
 	var result: Dictionary = (
-		get_world_2d().direct_space_state.intersect_ray(query)
+		get_world_2d()
+		.direct_space_state
+		.intersect_ray(query)
 	)
 
 	if result.is_empty():
@@ -140,7 +251,9 @@ func _resolve_beam_length(max_range: float) -> float:
 
 	return global_position.distance_to(hit_position)
 
-func _apply_beam_texture(effect_key: StringName) -> void:
+func _apply_beam_texture(
+	effect_key: StringName
+) -> void:
 	if not ResourceLoader.exists(EFFECT_SHEET_PATH):
 		return
 
@@ -157,4 +270,6 @@ func _apply_beam_texture(effect_key: StringName) -> void:
 	atlas.region = rect
 
 	beam_line.texture = atlas
-	beam_line.texture_mode = Line2D.LINE_TEXTURE_TILE
+	beam_line.texture_mode = (
+		Line2D.LINE_TEXTURE_TILE
+	)
