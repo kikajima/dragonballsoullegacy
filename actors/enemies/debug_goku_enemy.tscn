@@ -15,7 +15,7 @@
 [ext_resource type="Resource" path="res://data/enemies/ai/uncommon.tres" id="13_ai_profile"]
 
 [sub_resource type="RectangleShape2D" id="BodyShape"]
-size = Vector2(10, 8)
+size = Vector2(18, 28)
 
 [sub_resource type="SpriteFrames" id="EnemyFrames"]
 
@@ -44,7 +44,7 @@ polygon = PackedVector2Array(-7, -9, 7, -9, 7, 9, -7, 9)
 color = Color(0.75, 0.45, 0.2, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 8)
+position = Vector2(0, -6)
 shape = SubResource("BodyShape")
 
 [node name="Combat" type="Node2D" parent="."]
