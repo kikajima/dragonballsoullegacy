@@ -45,14 +45,12 @@ bounds = Rect2(0, 0, 960, 544)
 
 [node name="SeaTiles" type="Node2D" parent="Terrain"]
 
-[node name="BeachTiles" type="Node2D" parent="Terrain"]
-
 [node name="GrassTiles" type="Node2D" parent="Terrain"]
 
 [node name="ShoreTint" type="Polygon2D" parent="Terrain"]
 z_index = -9
 polygon = PackedVector2Array(185, 250, 205, 165, 275, 115, 380, 92, 500, 90, 610, 108, 700, 150, 748, 215, 760, 302, 735, 380, 655, 428, 540, 452, 410, 452, 300, 428, 220, 382, 185, 320)
-color = Color(1, 0.86, 0.55, 0.18)
+color = Color(0.78, 0.95, 1, 0.12)
 
 [node name="ShoreFoamOuter" type="Line2D" parent="Terrain"]
 z_index = -8
