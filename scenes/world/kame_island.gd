@@ -13,7 +13,6 @@ const WORLD_COLUMNS: int = 30
 const WORLD_ROWS: int = 17
 
 @onready var sea_tiles: Node2D = $Terrain/SeaTiles
-@onready var beach_tiles: Node2D = $Terrain/BeachTiles
 @onready var grass_tiles: Node2D = $Terrain/GrassTiles
 @onready var shore_tint: Polygon2D = $Terrain/ShoreTint
 @onready var shore_foam_outer: Line2D = $Terrain/ShoreFoamOuter
@@ -72,16 +71,6 @@ func _build_island_tiles() -> void:
 		push_warning("Kame Island: Water tile missing from NewTurfs.dmi.")
 		return
 
-	var sand_textures: Array[Texture2D] = []
-	for state_name in [&"Dirt1", &"Dirt2", &"Dirt3", &"Dirt4"]:
-		var texture: Texture2D = dmi.get_frame_texture(
-			state_name,
-			&"down",
-			0
-		)
-		if texture != null:
-			sand_textures.append(texture)
-
 	var grass_textures: Array[Texture2D] = []
 	for state_name in [
 		&"DarkGrass1",
@@ -97,15 +86,9 @@ func _build_island_tiles() -> void:
 		if texture != null:
 			grass_textures.append(texture)
 
-	if sand_textures.is_empty():
-		push_warning("Kame Island: Dirt tiles missing from NewTurfs.dmi.")
-		return
-
 	if grass_textures.is_empty():
-		push_warning(
-			"Kame Island: DarkGrass tiles missing; using tinted Dirt fallback."
-		)
-		grass_textures = sand_textures.duplicate()
+		push_warning("Kame Island: DarkGrass tiles missing from NewTurfs.dmi.")
+		return
 
 	for row in range(WORLD_ROWS):
 		for column in range(WORLD_COLUMNS):
@@ -114,6 +97,7 @@ func _build_island_tiles() -> void:
 				float(row * TILE_SIZE + TILE_SIZE / 2)
 			)
 
+			# Sea is the base layer everywhere in the world.
 			_add_tile(
 				sea_tiles,
 				water_texture,
@@ -122,21 +106,10 @@ func _build_island_tiles() -> void:
 				Color(0.84, 0.97, 1.0, 1.0)
 			)
 
+			# Only the island mask receives land. The entire land surface is
+			# grass for now; sand can be introduced later when a proper
+			# beach turf is available.
 			if not _is_island_tile(column, row):
-				continue
-
-			var texture_index: int = (
-				column * 7 + row * 13
-			) % sand_textures.size()
-
-			if _is_beach_tile(column, row):
-				_add_tile(
-					beach_tiles,
-					sand_textures[texture_index],
-					world_position,
-					-10,
-					Color(1.0, 0.91, 0.72, 1.0)
-				)
 				continue
 
 			var grass_index: int = (
@@ -231,47 +204,6 @@ func _is_island_tile(column: int, row: int) -> bool:
 
 	return true
 
-func _is_beach_tile(column: int, row: int) -> bool:
-	if not _is_island_tile(column, row):
-		return false
-
-	# Any land tile touching sea becomes beach. Add a second irregular ring
-	# in selected places so the beach width varies naturally.
-	if _touches_open_water(column, row):
-		return true
-
-	var center := Vector2(14.5, 8.25)
-	var point := Vector2(float(column), float(row))
-	var normalized := Vector2(
-		(point.x - center.x) / 8.9,
-		(point.y - center.y) / 5.65
-	)
-
-	var radial: float = normalized.length_squared()
-	var variation: int = (column * 5 + row * 7) % 9
-	return radial >= 0.57 and variation <= 4
-
-func _touches_open_water(column: int, row: int) -> bool:
-	for offset_y in range(-1, 2):
-		for offset_x in range(-1, 2):
-			if offset_x == 0 and offset_y == 0:
-				continue
-
-			var neighbor_x: int = column + offset_x
-			var neighbor_y: int = row + offset_y
-
-			if (
-				neighbor_x < 0
-				or neighbor_y < 0
-				or neighbor_x >= WORLD_COLUMNS
-				or neighbor_y >= WORLD_ROWS
-			):
-				return true
-
-			if not _is_island_tile(neighbor_x, neighbor_y):
-				return true
-
-	return false
 
 func _add_tile(
 	parent: Node2D,
