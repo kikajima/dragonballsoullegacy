@@ -6,8 +6,27 @@ const MODE_KAME: StringName = &"kame"
 const MODE_WASTES: StringName = &"wastes"
 const MODE_CITY: StringName = &"city"
 
+const DEPTH_BASE: int = 1000
+const GBA_CAMERA_ZOOM := Vector2(1.42, 1.42)
+const CAMERA_CENTER_BIAS := Vector2(0.0, -5.0)
+const CAMERA_LOOK_AHEAD: float = 12.0
+
+const DMI_SPRITE_SHEET_SCRIPT = preload(
+	"res://core/assets/dmi_sprite_sheet.gd"
+)
+const FLOWERS_DMI_PATH := (
+	"res://assets/vendor/hu2/Icons/Turfs/Flowers.dmi"
+)
+const PALM_TEXTURE = preload(
+	"res://assets/vendor/hu2/Icons/Images/PalmTree.png"
+)
+
 var _world_manager: WorldManager
+var _world: Node2D
+var _player: Node2D
+var _camera: Camera2D
 var _fx_root: Node2D
+var _detail_root: Node2D
 var _mode: StringName = MODE_NONE
 var _items: Array[Node2D] = []
 var _base_positions: Array[Vector2] = []
@@ -15,9 +34,13 @@ var _time: float = 0.0
 
 func _ready() -> void:
 	call_deferred("_bind_world")
+	call_deferred("_refresh_player_camera")
 
 func _process(delta: float) -> void:
 	_time += delta
+	_refresh_player_camera()
+	_update_gba_camera(delta)
+	_update_depth_sorting()
 
 	match _mode:
 		MODE_KAME:
@@ -34,7 +57,8 @@ func _bind_world() -> void:
 	if _world_manager == null:
 		return
 
-	_world_manager.world_changed.connect(_on_world_changed)
+	if not _world_manager.world_changed.is_connected(_on_world_changed):
+		_world_manager.world_changed.connect(_on_world_changed)
 
 	var container: Node = get_tree().get_first_node_in_group(
 		"world_container"
@@ -53,15 +77,23 @@ func _setup_for_world(world: Node) -> void:
 	if world == null or not world is Node2D:
 		return
 
+	_world = world as Node2D
+
 	_fx_root = Node2D.new()
 	_fx_root.name = "AmbientFX"
 	_fx_root.z_index = -5
-	(world as Node2D).add_child(_fx_root)
+	_world.add_child(_fx_root)
+
+	_detail_root = Node2D.new()
+	_detail_root.name = "GbaVisualDetails"
+	_world.add_child(_detail_root)
 
 	var world_name: String = String(world.name).to_lower()
 	if world_name.contains("kame"):
 		_mode = MODE_KAME
 		_build_kame_glints()
+		_build_kame_foliage()
+		_build_kame_flower_density()
 	elif world_name.contains("rocky") or world_name.contains("wastes"):
 		_mode = MODE_WASTES
 		_build_waste_dust()
@@ -75,10 +107,169 @@ func _clear_fx() -> void:
 	_items.clear()
 	_base_positions.clear()
 	_mode = MODE_NONE
+	_world = null
 
 	if _fx_root != null and is_instance_valid(_fx_root):
 		_fx_root.queue_free()
 	_fx_root = null
+
+	if _detail_root != null and is_instance_valid(_detail_root):
+		_detail_root.queue_free()
+	_detail_root = null
+
+func _refresh_player_camera() -> void:
+	if _player == null or not is_instance_valid(_player):
+		_player = get_tree().get_first_node_in_group("player") as Node2D
+		_camera = null
+
+	if _player == null:
+		return
+
+	if _camera == null or not is_instance_valid(_camera):
+		_camera = _player.get_node_or_null("Camera2D") as Camera2D
+		if _camera != null:
+			_camera.zoom = GBA_CAMERA_ZOOM
+			_camera.position_smoothing_enabled = true
+			_camera.position_smoothing_speed = 9.0
+			_camera.limit_smoothed = false
+
+func _update_gba_camera(delta: float) -> void:
+	if _player == null or _camera == null:
+		return
+
+	var velocity := Vector2.ZERO
+	if _player is CharacterBody2D:
+		velocity = (_player as CharacterBody2D).velocity
+
+	var look_direction := Vector2.ZERO
+	if velocity.length_squared() > 16.0:
+		look_direction = velocity.normalized()
+
+	var target_offset: Vector2 = CAMERA_CENTER_BIAS + Vector2(
+		look_direction.x * CAMERA_LOOK_AHEAD,
+		look_direction.y * CAMERA_LOOK_AHEAD * 0.55
+	)
+	var weight: float = clampf(delta * 7.5, 0.0, 1.0)
+	_camera.position = _camera.position.lerp(target_offset, weight).round()
+
+func _update_depth_sorting() -> void:
+	if _player != null and is_instance_valid(_player):
+		_player.z_index = DEPTH_BASE + roundi(_player.global_position.y)
+
+	var enemies: Array[Node] = get_tree().get_nodes_in_group("enemy")
+	for enemy in enemies:
+		var enemy_2d: Node2D = enemy as Node2D
+		if enemy_2d != null:
+			enemy_2d.z_index = DEPTH_BASE + roundi(enemy_2d.global_position.y)
+
+	var npcs: Array[Node] = get_tree().get_nodes_in_group("npc")
+	for npc in npcs:
+		var npc_2d: Node2D = npc as Node2D
+		if npc_2d != null:
+			npc_2d.z_index = DEPTH_BASE + roundi(npc_2d.global_position.y)
+
+	if _mode == MODE_KAME and _world != null:
+		_apply_prop_depth(&"KameHouse", 105.0)
+		_apply_prop_depth(&"PalmTreeLeft", 42.0)
+		_apply_prop_depth(&"PalmTreeRight", 42.0)
+		_apply_prop_depth(&"PalmTreeSouth", 42.0)
+		_apply_prop_depth(&"PalmTreeNorthWest", 42.0)
+		_apply_prop_depth(&"PalmTreeNorthEast", 42.0)
+		_apply_prop_depth(&"BeachUmbrella", 30.0)
+		_apply_prop_depth(&"BeachChair", 14.0)
+		_apply_prop_depth(&"BeachRock", 12.0)
+		_apply_prop_depth(&"TravelCapsule", 24.0)
+
+func _apply_prop_depth(node_name: StringName, foot_offset: float) -> void:
+	if _world == null:
+		return
+
+	var node: Node2D = _world.get_node_or_null(
+		NodePath(String(node_name))
+	) as Node2D
+	if node == null:
+		return
+
+	node.z_index = DEPTH_BASE + roundi(
+		node.global_position.y + foot_offset
+	)
+
+func _build_kame_foliage() -> void:
+	if _detail_root == null:
+		return
+
+	var positions: Array[Vector2] = [
+		Vector2(205, 224),
+		Vector2(266, 152),
+		Vector2(348, 124),
+		Vector2(610, 132),
+		Vector2(690, 170),
+		Vector2(748, 270),
+		Vector2(720, 392),
+		Vector2(604, 456),
+		Vector2(328, 452),
+		Vector2(230, 356),
+	]
+	var scales: Array[float] = [
+		0.60, 0.72, 0.54, 0.62, 0.76,
+		0.58, 0.68, 0.52, 0.57, 0.63,
+	]
+
+	for index in range(positions.size()):
+		var palm := Sprite2D.new()
+		palm.name = "GbaPalm%02d" % index
+		palm.texture = PALM_TEXTURE
+		palm.position = positions[index]
+		var scale_value: float = scales[index]
+		palm.scale = Vector2(scale_value, scale_value)
+		palm.flip_h = index % 2 == 1
+		palm.z_index = DEPTH_BASE + roundi(palm.position.y + 38.0)
+		_detail_root.add_child(palm)
+
+func _build_kame_flower_density() -> void:
+	if _detail_root == null:
+		return
+
+	var dmi = DMI_SPRITE_SHEET_SCRIPT.load_file(FLOWERS_DMI_PATH)
+	if dmi == null:
+		return
+
+	var state_keys: Array = dmi.states.keys()
+	if state_keys.is_empty():
+		return
+
+	var flower_state := StringName(String(state_keys[0]))
+	var frame_count: int = dmi.get_frame_count(flower_state)
+	if frame_count <= 0:
+		return
+
+	var positions: Array[Vector2] = [
+		Vector2(292, 190), Vector2(318, 208), Vector2(370, 168),
+		Vector2(418, 154), Vector2(546, 154), Vector2(586, 182),
+		Vector2(632, 208), Vector2(674, 244), Vector2(706, 316),
+		Vector2(674, 354), Vector2(646, 406), Vector2(582, 424),
+		Vector2(540, 396), Vector2(472, 422), Vector2(396, 420),
+		Vector2(350, 394), Vector2(304, 362), Vector2(274, 318),
+		Vector2(328, 302), Vector2(390, 326), Vector2(530, 304),
+		Vector2(572, 342), Vector2(612, 314), Vector2(450, 366),
+	]
+
+	for index in range(positions.size()):
+		var texture: Texture2D = dmi.get_frame_texture(
+			flower_state,
+			&"down",
+			index % frame_count
+		)
+		if texture == null:
+			continue
+
+		var flower := Sprite2D.new()
+		flower.texture = texture
+		flower.position = positions[index]
+		var scale_value: float = 0.48 + float(index % 4) * 0.07
+		flower.scale = Vector2(scale_value, scale_value)
+		flower.z_index = -1
+		_detail_root.add_child(flower)
 
 func _build_kame_glints() -> void:
 	var positions: Array[Vector2] = [
@@ -91,7 +282,7 @@ func _build_kame_glints() -> void:
 	]
 
 	for index in range(positions.size()):
-		var glint: Polygon2D = Polygon2D.new()
+		var glint := Polygon2D.new()
 		var size: float = 1.5 + float(index % 3) * 0.5
 		glint.polygon = PackedVector2Array([
 			Vector2(0, -size),
@@ -107,7 +298,7 @@ func _build_kame_glints() -> void:
 
 func _build_waste_dust() -> void:
 	for index in range(22):
-		var mote: Polygon2D = Polygon2D.new()
+		var mote := Polygon2D.new()
 		var size: float = 0.8 + float(index % 4) * 0.35
 		mote.polygon = PackedVector2Array([
 			Vector2(-size, -size * 0.4),
@@ -131,7 +322,7 @@ func _build_city_lights() -> void:
 		Vector2(900, 330), Vector2(940, 330), Vector2(980, 330),
 	]
 	for index in range(positions.size()):
-		var light: Polygon2D = Polygon2D.new()
+		var light := Polygon2D.new()
 		light.polygon = PackedVector2Array([
 			Vector2(-2, -1), Vector2(2, -1),
 			Vector2(2, 1), Vector2(-2, 1),
