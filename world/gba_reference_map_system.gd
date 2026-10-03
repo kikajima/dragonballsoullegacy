@@ -51,11 +51,11 @@ func _apply_to_world(world: Node) -> void:
 	if source == null:
 		return
 
-	var atlas := AtlasTexture.new()
+	var atlas: AtlasTexture = AtlasTexture.new()
 	atlas.atlas = source
 	atlas.region = LOG2_ROSHI_REGION
 
-	var map_sprite := Sprite2D.new()
+	var map_sprite: Sprite2D = Sprite2D.new()
 	map_sprite.name = "OriginalGbaKameIsland"
 	map_sprite.texture = atlas
 	map_sprite.position = LOG2_ROSHI_CENTER
@@ -67,6 +67,9 @@ func _apply_to_world(world: Node) -> void:
 	world_2d.add_child(map_sprite)
 	world_2d.move_child(map_sprite, 0)
 
+	# The reference map already contains the full coastline, house, palms,
+	# umbrella/chair and incidental ground detail. Hide our fallback artwork so
+	# it never stacks on top and creates duplicate trees, stones or props.
 	_hide_node(world, ^"Terrain")
 	_hide_node(world, ^"KameHouse/Sprite2D")
 	_hide_node(world, ^"PalmTreeLeft")
@@ -76,8 +79,11 @@ func _apply_to_world(world: Node) -> void:
 	_hide_node(world, ^"PalmTreeNorthEast")
 	_hide_node(world, ^"BeachUmbrella")
 	_hide_node(world, ^"BeachChair")
-	_hide_node(world, ^"BeachRock/Visual")
+	_hide_node(world, ^"BeachRock")
 	_hide_node(world, ^"FlowerPatches")
+	_hide_node(world, ^"TrainingRing")
+	_hide_node(world, ^"BeachGuide/Sign")
+	_hide_node(world, ^"BeachGuide/Paper")
 
 	var entrance: Node2D = world.get_node_or_null(
 		^"KameHouseEntrance"
@@ -85,8 +91,9 @@ func _apply_to_world(world: Node) -> void:
 	if entrance != null:
 		entrance.position = Vector2(512, 318)
 
-	# WorldAmbientFX creates its detail node on a deferred setup as well.
-	# Hide only its extra vegetation; water glints remain active.
+	# Extra foliage may be created by older/fallback ambience in the same
+	# frame. Defer one cleanup pass; current WorldAmbientFX also skips creating
+	# it entirely when this reference map is present.
 	call_deferred("_hide_runtime_foliage", world)
 
 func _hide_runtime_foliage(world: Node) -> void:
