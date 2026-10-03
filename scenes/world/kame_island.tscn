@@ -241,11 +241,11 @@ joint_mode = 1
 
 [node name="TrainingFighter" parent="." instance=ExtResource("5_enemy")]
 position = Vector2(610, 368)
-dmi_sprite_path = "res://assets/vendor/hu2/Icons/Characters/Krillin.dmi"
-display_name = "Krillin (Sparring)"
-enemy_rank = "Training"
+dmi_sprite_path = "res://assets/vendor/hu2/Icons/Characters/Goku.dmi"
+display_name = "Goku (Sparring)"
+enemy_rank = "Uncommon"
 difficulty_scale = 0.82
-reward_scale = 0.7
+reward_scale = 0.94
 min_zeni_drop = 0
 max_zeni_drop = 0
 senzu_drop_chance = 0.0

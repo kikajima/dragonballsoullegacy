@@ -136,8 +136,7 @@ func _refresh_player_camera() -> void:
 		_camera = _player.get_node_or_null("Camera2D") as Camera2D
 		if _camera != null:
 			_camera.zoom = GBA_CAMERA_ZOOM
-			_camera.position_smoothing_enabled = true
-			_camera.position_smoothing_speed = 8.0
+			_camera.position_smoothing_enabled = false
 			_camera.limit_smoothed = false
 
 func _update_gba_camera(delta: float) -> void:
