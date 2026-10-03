@@ -1,19 +1,19 @@
 class_name SpecialAttackBeamContactFix
 extends SpecialAttackBeam
 
-# Kamehameha is non-piercing. The base beam already finds the nearest
-# receiver, but HU2's 32 px visual grid can round the final tile past a
-# character that is not aligned to that grid. This subclass keeps physics
-# and visuals separate:
+# Kamehameha is non-piercing. The base beam finds the nearest receiver, but
+# HU2's visual pieces are full 32 px tiles. Centering KameHit directly on the
+# front face of a hurtbox makes half of that tile appear behind the victim.
+# Keep physics and art separate:
 #
-# - the collision rectangle enters the hurtbox by only a few pixels so the
-#   damage tick remains reliable;
-# - KameHit is rendered at the actual front face of the hurtbox;
-# - no KameMid segment is ever placed beyond that impact point.
+# - physics overlaps the hurtbox by only a few pixels so damage is reliable;
+# - the *front edge* of KameHit is aligned to the front face of the hurtbox;
+# - no KameMid is allowed to continue beyond the KameHit tile.
 
 const CONTACT_TILE_SIZE: float = 32.0
 const CONTACT_FIRST_CENTER: float = 16.0
-const CONTACT_MIN_SEGMENT_GAP: float = 8.0
+const CONTACT_HIT_HALF_LENGTH: float = 16.0
+const CONTACT_MIN_SEGMENT_GAP: float = 4.0
 const CONTACT_DMI_PATH := "res://assets/sprites/effects/hu2/Effects.dmi"
 const CONTACT_START_STATE: StringName = &"KameStart"
 const CONTACT_MID_STATE: StringName = &"KameMid"
@@ -47,7 +47,7 @@ func _resolve_nearest_target_length(max_length: float) -> float:
 	)
 
 	var nearest_collision: float = max_length
-	var nearest_visual: float = 0.0
+	var nearest_hit_center: float = 0.0
 
 	for hit in hits:
 		var collider: Area2D = hit.get("collider") as Area2D
@@ -62,12 +62,12 @@ func _resolve_nearest_target_length(max_length: float) -> float:
 		if front_distance <= 0.0 or front_distance > max_length:
 			continue
 
-		# Physics must overlap the hurtbox slightly or Area2D may report no
-		# overlap on the exact boundary. Keep that overlap small and invisible.
+		# Area2D needs a tiny overlap to keep reporting the victim on each
+		# damage pulse. This part is physics-only and is never rendered.
 		var overlap_depth: float = clampf(
-			_beam_width * 0.35,
-			2.0,
-			4.0
+			_beam_width * 0.25,
+			1.5,
+			3.0
 		)
 		var collision_length: float = clampf(
 			front_distance + overlap_depth,
@@ -77,10 +77,17 @@ func _resolve_nearest_target_length(max_length: float) -> float:
 
 		if collision_length < nearest_collision:
 			nearest_collision = collision_length
-			nearest_visual = front_distance
 
-	if nearest_visual > 0.0:
-		_impact_visual_length = nearest_visual
+			# KameHit is 32 px wide. Put its center half a tile before the
+			# hurtbox front so its leading edge, not its center, touches the
+			# enemy. This is what prevents the beam appearing behind them.
+			nearest_hit_center = maxf(
+				front_distance - CONTACT_HIT_HALF_LENGTH,
+				CONTACT_FIRST_CENTER
+			)
+
+	if nearest_hit_center > 0.0:
+		_impact_visual_length = nearest_hit_center
 
 	return nearest_collision
 
@@ -111,7 +118,6 @@ func _receiver_front_distance(receiver: Area2D) -> float:
 		)
 
 	if not found_shape:
-		# Conservative fallback for custom hurtboxes.
 		nearest_front = fallback - maxf(_beam_width * 0.5, 4.0)
 
 	return maxf(nearest_front, 1.0)
@@ -154,25 +160,36 @@ func _shape_forward_extent(shape_node: CollisionShape2D) -> float:
 	return maxf(_beam_width * 0.5, 4.0)
 
 func _refresh_kamehameha_visual(length: float) -> void:
-	# For free-flight and wall impacts, preserve the original HU2 grid logic.
+	# Free flight and wall collisions still use the base HU2 tile logic.
 	if not _beam_impacting or _impact_visual_length <= 0.0:
 		super._refresh_kamehameha_visual(length)
 		return
 
-	var impact_position: float = maxf(
+	var hit_center: float = maxf(
 		_impact_visual_length,
-		1.0
+		CONTACT_FIRST_CENTER
 	)
 	var segment_positions: Array[float] = []
-	var cursor: float = CONTACT_FIRST_CENTER
 
-	# Add complete Start/Mid tiles only while their centers remain in front of
-	# the impact. The final KameHit is then placed at the exact hurtbox face.
-	while cursor + CONTACT_MIN_SEGMENT_GAP < impact_position:
+	# Build complete tiles from the caster forward, but reserve the final
+	# 32 px interval exclusively for KameHit. A final Mid may be nudged so
+	# it joins the hit cleanly, but no Mid can overlap the victim side.
+	var cursor: float = CONTACT_FIRST_CENTER
+	var pre_hit_center: float = hit_center - CONTACT_TILE_SIZE
+
+	while cursor <= pre_hit_center:
 		segment_positions.append(cursor)
 		cursor += CONTACT_TILE_SIZE
 
-	segment_positions.append(impact_position)
+	if (
+		pre_hit_center > CONTACT_FIRST_CENTER
+		and not segment_positions.is_empty()
+	):
+		var last_mid: float = segment_positions[segment_positions.size() - 1]
+		if pre_hit_center - last_mid >= CONTACT_MIN_SEGMENT_GAP:
+			segment_positions.append(pre_hit_center)
+
+	segment_positions.append(hit_center)
 	_ensure_kame_segment_count(segment_positions.size())
 
 	for index in range(segment_positions.size()):
