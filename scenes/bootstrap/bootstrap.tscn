@@ -1,119 +1,136 @@
-[gd_scene load_steps=30 format=3]
+[gd_scene format=3 uid="uid://ll2e7866xfh0"]
 
 [ext_resource type="PackedScene" path="res://scenes/world/kame_island.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://ui/hud/combat_hud.tscn" id="3_hud"]
-[ext_resource type="Script" path="res://quests/quest_manager.gd" id="4_quests"]
-[ext_resource type="Script" path="res://core/save/save_manager.gd" id="5_save"]
-[ext_resource type="Script" path="res://world/checkpoint_manager.gd" id="6_checkpoint"]
-[ext_resource type="Script" path="res://world/world_manager.gd" id="7_world"]
+[ext_resource type="Script" uid="uid://bv5t1o2o1o5n0" path="res://quests/quest_manager.gd" id="4_quests"]
+[ext_resource type="Script" uid="uid://bmrfipkcudnjb" path="res://core/save/save_manager.gd" id="5_save"]
+[ext_resource type="Script" uid="uid://b6k8e68wifmsc" path="res://world/checkpoint_manager.gd" id="6_checkpoint"]
+[ext_resource type="Script" uid="uid://c0v3twgnaj5vx" path="res://world/world_manager.gd" id="7_world"]
 [ext_resource type="PackedScene" path="res://ui/dialogue/dialogue_box.tscn" id="8_dialogue"]
 [ext_resource type="PackedScene" path="res://ui/pause/pause_menu.tscn" id="9_pause"]
 [ext_resource type="PackedScene" path="res://ui/quest/quest_tracker.tscn" id="10_quest_tracker"]
 [ext_resource type="PackedScene" path="res://ui/notifications/notification_feed.tscn" id="11_notifications"]
-[ext_resource type="Script" path="res://core/game_session.gd" id="12_session"]
-[ext_resource type="Script" path="res://core/debug/system_diagnostics.gd" id="13_diagnostics"]
-[ext_resource type="Script" path="res://core/combat/combat_feedback_manager.gd" id="14_feedback"]
+[ext_resource type="Script" uid="uid://cw8snjwbe5uu0" path="res://core/game_session.gd" id="12_session"]
+[ext_resource type="Script" uid="uid://dc8ji6a4eqc2y" path="res://core/debug/system_diagnostics.gd" id="13_diagnostics"]
+[ext_resource type="Script" uid="uid://cyl05kve4jce8" path="res://core/combat/combat_feedback_manager.gd" id="14_feedback"]
 [ext_resource type="PackedScene" path="res://ui/combat/combo_counter.tscn" id="15_combo"]
 [ext_resource type="PackedScene" path="res://ui/combat/enemy_target_bar.tscn" id="16_target"]
 [ext_resource type="PackedScene" path="res://ui/interaction/interaction_prompt.tscn" id="17_interaction_prompt"]
 [ext_resource type="PackedScene" path="res://ui/location/location_banner.tscn" id="18_location_banner"]
-[ext_resource type="Script" path="res://core/stats/game_stats_manager.gd" id="19_stats"]
+[ext_resource type="Script" uid="uid://b0nnl76hwqi76" path="res://core/stats/game_stats_manager.gd" id="19_stats"]
 [ext_resource type="PackedScene" path="res://ui/transitions/screen_transition.tscn" id="20_transition"]
-[ext_resource type="Script" path="res://core/input/gamepad_profile.gd" id="21_gamepad"]
-[ext_resource type="Script" path="res://systems/training/training_manager.gd" id="22_training"]
+[ext_resource type="Script" uid="uid://ccq6og37m1pyi" path="res://core/input/gamepad_profile.gd" id="21_gamepad"]
+[ext_resource type="Script" uid="uid://c8gun6e6p2v8i" path="res://systems/training/training_manager.gd" id="22_training"]
 [ext_resource type="PackedScene" path="res://ui/training/training_hud.tscn" id="23_training_hud"]
-[ext_resource type="Script" path="res://core/movement/player_dash_system.gd" id="24_dash"]
+[ext_resource type="Script" uid="uid://be2xwypn2u44p" path="res://core/movement/player_dash_system.gd" id="24_dash"]
 [ext_resource type="PackedScene" path="res://ui/abilities/special_status_hud.tscn" id="25_special_status"]
-[ext_resource type="Script" path="res://world/world_ambient_fx.gd" id="26_ambient"]
-[ext_resource type="Script" path="res://core/combat/transformation_visual_system.gd" id="27_transform_fx"]
+[ext_resource type="Script" uid="uid://f1canvrhj1bt" path="res://world/world_ambient_fx.gd" id="26_ambient"]
+[ext_resource type="Script" uid="uid://co1s3xyn02hs" path="res://core/combat/transformation_visual_system.gd" id="27_transform_fx"]
 [ext_resource type="PackedScene" path="res://ui/hud/resource_hud.tscn" id="28_resource_hud"]
-[ext_resource type="Script" path="res://world/gba_reference_map_system.gd" id="30_gba_maps"]
+[ext_resource type="Script" uid="uid://vr6rnim87dgk" path="res://world/gba_reference_map_system.gd" id="30_gba_maps"]
 
-[node name="Bootstrap" type="Node2D"]
+[node name="Bootstrap" type="Node2D" unique_id=886314830]
 
-[node name="QuestManager" type="Node" parent="." groups=["quest_manager"]]
+[node name="QuestManager" type="Node" parent="." unique_id=129717572 groups=["quest_manager"]]
 script = ExtResource("4_quests")
 
-[node name="SaveManager" type="Node" parent="." groups=["save_manager"]]
+[node name="SaveManager" type="Node" parent="." unique_id=1778129869 groups=["save_manager"]]
 script = ExtResource("5_save")
 
-[node name="CheckpointManager" type="Node" parent="." groups=["checkpoint_manager"]]
+[node name="CheckpointManager" type="Node" parent="." unique_id=459915349 groups=["checkpoint_manager"]]
 script = ExtResource("6_checkpoint")
 
-[node name="WorldManager" type="Node" parent="." groups=["world_manager"]]
+[node name="WorldManager" type="Node" parent="." unique_id=1424423274 groups=["world_manager"]]
 script = ExtResource("7_world")
 world_container_path = NodePath("../WorldContainer")
 player_container_path = NodePath("../PlayerContainer")
 initial_world_path = "res://scenes/world/kame_island.tscn"
 
-[node name="TrainingManager" type="Node" parent="." groups=["training_manager"]]
+[node name="TrainingManager" type="Node" parent="." unique_id=711638151 groups=["training_manager"]]
 script = ExtResource("22_training")
 
-[node name="GameSession" type="Node" parent="."]
+[node name="GameSession" type="Node" parent="." unique_id=1335681787]
 script = ExtResource("12_session")
-autosave_on_quest_complete = true
 
-[node name="SystemDiagnostics" type="Node" parent="."]
+[node name="SystemDiagnostics" type="Node" parent="." unique_id=1519247545]
 script = ExtResource("13_diagnostics")
 
-[node name="GamepadProfile" type="Node" parent="."]
+[node name="GamepadProfile" type="Node" parent="." unique_id=47397418]
 script = ExtResource("21_gamepad")
 
-[node name="CombatFeedbackManager" type="Node" parent="." groups=["combat_feedback"]]
+[node name="CombatFeedbackManager" type="Node" parent="." unique_id=694846024 groups=["combat_feedback"]]
 script = ExtResource("14_feedback")
 
-[node name="PlayerDashSystem" type="Node" parent="."]
+[node name="PlayerDashSystem" type="Node" parent="." unique_id=3576904]
 script = ExtResource("24_dash")
 
-[node name="WorldAmbientFX" type="Node" parent="."]
+[node name="WorldAmbientFX" type="Node" parent="." unique_id=1691785090]
 script = ExtResource("26_ambient")
 
-[node name="GbaReferenceMapSystem" type="Node" parent="."]
+[node name="GbaReferenceMapSystem" type="Node" parent="." unique_id=388848725]
 script = ExtResource("30_gba_maps")
 
-[node name="TransformationVisualSystem" type="Node" parent="."]
+[node name="TransformationVisualSystem" type="Node" parent="." unique_id=1831473348]
 script = ExtResource("27_transform_fx")
 
-[node name="GameStatsManager" type="Node" parent="." groups=["game_stats"]]
+[node name="GameStatsManager" type="Node" parent="." unique_id=1365091627 groups=["game_stats"]]
 script = ExtResource("19_stats")
 
-[node name="WorldContainer" type="Node2D" parent="." groups=["world_container"]]
+[node name="WorldContainer" type="Node2D" parent="." unique_id=1799662428 groups=["world_container"]]
 
-[node name="KameIsland" parent="WorldContainer" instance=ExtResource("1_room")]
+[node name="KameIsland" parent="WorldContainer" unique_id=171819618 instance=ExtResource("1_room")]
 
-[node name="PlayerContainer" type="Node2D" parent="."]
+[node name="PlayerContainer" type="Node2D" parent="." unique_id=104806681]
 
-[node name="Player" parent="PlayerContainer" instance=ExtResource("2_player")]
+[node name="Player" parent="PlayerContainer" unique_id=920037135 instance=ExtResource("2_player")]
 position = Vector2(480, 405)
 
-[node name="UIContainer" type="CanvasLayer" parent="."]
+[node name="UIContainer" type="CanvasLayer" parent="." unique_id=1844151348]
 
-[node name="CombatHUD" parent="UIContainer" instance=ExtResource("3_hud")]
+[node name="CombatHUD" parent="UIContainer" unique_id=1467309137 instance=ExtResource("3_hud")]
 
-[node name="SpecialStatusHUD" parent="UIContainer" instance=ExtResource("25_special_status")]
+[node name="SpecialStatusHUD" parent="UIContainer" unique_id=1462303197 instance=ExtResource("25_special_status")]
+layout_mode = 3
+anchors_preset = 0
 
-[node name="ResourceHUD" parent="UIContainer" instance=ExtResource("28_resource_hud")]
+[node name="ResourceHUD" parent="UIContainer" unique_id=1452771981 instance=ExtResource("28_resource_hud")]
+layout_mode = 3
+anchors_preset = 0
 
-[node name="QuestTracker" parent="UIContainer" instance=ExtResource("10_quest_tracker")]
+[node name="QuestTracker" parent="UIContainer" unique_id=2092989733 instance=ExtResource("10_quest_tracker")]
+layout_mode = 3
+anchors_preset = 0
 
-[node name="NotificationFeed" parent="UIContainer" instance=ExtResource("11_notifications")]
+[node name="NotificationFeed" parent="UIContainer" unique_id=822298286 instance=ExtResource("11_notifications")]
+layout_mode = 3
+anchors_preset = 0
 
-[node name="EnemyTargetBar" parent="UIContainer" instance=ExtResource("16_target")]
+[node name="EnemyTargetBar" parent="UIContainer" unique_id=597871144 instance=ExtResource("16_target")]
+layout_mode = 3
+anchors_preset = 0
 
-[node name="ComboCounter" parent="UIContainer" instance=ExtResource("15_combo")]
+[node name="ComboCounter" parent="UIContainer" unique_id=669334961 instance=ExtResource("15_combo")]
+layout_mode = 3
+anchors_preset = 0
 
-[node name="TrainingHUD" parent="UIContainer" instance=ExtResource("23_training_hud")]
+[node name="TrainingHUD" parent="UIContainer" unique_id=115695714 instance=ExtResource("23_training_hud")]
+layout_mode = 3
+anchors_preset = 0
 
-[node name="InteractionPrompt" parent="UIContainer" instance=ExtResource("17_interaction_prompt")]
+[node name="InteractionPrompt" parent="UIContainer" unique_id=298548395 instance=ExtResource("17_interaction_prompt")]
+layout_mode = 3
+anchors_preset = 0
 
-[node name="LocationBanner" parent="UIContainer" instance=ExtResource("18_location_banner")]
+[node name="LocationBanner" parent="UIContainer" unique_id=1608435495 instance=ExtResource("18_location_banner")]
+layout_mode = 3
+anchors_preset = 0
 
-[node name="DialogueBox" parent="UIContainer" instance=ExtResource("8_dialogue")]
+[node name="DialogueBox" parent="UIContainer" unique_id=1284652791 instance=ExtResource("8_dialogue")]
 
-[node name="PauseMenu" parent="UIContainer" instance=ExtResource("9_pause")]
+[node name="PauseMenu" parent="UIContainer" unique_id=1481459394 instance=ExtResource("9_pause")]
 
-[node name="TransitionLayer" type="CanvasLayer" parent="."]
+[node name="TransitionLayer" type="CanvasLayer" parent="." unique_id=277396951]
 layer = 100
 
-[node name="ScreenTransition" parent="TransitionLayer" instance=ExtResource("20_transition")]
+[node name="ScreenTransition" parent="TransitionLayer" unique_id=808124303 instance=ExtResource("20_transition")]
