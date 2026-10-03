@@ -85,7 +85,12 @@ func _try_start_dash() -> void:
 		return
 
 	var state: StringName = _player.get_current_state()
-	if state not in [&"idle", &"walk", &"run"]:
+	var can_dash: bool = (
+		state == &"idle"
+		or state == &"walk"
+		or state == &"run"
+	)
+	if not can_dash:
 		return
 
 	if not _ki.consume(dash_ki_cost):
@@ -149,14 +154,15 @@ func _spawn_afterimage() -> void:
 
 	var ghost: Sprite2D = Sprite2D.new()
 	ghost.texture = texture
-	ghost.global_position = _sprite.global_position
-	ghost.global_rotation = _sprite.global_rotation
-	ghost.scale = _sprite.global_scale
 	ghost.flip_h = _sprite.flip_h
 	ghost.flip_v = _sprite.flip_v
 	ghost.z_index = -1
 	ghost.modulate = Color(0.55, 0.9, 1.0, 0.42)
 	world_container.add_child(ghost)
+
+	ghost.global_position = _sprite.global_position
+	ghost.global_rotation = _sprite.global_rotation
+	ghost.global_scale = _sprite.global_scale
 
 	var tween: Tween = ghost.create_tween()
 	tween.set_parallel(true)
