@@ -226,9 +226,14 @@ func _build_island_tiles() -> void:
 			if not _is_grass_tile(column, row):
 				continue
 
-			var grass_index: int = (
-				column * 11 + row * 5
-			) % grass_textures.size()
+			# Keep one dominant turf and reserve alternate textures for sparse
+			# natural variation instead of a noisy checkerboard.
+			var variation_seed: int = absi(column * 7 + row * 11)
+			var grass_index: int = 0
+			if grass_textures.size() > 1 and variation_seed % 13 == 0:
+				grass_index = 1
+			elif grass_textures.size() > 2 and variation_seed % 29 == 0:
+				grass_index = 2
 
 			_add_tile(
 				grass_tiles,
@@ -395,11 +400,8 @@ func _polish_layout() -> void:
 	_set_node_position(&"PalmTreeLeft", Vector2(282, 286))
 	_set_node_position(&"PalmTreeRight", Vector2(690, 292))
 	_set_node_position(&"PalmTreeSouth", Vector2(616, 438))
-	_set_node_position(&"PalmTreeNorthWest", Vector2(238, 198))
-	_set_node_position(&"PalmTreeNorthEast", Vector2(722, 204))
 	_set_node_position(&"BeachUmbrella", Vector2(248, 405))
 	_set_node_position(&"BeachChair", Vector2(208, 430))
-	_set_node_position(&"BeachRock", Vector2(690, 432))
 
 	# Keep the tutorial/checkpoint readable but out of Roshi's foreground.
 	_set_node_position(&"BeachGuide", Vector2(438, 452))

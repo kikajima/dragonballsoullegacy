@@ -99,12 +99,8 @@ func _setup_for_world(world: Node) -> void:
 	if world_name.contains("kame"):
 		_mode = MODE_KAME
 		_build_kame_glints()
-		# The original LoG II map already contains its own coherent palms,
-		# flowers and shoreline clutter. Never stack our procedural foliage on
-		# top of it; that was the source of disconnected trees / visual noise.
-		if not ResourceLoader.exists(GBA_KAME_MAP_PATH):
-			_build_kame_foliage()
-			_build_kame_flower_density()
+		# Kame Island owns its authored foliage and flower placement. Do not
+		# layer fallback props over it, since that creates visual duplication.
 	elif world_name.contains("rocky") or world_name.contains("wastes"):
 		_mode = MODE_WASTES
 		_build_waste_dust()
