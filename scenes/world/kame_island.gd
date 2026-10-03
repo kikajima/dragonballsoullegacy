@@ -8,6 +8,9 @@ const DMI_SPRITE_SHEET_SCRIPT = preload(
 const TURF_DMI_PATH := (
 	"res://assets/vendor/hu2/Icons/Turfs/NewTurfs.dmi"
 )
+const SOIL_DMI_PATH := (
+	"res://assets/vendor/hu2/Icons/Turfs/MineCraft.dmi"
+)
 const FLOWERS_DMI_PATH := (
 	"res://assets/vendor/hu2/Icons/Turfs/Flowers.dmi"
 )
@@ -28,6 +31,7 @@ const ISLAND_CENTER := Vector2(480.0, 278.0)
 var _ambient_time: float = 0.0
 var _land_silhouette: Polygon2D
 var _grass_base: Polygon2D
+var _sand_tiles: Node2D
 var _decorations: Node2D
 
 func _ready() -> void:
@@ -198,10 +202,10 @@ func _build_island_tiles() -> void:
 
 	var grass_textures: Array[Texture2D] = []
 	for state_name in [
-		&"DarkGrass1",
-		&"DarkGrass2",
-		&"DarkGrass3",
-		&"DarkGrass4",
+		&"Grass1",
+		&"Grass2",
+		&"Grass3",
+		&"Grass4",
 	]:
 		var texture: Texture2D = dmi.get_frame_texture(
 			state_name,
@@ -212,8 +216,22 @@ func _build_island_tiles() -> void:
 			grass_textures.append(texture)
 
 	if grass_textures.is_empty():
-		push_warning("Kame Island: DarkGrass tiles missing from NewTurfs.dmi.")
+		push_warning("Kame Island: Grass tiles missing from NewTurfs.dmi.")
 		return
+
+	var soil_dmi = DMI_SPRITE_SHEET_SCRIPT.load_file(SOIL_DMI_PATH)
+	var grass_dirt_texture: Texture2D = null
+	if soil_dmi != null:
+		grass_dirt_texture = soil_dmi.get_frame_texture(
+			&"GrassDirt",
+			&"down",
+			0
+		)
+
+	_sand_tiles = Node2D.new()
+	_sand_tiles.name = "SandTiles"
+	_sand_tiles.z_index = 0
+	terrain.add_child(_sand_tiles)
 
 	for row in range(WORLD_ROWS):
 		for column in range(WORLD_COLUMNS):
@@ -233,6 +251,17 @@ func _build_island_tiles() -> void:
 			# Grass tiles intentionally stop before the organic coastline.
 			# The LandSilhouette fills that rim, hiding the square tile steps.
 			if not _is_grass_tile(column, row):
+				if grass_dirt_texture != null and _is_sand_tile(
+					column,
+					row
+				):
+					_add_tile(
+						_sand_tiles,
+						grass_dirt_texture,
+						world_position,
+						-8,
+						Color(1.0, 0.94, 0.78, 1.0)
+					)
 				continue
 
 			# Keep the island on one coherent base turf. The alternate DarkGrass
@@ -246,6 +275,22 @@ func _build_island_tiles() -> void:
 				-9,
 				Color(1.0, 1.0, 1.0, 1.0)
 			)
+
+func _is_sand_tile(column: int, row: int) -> bool:
+	return (
+		_is_island_tile(column, row)
+		and not _is_grass_tile(column, row)
+		and _touches_grass(column, row)
+	)
+
+func _touches_grass(column: int, row: int) -> bool:
+	for offset_y in range(-1, 2):
+		for offset_x in range(-1, 2):
+			if offset_x == 0 and offset_y == 0:
+				continue
+			if _is_grass_tile(column + offset_x, row + offset_y):
+				return true
+	return false
 
 func _is_grass_tile(column: int, row: int) -> bool:
 	var center := Vector2(14.5, 8.25)
