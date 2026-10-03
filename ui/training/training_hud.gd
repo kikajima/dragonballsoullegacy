@@ -66,11 +66,16 @@ func _refresh() -> void:
 	if _training.active_mode == TrainingManager.MODE_NONE:
 		mode_text = "Training Chamber"
 
+	var training_rank: int = 1 + int(
+		floor(float(_training.total_training_xp) / 100.0)
+	)
+
 	title_label.text = "%s  |  %.0fx GRAVITY" % [
 		mode_text,
 		_training.gravity_multiplier,
 	]
-	info_label.text = "SESSION +%d XP   COMBO %d   BEST %d" % [
+	info_label.text = "RANK %d  +%d XP  COMBO %d  BEST %d" % [
+		training_rank,
 		_training.session_xp,
 		_training.combo,
 		_training.best_combo,
