@@ -51,15 +51,17 @@ func report_hit(
 	elif target is Node2D:
 		position = (target as Node2D).global_position
 
+	# Buu's Fury keeps damage feedback compact: red numbers directly above
+	# the target, without a minus prefix or a large UI callout.
 	spawn_floating_text(
-		"-%d" % damage,
-		position + Vector2(0.0, -18.0),
-		Color(1.0, 0.92, 0.35, 1.0)
+		str(damage),
+		position + Vector2(randf_range(-4.0, 4.0), -20.0),
+		Color(1.0, 0.22, 0.16, 1.0)
 	)
 
 	request_camera_shake(
-		clampf(0.8 + float(damage) * 0.03, 0.8, 2.6),
-		0.065
+		clampf(0.65 + float(damage) * 0.025, 0.65, 2.2),
+		0.055
 	)
 
 	if actor != null and actor.is_in_group("enemy"):
@@ -76,13 +78,13 @@ func report_damage_taken(actor: Node, damage: int) -> void:
 		position = (actor as Node2D).global_position
 
 	spawn_floating_text(
-		"-%d" % damage,
-		position + Vector2(0.0, -18.0),
-		Color(1.0, 0.48, 0.48, 1.0)
+		str(damage),
+		position + Vector2(randf_range(-4.0, 4.0), -20.0),
+		Color(1.0, 0.42, 0.32, 1.0)
 	)
 	request_camera_shake(
-		clampf(1.2 + float(damage) * 0.04, 1.2, 3.25),
-		0.10
+		clampf(1.0 + float(damage) * 0.035, 1.0, 2.8),
+		0.085
 	)
 
 func report_heal(actor: Node, amount: int) -> void:
@@ -114,15 +116,10 @@ func report_block(actor: Node, perfect: bool = false) -> void:
 	)
 	request_camera_shake(1.15 if perfect else 0.7, 0.055)
 
-func report_dash(actor: Node) -> void:
-	if actor == null or not actor is Node2D:
-		return
-
-	spawn_floating_text(
-		"DASH",
-		(actor as Node2D).global_position + Vector2(0.0, -20.0),
-		Color(0.55, 0.9, 1.0, 0.9)
-	)
+func report_dash(_actor: Node) -> void:
+	# Movement feedback is carried by the afterimage itself, matching the
+	# uncluttered GBA presentation.
+	pass
 
 func request_camera_shake(
 	intensity: float,
