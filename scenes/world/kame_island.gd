@@ -226,14 +226,9 @@ func _build_island_tiles() -> void:
 			if not _is_grass_tile(column, row):
 				continue
 
-			# Keep one dominant turf and reserve alternate textures for sparse
-			# natural variation instead of a noisy checkerboard.
-			var variation_seed: int = absi(column * 7 + row * 11)
+			# Keep the island on one coherent base turf. The alternate DarkGrass
+			# variants contain decorative clutter that reads as scattered rocks.
 			var grass_index: int = 0
-			if grass_textures.size() > 1 and variation_seed % 13 == 0:
-				grass_index = 1
-			elif grass_textures.size() > 2 and variation_seed % 29 == 0:
-				grass_index = 2
 
 			_add_tile(
 				grass_tiles,

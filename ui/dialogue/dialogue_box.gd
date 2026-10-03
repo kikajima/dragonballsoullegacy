@@ -343,7 +343,6 @@ func _atlas_region(region: Rect2) -> AtlasTexture:
 	return atlas
 
 func _apply_portrait(path: String) -> void:
-	portrait.texture = null
 	portrait.visible = false
 
 	if not path.is_empty() and ResourceLoader.exists(path):

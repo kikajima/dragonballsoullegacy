@@ -5,9 +5,9 @@
 [node name="TrainingHUD" type="Control"]
 layout_mode = 0
 offset_left = 286.0
-offset_top = 8.0
+offset_top = 60.0
 offset_right = 470.0
-offset_bottom = 48.0
+offset_bottom = 100.0
 mouse_filter = 2
 script = ExtResource("1")
 

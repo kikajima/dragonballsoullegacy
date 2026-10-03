@@ -11,8 +11,6 @@ const DEPTH_BASE: int = 1000
 # the previous GBA pass. This keeps combat readable without making the island
 # feel cramped.
 const GBA_CAMERA_ZOOM := Vector2(1.10, 1.10)
-const CAMERA_CENTER_BIAS := Vector2(0.0, -3.0)
-const CAMERA_LOOK_AHEAD: float = 7.5
 
 const GBA_KAME_MAP_PATH := (
 	"res://assets/vendor/dragon_ball_gba/dbzlog2/Backgrounds/"
@@ -46,7 +44,6 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_time += delta
 	_refresh_player_camera()
-	_update_gba_camera(delta)
 	_update_depth_sorting()
 
 	match _mode:
@@ -138,24 +135,6 @@ func _refresh_player_camera() -> void:
 			_camera.zoom = GBA_CAMERA_ZOOM
 			_camera.position_smoothing_enabled = false
 			_camera.limit_smoothed = false
-
-func _update_gba_camera(delta: float) -> void:
-	if _player == null or _camera == null:
-		return
-
-	var velocity: Vector2 = Vector2.ZERO
-	if _player is CharacterBody2D:
-		velocity = (_player as CharacterBody2D).velocity
-
-	var look_direction: Vector2 = Vector2.ZERO
-	if velocity.length_squared() > 16.0:
-		look_direction = velocity.normalized()
-
-	var target_offset: Vector2 = CAMERA_CENTER_BIAS + Vector2(
-		look_direction.x * CAMERA_LOOK_AHEAD,
-		look_direction.y * CAMERA_LOOK_AHEAD * 0.45
-	)
-	_camera.position = target_offset.round()
 
 func _update_depth_sorting() -> void:
 	if _player != null and is_instance_valid(_player):

@@ -13,6 +13,8 @@ var _experience: ExperienceComponent
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	position = Vector2(10.0, 53.0)
+	size = Vector2(126.0, 26.0)
 	call_deferred("_bind_player")
 
 func _bind_player() -> void:

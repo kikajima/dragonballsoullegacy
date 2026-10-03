@@ -106,7 +106,6 @@ func _load_hud_sheet() -> void:
 
 	# The old Ki Blast icon is intentionally gone. Ki Blast is a basic
 	# attack now; this slot belongs to the currently selected special.
-	icon.texture = null
 	icon.position = ICON_POSITION
 	icon.visible = false
 
