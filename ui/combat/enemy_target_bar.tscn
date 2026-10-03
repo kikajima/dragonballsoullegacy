@@ -4,10 +4,10 @@
 
 [node name="EnemyTargetBar" type="Control"]
 layout_mode = 0
-offset_left = 170.0
-offset_top = 7.0
-offset_right = 310.0
-offset_bottom = 31.0
+offset_left = 180.0
+offset_top = 6.0
+offset_right = 300.0
+offset_bottom = 26.0
 mouse_filter = 2
 script = ExtResource("1_target")
 
@@ -18,34 +18,34 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.02, 0.025, 0.04, 0.8)
+color = Color(0.02, 0.025, 0.04, 0.56)
 mouse_filter = 2
 
 [node name="Name" type="Label" parent="Panel"]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 1.0
-offset_right = 98.0
-offset_bottom = 11.0
+offset_right = 82.0
+offset_bottom = 9.0
 text = "Enemy"
-theme_override_font_sizes/font_size = 6
+theme_override_font_sizes/font_size = 5
 
 [node name="Tier" type="Label" parent="Panel"]
 layout_mode = 0
-offset_left = 99.0
+offset_left = 83.0
 offset_top = 1.0
-offset_right = 136.0
-offset_bottom = 11.0
+offset_right = 116.0
+offset_bottom = 9.0
 text = "Common"
-theme_override_font_sizes/font_size = 5
+theme_override_font_sizes/font_size = 4
 horizontal_alignment = 2
 
 [node name="HealthBar" type="ProgressBar" parent="Panel"]
 layout_mode = 0
-offset_left = 5.0
-offset_top = 12.0
-offset_right = 135.0
-offset_bottom = 21.0
+offset_left = 4.0
+offset_top = 10.0
+offset_right = 116.0
+offset_bottom = 17.0
 show_percentage = false
 max_value = 100.0
 value = 100.0
@@ -61,7 +61,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 0.95)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.85)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
-theme_override_font_sizes/font_size = 5
+theme_override_font_sizes/font_size = 4
 text = "100 / 100"
 horizontal_alignment = 1
 vertical_alignment = 1
