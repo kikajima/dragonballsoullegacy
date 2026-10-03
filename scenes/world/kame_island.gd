@@ -84,8 +84,10 @@ func _setup_depth_sorting() -> void:
 	_set_canvas_z(&"TravelCapsule", 0)
 	_set_canvas_z(&"TrainingRing", -1)
 
-func _set_canvas_z(node_path: NodePath, value: int) -> void:
-	var item: CanvasItem = get_node_or_null(node_path) as CanvasItem
+func _set_canvas_z(node_path: StringName, value: int) -> void:
+	var item: CanvasItem = get_node_or_null(
+		NodePath(String(node_path))
+	) as CanvasItem
 	if item != null:
 		item.z_index = value
 
@@ -408,17 +410,21 @@ func _polish_layout() -> void:
 	_set_node_position(&"TravelCapsule", Vector2(836, 450))
 	_set_node_position(&"WestCityBoat", Vector2(792, 444))
 
-func _set_node_position(node_path: NodePath, value: Vector2) -> void:
-	var node: Node2D = get_node_or_null(node_path) as Node2D
+func _set_node_position(node_path: StringName, value: Vector2) -> void:
+	var node: Node2D = get_node_or_null(
+		NodePath(String(node_path))
+	) as Node2D
 	if node != null:
 		node.position = value
 
 func _set_node_transform(
-	node_path: NodePath,
+	node_path: StringName,
 	position_value: Vector2,
 	scale_value: Vector2
 ) -> void:
-	var node: Node2D = get_node_or_null(node_path) as Node2D
+	var node: Node2D = get_node_or_null(
+		NodePath(String(node_path))
+	) as Node2D
 	if node == null:
 		return
 
