@@ -155,8 +155,7 @@ func _update_gba_camera(delta: float) -> void:
 		look_direction.x * CAMERA_LOOK_AHEAD,
 		look_direction.y * CAMERA_LOOK_AHEAD * 0.45
 	)
-	var weight: float = clampf(delta * 6.5, 0.0, 1.0)
-	_camera.position = _camera.position.lerp(target_offset, weight).round()
+	_camera.position = target_offset.round()
 
 func _update_depth_sorting() -> void:
 	if _player != null and is_instance_valid(_player):
