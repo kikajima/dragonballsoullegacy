@@ -5,9 +5,9 @@
 [node name="SpecialStatusHUD" type="Control"]
 layout_mode = 0
 offset_left = 10.0
-offset_top = 28.0
-offset_right = 154.0
-offset_bottom = 54.0
+offset_top = 27.0
+offset_right = 136.0
+offset_bottom = 48.0
 mouse_filter = 2
 script = ExtResource("1")
 
@@ -18,38 +18,38 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.015, 0.02, 0.035, 0.82)
+color = Color(0.015, 0.02, 0.035, 0.62)
 mouse_filter = 2
 
 [node name="Name" type="Label" parent="Panel"]
-offset_left = 5.0
-offset_top = 2.0
-offset_right = 138.0
-offset_bottom = 11.0
-theme_override_font_sizes/font_size = 6
+offset_left = 4.0
+offset_top = 1.0
+offset_right = 121.0
+offset_bottom = 9.0
+theme_override_font_sizes/font_size = 5
 text = "SPECIAL"
 
 [node name="Status" type="Label" parent="Panel"]
-offset_left = 5.0
-offset_top = 11.0
-offset_right = 138.0
-offset_bottom = 20.0
+offset_left = 4.0
+offset_top = 9.0
+offset_right = 121.0
+offset_bottom = 17.0
 theme_override_colors/font_color = Color(0.82, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 5
-text = "O USE   R NEXT"
+text = "O USE"
 
 [node name="MeterBack" type="ColorRect" parent="Panel"]
 visible = false
-offset_left = 5.0
-offset_top = 21.0
-offset_right = 135.0
-offset_bottom = 24.0
-color = Color(0.12, 0.14, 0.18, 0.95)
+offset_left = 4.0
+offset_top = 18.0
+offset_right = 120.0
+offset_bottom = 20.0
+color = Color(0.12, 0.14, 0.18, 0.9)
 mouse_filter = 2
 
 [node name="MeterFill" type="ColorRect" parent="Panel/MeterBack"]
 layout_mode = 0
-offset_right = 130.0
-offset_bottom = 3.0
+offset_right = 116.0
+offset_bottom = 2.0
 color = Color(0.32, 0.78, 1, 1)
 mouse_filter = 2
