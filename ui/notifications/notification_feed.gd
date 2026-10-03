@@ -9,6 +9,8 @@ var _queue: Array[String] = []
 var _time_left: float = 0.0
 
 func _ready() -> void:
+	position = Vector2(160.0, 52.0)
+	size = Vector2(160.0, 20.0)
 	visible = false
 	call_deferred("_bind_sources")
 

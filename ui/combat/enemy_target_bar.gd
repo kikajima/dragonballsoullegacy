@@ -12,6 +12,8 @@ var _health: HealthComponent
 var _time_left: float = 0.0
 
 func _ready() -> void:
+	position = Vector2(180.0, 5.0)
+	size = Vector2(120.0, 20.0)
 	visible = false
 	call_deferred("_bind_feedback")
 

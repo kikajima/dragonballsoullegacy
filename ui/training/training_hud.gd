@@ -9,6 +9,8 @@ var _training: TrainingManager
 var _prompt: String = ""
 
 func _ready() -> void:
+	position = Vector2(286.0, 60.0)
+	size = Vector2(184.0, 40.0)
 	visible = false
 	call_deferred("_bind_training")
 

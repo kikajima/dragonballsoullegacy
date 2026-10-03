@@ -7,6 +7,8 @@ extends Control
 var _quest_manager: QuestManager
 
 func _ready() -> void:
+	position = Vector2(292.0, 8.0)
+	size = Vector2(178.0, 46.0)
 	visible = false
 	call_deferred("_bind_manager")
 

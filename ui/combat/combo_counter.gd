@@ -13,6 +13,8 @@ var _pulse_tween: Tween
 var _previous_hits: int = 0
 
 func _ready() -> void:
+	position = Vector2(10.0, 82.0)
+	size = Vector2(90.0, 21.0)
 	visible = false
 	call_deferred("_bind_player")
 
