@@ -11,11 +11,20 @@ var _loadout: AbilityLoadoutComponent
 var _selected: SpecialAttackData
 var _charge_ratio: float = 0.0
 var _cooldown_left: float = 0.0
+var _linger_left: float = 0.0
 
 func _ready() -> void:
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	call_deferred("_bind_player")
+
+func _process(delta: float) -> void:
+	if _linger_left <= 0.0:
+		return
+
+	_linger_left = maxf(_linger_left - delta, 0.0)
+	if _linger_left <= 0.0:
+		_refresh()
 
 func _bind_player() -> void:
 	var player: Node = get_tree().get_first_node_in_group("player")
@@ -43,6 +52,7 @@ func _bind_player() -> void:
 		_cooldown_left = _loadout.get_cooldown_left(
 			_selected.ability_id
 		)
+	_linger_left = 1.6
 	_refresh()
 
 func _on_selection_changed(
@@ -60,6 +70,7 @@ func _on_selection_changed(
 		_cooldown_left = _loadout.get_cooldown_left(
 			_selected.ability_id
 		)
+	_linger_left = 1.6
 	_refresh()
 
 func _on_charge_changed(
@@ -70,6 +81,8 @@ func _on_charge_changed(
 		return
 
 	_charge_ratio = clampf(ratio, 0.0, 1.0)
+	if _charge_ratio > 0.0:
+		_linger_left = 0.35
 	_refresh()
 
 func _on_cast_started(ability_id: StringName) -> void:
@@ -77,6 +90,7 @@ func _on_cast_started(ability_id: StringName) -> void:
 		return
 
 	_charge_ratio = 0.0
+	_linger_left = 0.8
 	_refresh()
 
 func _on_cast_finished(ability_id: StringName) -> void:
@@ -86,6 +100,7 @@ func _on_cast_finished(ability_id: StringName) -> void:
 	_charge_ratio = 0.0
 	if _loadout != null:
 		_cooldown_left = _loadout.get_cooldown_left(ability_id)
+	_linger_left = 0.65
 	_refresh()
 
 func _on_cooldown_changed(
@@ -103,7 +118,15 @@ func _refresh() -> void:
 		visible = false
 		return
 
-	visible = true
+	var contextual: bool = (
+		_cooldown_left > 0.0
+		or _special.is_charging()
+		or _charge_ratio > 0.0
+	)
+	visible = contextual or _linger_left > 0.0
+	if not visible:
+		return
+
 	name_label.text = _selected.display_name
 
 	var meter_ratio: float = 0.0
@@ -116,7 +139,7 @@ func _refresh() -> void:
 			0.0,
 			1.0
 		)
-		status_label.text = "CD %.1fs   R NEXT" % _cooldown_left
+		status_label.text = "CD %.1fs" % _cooldown_left
 		show_meter = true
 	elif _special.is_charging() or _charge_ratio > 0.0:
 		meter_ratio = _charge_ratio
@@ -128,20 +151,18 @@ func _refresh() -> void:
 		if _special.is_transformation_active(
 			_selected.transformation_id
 		):
-			status_label.text = "ACTIVE   O REVERT   R NEXT"
+			status_label.text = "ACTIVE  O REVERT"
 		else:
-			status_label.text = "O TRANSFORM   R NEXT"
-	elif _selected.is_charge_attack():
-		status_label.text = "HOLD O   R NEXT"
-	elif _selected.is_continuous():
-		status_label.text = "HOLD O   R NEXT"
+			status_label.text = "O TRANSFORM"
+	elif _selected.is_charge_attack() or _selected.is_continuous():
+		status_label.text = "HOLD O"
 	else:
-		status_label.text = "O USE   R NEXT"
+		status_label.text = "O USE"
 
 	meter_back.visible = show_meter
 	if show_meter:
-		var max_width: float = 130.0
+		var max_width: float = 116.0
 		meter_fill.size = Vector2(
 			floorf(max_width * meter_ratio),
-			3.0
+			2.0
 		)
