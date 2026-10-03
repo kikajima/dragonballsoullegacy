@@ -122,6 +122,9 @@ func _receiver_front_distance(receiver: Area2D) -> float:
 
 	return maxf(nearest_front, 1.0)
 
+func _receiver_hit_distance(receiver: Area2D) -> float:
+	return _receiver_front_distance(receiver)
+
 func _shape_forward_extent(shape_node: CollisionShape2D) -> float:
 	var shape: Shape2D = shape_node.shape
 	var local_direction: Vector2 = _direction.rotated(

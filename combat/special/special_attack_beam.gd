@@ -199,16 +199,7 @@ func _refresh_geometry() -> void:
 	)
 
 func _apply_damage_tick() -> void:
-	var candidates: Array[Area2D] = []
-
-	for area in hit_area.get_overlapping_areas():
-		if (
-			area == null
-			or not area.has_method("receive_hit")
-			or not _is_live_damage_receiver(area)
-		):
-			continue
-		candidates.append(area)
+	var candidates := _query_beam_receivers()
 
 	if candidates.is_empty():
 		return
@@ -219,21 +210,60 @@ func _apply_damage_tick() -> void:
 		return
 
 	var nearest: Area2D = null
-	var nearest_x: float = INF
+	var nearest_distance: float = INF
 
 	for area in candidates:
-		var local_position: Vector2 = to_local(
-			area.global_position
-		)
-		if local_position.x < 0.0:
+		var hit_distance := _receiver_hit_distance(area)
+		if hit_distance < 0.0 or hit_distance > _resolved_length:
 			continue
 
-		if local_position.x < nearest_x:
-			nearest_x = local_position.x
+		if hit_distance < nearest_distance:
+			nearest_distance = hit_distance
 			nearest = area
 
 	if nearest != null:
 		_damage_area(nearest)
+
+func _query_beam_receivers() -> Array[Area2D]:
+	var result: Array[Area2D] = []
+	if _resolved_length <= 0.0:
+		return result
+
+	var probe := RectangleShape2D.new()
+	probe.size = Vector2(
+		_resolved_length,
+		maxf(_beam_width, 2.0)
+	)
+
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = probe
+	query.transform = Transform2D(
+		_direction.angle(),
+		global_position + _direction * _resolved_length * 0.5
+	)
+	query.collision_mask = hit_area.collision_mask
+	query.collide_with_bodies = false
+	query.collide_with_areas = true
+
+	for hit in get_world_2d().direct_space_state.intersect_shape(
+		query,
+		32
+	):
+		var area := hit.get("collider") as Area2D
+		if (
+			area == null
+			or not area.has_method("receive_hit")
+			or not _is_live_damage_receiver(area)
+		):
+			continue
+		if not result.has(area):
+			result.append(area)
+
+	return result
+
+func _receiver_hit_distance(receiver: Area2D) -> float:
+	var local_position := to_local(receiver.global_position)
+	return local_position.x
 
 func _damage_area(area: Area2D) -> void:
 	# HU2 beams repeatedly put the victim in HitStun but do not throw the
