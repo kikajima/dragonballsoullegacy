@@ -8,10 +8,16 @@ const DMI_SPRITE_SHEET_SCRIPT = preload(
 const TURF_DMI_PATH := (
 	"res://assets/vendor/hu2/Icons/Turfs/NewTurfs.dmi"
 )
+const FLOWERS_DMI_PATH := (
+	"res://assets/vendor/hu2/Icons/Turfs/Flowers.dmi"
+)
+
 const TILE_SIZE: int = 32
 const WORLD_COLUMNS: int = 30
 const WORLD_ROWS: int = 17
+const ISLAND_CENTER := Vector2(480.0, 278.0)
 
+@onready var terrain: Node2D = $Terrain
 @onready var sea_tiles: Node2D = $Terrain/SeaTiles
 @onready var grass_tiles: Node2D = $Terrain/GrassTiles
 @onready var shore_tint: Polygon2D = $Terrain/ShoreTint
@@ -20,10 +26,16 @@ const WORLD_ROWS: int = 17
 @onready var sea_collision: StaticBody2D = $SeaCollision
 
 var _ambient_time: float = 0.0
+var _land_silhouette: Polygon2D
+var _decorations: Node2D
 
 func _ready() -> void:
+	_setup_depth_sorting()
+	_setup_organic_coast()
 	_build_island_tiles()
 	_build_shore_collision()
+	_build_flower_patches()
+	_polish_layout()
 
 func _process(delta: float) -> void:
 	_ambient_time += delta
@@ -41,20 +53,122 @@ func _process(delta: float) -> void:
 		1.0,
 		1.0,
 		1.0,
-		0.62 + slow_wave * 0.28
+		0.22 + slow_wave * 0.18
 	)
 	shore_foam_outer.modulate = Color(
 		1.0,
 		1.0,
 		1.0,
-		0.42 + fast_wave * 0.48
+		0.36 + fast_wave * 0.42
 	)
 	shore_foam_inner.modulate = Color(
 		1.0,
 		1.0,
 		1.0,
-		0.22 + slow_wave * 0.38
+		0.18 + slow_wave * 0.28
 	)
+
+func _setup_depth_sorting() -> void:
+	# The previous fixed z-index values forced the house to draw over Roshi.
+	# Y-sort lets characters naturally pass in front of or behind scenery.
+	y_sort_enabled = true
+
+	_set_canvas_z(&"KameHouse/Sprite2D", 0)
+	_set_canvas_z(&"PalmTreeLeft", 0)
+	_set_canvas_z(&"PalmTreeRight", 0)
+	_set_canvas_z(&"PalmTreeSouth", 0)
+	_set_canvas_z(&"PalmTreeNorthWest", 0)
+	_set_canvas_z(&"PalmTreeNorthEast", 0)
+	_set_canvas_z(&"BeachUmbrella", 0)
+	_set_canvas_z(&"BeachChair", 0)
+	_set_canvas_z(&"TravelCapsule", 0)
+	_set_canvas_z(&"TrainingRing", -1)
+
+func _set_canvas_z(node_path: NodePath, value: int) -> void:
+	var item: CanvasItem = get_node_or_null(node_path) as CanvasItem
+	if item != null:
+		item.z_index = value
+
+func _setup_organic_coast() -> void:
+	_land_silhouette = Polygon2D.new()
+	_land_silhouette.name = "LandSilhouette"
+	_land_silhouette.polygon = _coast_points()
+	_land_silhouette.color = Color(0.34, 0.54, 0.08, 1.0)
+	_land_silhouette.z_index = -10
+	terrain.add_child(_land_silhouette)
+	terrain.move_child(_land_silhouette, 1)
+
+	# A larger translucent shape creates shallow water without exposing the
+	# square edges of the grass tile mask.
+	shore_tint.polygon = _scaled_coast_points(1.045)
+	shore_tint.color = Color(0.34, 0.86, 0.94, 0.34)
+	shore_tint.z_index = -11
+
+	shore_foam_outer.points = _closed_points(
+		_scaled_coast_points(1.025)
+	)
+	shore_foam_outer.width = 3.0
+	shore_foam_outer.z_index = -7
+
+	shore_foam_inner.points = _closed_points(
+		_scaled_coast_points(0.992)
+	)
+	shore_foam_inner.width = 1.5
+	shore_foam_inner.z_index = -6
+
+func _coast_points() -> PackedVector2Array:
+	# Hand-shaped after the Buu's Fury Kame Island reference. More points and
+	# gentler turns hide the grid/hexagon feel of the old procedural outline.
+	return PackedVector2Array([
+		Vector2(154, 272),
+		Vector2(160, 230),
+		Vector2(176, 191),
+		Vector2(203, 157),
+		Vector2(239, 132),
+		Vector2(284, 111),
+		Vector2(337, 98),
+		Vector2(393, 90),
+		Vector2(451, 86),
+		Vector2(511, 89),
+		Vector2(569, 98),
+		Vector2(624, 114),
+		Vector2(672, 137),
+		Vector2(710, 167),
+		Vector2(741, 203),
+		Vector2(760, 244),
+		Vector2(769, 286),
+		Vector2(766, 329),
+		Vector2(753, 368),
+		Vector2(730, 404),
+		Vector2(696, 433),
+		Vector2(652, 456),
+		Vector2(601, 470),
+		Vector2(546, 478),
+		Vector2(490, 481),
+		Vector2(433, 478),
+		Vector2(378, 470),
+		Vector2(326, 456),
+		Vector2(279, 435),
+		Vector2(237, 407),
+		Vector2(204, 374),
+		Vector2(179, 338),
+		Vector2(162, 303),
+	])
+
+func _scaled_coast_points(scale_value: float) -> PackedVector2Array:
+	var result := PackedVector2Array()
+	for point in _coast_points():
+		result.append(
+			ISLAND_CENTER
+			+ (point - ISLAND_CENTER) * scale_value
+		)
+	return result
+
+func _closed_points(points: PackedVector2Array) -> PackedVector2Array:
+	var result: PackedVector2Array = points.duplicate()
+	if not result.is_empty():
+		result.append(result[0])
+	return result
 
 func _build_island_tiles() -> void:
 	var dmi = DMI_SPRITE_SHEET_SCRIPT.load_file(TURF_DMI_PATH)
@@ -97,7 +211,6 @@ func _build_island_tiles() -> void:
 				float(row * TILE_SIZE + TILE_SIZE / 2)
 			)
 
-			# Sea is the base layer everywhere in the world.
 			_add_tile(
 				sea_tiles,
 				water_texture,
@@ -106,10 +219,9 @@ func _build_island_tiles() -> void:
 				Color(0.84, 0.97, 1.0, 1.0)
 			)
 
-			# Only the island mask receives land. The entire land surface is
-			# grass for now; sand can be introduced later when a proper
-			# beach turf is available.
-			if not _is_island_tile(column, row):
+			# Grass tiles intentionally stop before the organic coastline.
+			# The LandSilhouette fills that rim, hiding the square tile steps.
+			if not _is_grass_tile(column, row):
 				continue
 
 			var grass_index: int = (
@@ -124,6 +236,15 @@ func _build_island_tiles() -> void:
 				Color(1.0, 1.0, 1.0, 1.0)
 			)
 
+func _is_grass_tile(column: int, row: int) -> bool:
+	var center := Vector2(14.5, 8.25)
+	var point := Vector2(float(column), float(row))
+	var normalized := Vector2(
+		(point.x - center.x) / 8.05,
+		(point.y - center.y) / 4.8
+	)
+	return normalized.length_squared() <= 1.0
+
 func _build_shore_collision() -> void:
 	for row in range(WORLD_ROWS):
 		for column in range(WORLD_COLUMNS):
@@ -134,10 +255,10 @@ func _build_shore_collision() -> void:
 			if _is_dock_opening(column, row):
 				continue
 
-			var shape := RectangleShape2D.new()
+			var shape: RectangleShape2D = RectangleShape2D.new()
 			shape.size = Vector2(TILE_SIZE, TILE_SIZE)
 
-			var collision := CollisionShape2D.new()
+			var collision: CollisionShape2D = CollisionShape2D.new()
 			collision.shape = shape
 			collision.position = Vector2(
 				float(column * TILE_SIZE + TILE_SIZE / 2),
@@ -167,7 +288,6 @@ func _touches_island(column: int, row: int) -> bool:
 	return false
 
 func _is_dock_opening(column: int, row: int) -> bool:
-	# Preserve a narrow southeast opening for the dock/travel capsule.
 	return (
 		column >= 22
 		and column <= 25
@@ -176,34 +296,134 @@ func _is_dock_opening(column: int, row: int) -> bool:
 	)
 
 func _is_island_tile(column: int, row: int) -> bool:
+	# Collision remains tile-based but is now smooth and regular. The organic
+	# visual coastline above masks the unavoidable physics grid underneath.
 	var center := Vector2(14.5, 8.25)
 	var point := Vector2(float(column), float(row))
 	var normalized := Vector2(
-		(point.x - center.x) / 8.9,
-		(point.y - center.y) / 5.65
+		(point.x - center.x) / 9.0,
+		(point.y - center.y) / 5.55
 	)
 
-	var radial: float = normalized.length_squared()
-	if radial > 1.0:
+	if normalized.length_squared() > 1.0:
 		return false
 
-	# Break up the ellipse slightly so the coastline feels more like the
-	# irregular Buu's Fury island rather than a perfect geometric oval.
-	var coast_noise: int = (
-		column * 17
-		+ row * 23
-		+ column * row * 3
-	) % 11
-
-	if radial > 0.78 and coast_noise <= 1:
-		return false
-
-	# Southeast beach/dock approach.
 	if row >= 13 and (column < 7 or column > 24):
 		return false
 
 	return true
 
+func _build_flower_patches() -> void:
+	var dmi = DMI_SPRITE_SHEET_SCRIPT.load_file(FLOWERS_DMI_PATH)
+	if dmi == null:
+		return
+
+	var flower_state: StringName = &""
+	if not dmi.has_state(flower_state):
+		var state_keys: Array = dmi.states.keys()
+		if state_keys.is_empty():
+			return
+		flower_state = StringName(String(state_keys[0]))
+
+	var frame_count: int = dmi.get_frame_count(flower_state)
+	if frame_count <= 0:
+		return
+
+	_decorations = Node2D.new()
+	_decorations.name = "FlowerPatches"
+	_decorations.z_index = -1
+	add_child(_decorations)
+
+	var positions: Array[Vector2] = [
+		Vector2(350, 220),
+		Vector2(395, 288),
+		Vector2(548, 186),
+		Vector2(590, 286),
+		Vector2(428, 410),
+		Vector2(682, 338),
+		Vector2(278, 322),
+		Vector2(535, 420),
+	]
+
+	for index in range(positions.size()):
+		var frame_index: int = index % frame_count
+		var texture: Texture2D = dmi.get_frame_texture(
+			flower_state,
+			&"down",
+			frame_index
+		)
+		if texture == null:
+			continue
+
+		var flower: Sprite2D = Sprite2D.new()
+		flower.texture = texture
+		flower.position = positions[index]
+		flower.scale = Vector2(0.78, 0.78)
+		_decorations.add_child(flower)
+
+func _polish_layout() -> void:
+	# House: smaller and higher so it remains the focal point without hiding
+	# Roshi or consuming most of the playable foreground.
+	_set_node_transform(
+		&"KameHouse",
+		Vector2(480, 222),
+		Vector2(0.82, 0.82)
+	)
+	_set_node_position(&"KameHouseEntrance", Vector2(482, 338))
+
+	# Mentor/NPC cluster is pulled forward and left of the house entrance.
+	_set_node_position(&"MasterRoshi", Vector2(365, 390))
+	_set_node_position(&"Turtle", Vector2(302, 408))
+
+	# Sparring gets its own readable area to the right.
+	_set_node_position(&"TrainingFighter", Vector2(650, 382))
+	var ring: Line2D = get_node_or_null("TrainingRing") as Line2D
+	if ring != null:
+		ring.points = PackedVector2Array([
+			Vector2(585, 344),
+			Vector2(704, 344),
+			Vector2(724, 382),
+			Vector2(704, 420),
+			Vector2(585, 420),
+			Vector2(565, 382),
+			Vector2(585, 344),
+		])
+
+	# Tropical props frame the island instead of competing with the house.
+	_set_node_position(&"PalmTreeLeft", Vector2(282, 286))
+	_set_node_position(&"PalmTreeRight", Vector2(690, 292))
+	_set_node_position(&"PalmTreeSouth", Vector2(616, 438))
+	_set_node_position(&"PalmTreeNorthWest", Vector2(238, 198))
+	_set_node_position(&"PalmTreeNorthEast", Vector2(722, 204))
+	_set_node_position(&"BeachUmbrella", Vector2(248, 405))
+	_set_node_position(&"BeachChair", Vector2(208, 430))
+	_set_node_position(&"BeachRock", Vector2(690, 432))
+
+	# Keep the tutorial/checkpoint readable but out of Roshi's foreground.
+	_set_node_position(&"BeachGuide", Vector2(438, 452))
+	_set_node_position(&"IslandCheckpoint", Vector2(510, 452))
+
+	# Dock/travel capsule remains in the southeast corner.
+	_set_node_position(&"Dock", Vector2(790, 468))
+	_set_node_position(&"TravelCapsule", Vector2(836, 450))
+	_set_node_position(&"WestCityBoat", Vector2(792, 444))
+
+func _set_node_position(node_path: NodePath, value: Vector2) -> void:
+	var node: Node2D = get_node_or_null(node_path) as Node2D
+	if node != null:
+		node.position = value
+
+func _set_node_transform(
+	node_path: NodePath,
+	position_value: Vector2,
+	scale_value: Vector2
+) -> void:
+	var node: Node2D = get_node_or_null(node_path) as Node2D
+	if node == null:
+		return
+
+	node.position = position_value
+	node.scale = scale_value
 
 func _add_tile(
 	parent: Node2D,
@@ -212,7 +432,7 @@ func _add_tile(
 	z_value: int,
 	color_value: Color
 ) -> void:
-	var tile := Sprite2D.new()
+	var tile: Sprite2D = Sprite2D.new()
 	tile.texture = texture
 	tile.position = position_value
 	tile.centered = true
