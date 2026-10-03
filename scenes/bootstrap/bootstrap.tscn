@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/world/kame_island.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
@@ -23,6 +23,8 @@
 [ext_resource type="Script" path="res://core/input/gamepad_profile.gd" id="21_gamepad"]
 [ext_resource type="Script" path="res://systems/training/training_manager.gd" id="22_training"]
 [ext_resource type="PackedScene" path="res://ui/training/training_hud.tscn" id="23_training_hud"]
+[ext_resource type="Script" path="res://core/movement/player_dash_system.gd" id="24_dash"]
+[ext_resource type="PackedScene" path="res://ui/abilities/special_status_hud.tscn" id="25_special_status"]
 
 [node name="Bootstrap" type="Node2D"]
 
@@ -57,6 +59,9 @@ script = ExtResource("21_gamepad")
 [node name="CombatFeedbackManager" type="Node" parent="." groups=["combat_feedback"]]
 script = ExtResource("14_feedback")
 
+[node name="PlayerDashSystem" type="Node" parent="."]
+script = ExtResource("24_dash")
+
 [node name="GameStatsManager" type="Node" parent="." groups=["game_stats"]]
 script = ExtResource("19_stats")
 
@@ -72,6 +77,8 @@ position = Vector2(480, 405)
 [node name="UIContainer" type="CanvasLayer" parent="."]
 
 [node name="CombatHUD" parent="UIContainer" instance=ExtResource("3_hud")]
+
+[node name="SpecialStatusHUD" parent="UIContainer" instance=ExtResource("25_special_status")]
 
 [node name="QuestTracker" parent="UIContainer" instance=ExtResource("10_quest_tracker")]
 
