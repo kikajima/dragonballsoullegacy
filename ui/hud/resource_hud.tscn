@@ -4,10 +4,10 @@
 
 [node name="ResourceHUD" type="Control"]
 layout_mode = 0
-offset_left = 354.0
+offset_left = 344.0
 offset_top = 5.0
 offset_right = 474.0
-offset_bottom = 29.0
+offset_bottom = 38.0
 mouse_filter = 2
 script = ExtResource("1")
 
@@ -21,11 +21,21 @@ grow_vertical = 2
 color = Color(0.015, 0.02, 0.035, 0.78)
 mouse_filter = 2
 
-[node name="Zeni" type="Label" parent="Panel"]
+[node name="Level" type="Label" parent="Panel"]
 offset_left = 5.0
 offset_top = 2.0
-offset_right = 114.0
+offset_right = 124.0
 offset_bottom = 11.0
+theme_override_colors/font_color = Color(0.62, 0.88, 1, 1)
+theme_override_font_sizes/font_size = 5
+text = "LV 1"
+horizontal_alignment = 2
+
+[node name="Zeni" type="Label" parent="Panel"]
+offset_left = 5.0
+offset_top = 12.0
+offset_right = 124.0
+offset_bottom = 21.0
 theme_override_colors/font_color = Color(1, 0.88, 0.3, 1)
 theme_override_font_sizes/font_size = 5
 text = "ZENI 0"
@@ -33,9 +43,9 @@ horizontal_alignment = 2
 
 [node name="QuickItem" type="Label" parent="Panel"]
 offset_left = 5.0
-offset_top = 12.0
-offset_right = 114.0
-offset_bottom = 21.0
+offset_top = 22.0
+offset_right = 124.0
+offset_bottom = 31.0
 theme_override_colors/font_color = Color(0.65, 1, 0.62, 1)
 theme_override_font_sizes/font_size = 5
 text = "Q  SENZU x0"
