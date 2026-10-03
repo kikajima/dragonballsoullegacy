@@ -7,24 +7,29 @@ extends Area2D
 var difficulty_scale: float = 1.0
 
 var _partner: Node2D
+var _active_difficulty: float = 1.0
 
 func get_interaction_label() -> String:
 	if is_instance_valid(_partner):
 		return "End Sparring"
 
-	return "Start Sparring Partner"
+	var training: TrainingManager = _get_training()
+	if training == null:
+		return "Start Sparring Partner"
+
+	return "Spar %.0fx Gravity" % training.gravity_multiplier
 
 func interact(_actor: Node) -> void:
 	if is_instance_valid(_partner):
 		_partner.queue_free()
 		_partner = null
-		var training := _get_training()
+		var active_training: TrainingManager = _get_training()
 		if (
-			training != null
-			and training.active_mode
+			active_training != null
+			and active_training.active_mode
 				== TrainingManager.MODE_SPARRING
 		):
-			training.stop_training()
+			active_training.stop_training()
 		return
 
 	_spawn_partner()
@@ -33,7 +38,20 @@ func _spawn_partner() -> void:
 	if partner_scene == null:
 		return
 
-	var partner := partner_scene.instantiate() as DebugGokuEnemy
+	var training: TrainingManager = _get_training()
+	var gravity: float = 1.0
+	if training != null:
+		gravity = maxf(training.gravity_multiplier, 1.0)
+
+	_active_difficulty = clampf(
+		difficulty_scale * sqrt(gravity),
+		0.5,
+		4.0
+	)
+
+	var partner: DebugGokuEnemy = (
+		partner_scene.instantiate() as DebugGokuEnemy
+	)
 	if partner == null:
 		return
 
@@ -42,50 +60,41 @@ func _spawn_partner() -> void:
 	partner.min_zeni_drop = 0
 	partner.max_zeni_drop = 0
 	partner.senzu_drop_chance = 0.0
+	partner.difficulty_scale = _active_difficulty
+	partner.reward_scale = 0.0
+	partner.display_name = "Gravity Sparring Partner"
+	partner.enemy_rank = "Training %.0fx" % gravity
 
 	get_parent().add_child(partner)
 	partner.global_position = global_position + spawn_offset
 	_partner = partner
 
-	var health := partner.get_node_or_null(
+	var health: HealthComponent = partner.get_node_or_null(
 		"Components/HealthComponent"
 	) as HealthComponent
 	if health != null:
-		health.max_health = maxi(
-			roundi(float(health.max_health) * difficulty_scale),
-			1
-		)
-		health.restore_full()
 		health.died.connect(_on_partner_defeated)
 
-	var melee := partner.get_node_or_null(
-		"Components/MeleeCombatComponent"
-	) as MeleeCombatComponent
-	if melee != null:
-		melee.damage = maxi(
-			roundi(float(melee.damage) * difficulty_scale),
-			1
-		)
-		melee.kick_damage = maxi(
-			roundi(float(melee.kick_damage) * difficulty_scale),
-			1
-		)
-
-	var reward := partner.get_node_or_null(
+	var reward: ExperienceRewardComponent = partner.get_node_or_null(
 		"Components/ExperienceRewardComponent"
 	) as ExperienceRewardComponent
 	if reward != null:
 		reward.experience_reward = 0
 
-	var training := _get_training()
 	if training != null:
 		training.start_training(TrainingManager.MODE_SPARRING)
-		training.set_prompt("DEFEAT THE SPAR BOT")
+		training.set_prompt(
+			"DEFEAT THE %.0fx SPAR PARTNER" % gravity
+		)
 
 func _on_partner_defeated() -> void:
-	var training := _get_training()
+	var training: TrainingManager = _get_training()
 	if training != null:
-		training.register_success(15)
+		var reward_xp: int = maxi(
+			roundi(15.0 * _active_difficulty),
+			15
+		)
+		training.register_success(reward_xp)
 		training.set_prompt("SPARRING COMPLETE")
 
 	_partner = null
