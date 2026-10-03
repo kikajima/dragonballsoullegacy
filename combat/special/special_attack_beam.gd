@@ -117,6 +117,7 @@ func _physics_process(delta: float) -> void:
 		return
 
 	_tick_left += _tick_interval
+	_refresh_geometry()
 	_apply_damage_tick()
 
 func follow_caster(

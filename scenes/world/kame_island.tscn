@@ -92,6 +92,7 @@ z_index = 1
 position = Vector2(628, 420)
 scale = Vector2(0.86, 0.86)
 texture = ExtResource("3_palm")
+visible = false
 z_index = 1
 
 [node name="PalmTreeNorthWest" type="Sprite2D" parent="."]

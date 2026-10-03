@@ -4,6 +4,9 @@ extends Control
 @onready var label: Label = $Panel/Label
 
 func _ready() -> void:
+	position = Vector2(170.0, 232.0)
+	size = Vector2(140.0, 22.0)
+	z_index = 100
 	visible = false
 	call_deferred("_bind_player")
 

@@ -27,6 +27,7 @@ const ISLAND_CENTER := Vector2(480.0, 278.0)
 
 var _ambient_time: float = 0.0
 var _land_silhouette: Polygon2D
+var _grass_base: Polygon2D
 var _decorations: Node2D
 
 func _ready() -> void:
@@ -95,10 +96,18 @@ func _setup_organic_coast() -> void:
 	_land_silhouette = Polygon2D.new()
 	_land_silhouette.name = "LandSilhouette"
 	_land_silhouette.polygon = _coast_points()
-	_land_silhouette.color = Color(0.34, 0.54, 0.08, 1.0)
+	_land_silhouette.color = Color(0.82, 0.68, 0.34, 1.0)
 	_land_silhouette.z_index = -10
 	terrain.add_child(_land_silhouette)
 	terrain.move_child(_land_silhouette, 1)
+
+	_grass_base = Polygon2D.new()
+	_grass_base.name = "GrassBase"
+	_grass_base.polygon = _scaled_coast_points(0.93)
+	_grass_base.color = Color(0.34, 0.54, 0.08, 1.0)
+	_grass_base.z_index = -9
+	terrain.add_child(_grass_base)
+	terrain.move_child(_grass_base, 2)
 
 	# A larger translucent shape creates shallow water without exposing the
 	# square edges of the grass tile mask.
@@ -394,7 +403,6 @@ func _polish_layout() -> void:
 	# Tropical props frame the island instead of competing with the house.
 	_set_node_position(&"PalmTreeLeft", Vector2(282, 286))
 	_set_node_position(&"PalmTreeRight", Vector2(690, 292))
-	_set_node_position(&"PalmTreeSouth", Vector2(616, 438))
 	_set_node_position(&"BeachUmbrella", Vector2(248, 405))
 	_set_node_position(&"BeachChair", Vector2(208, 430))
 
