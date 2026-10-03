@@ -76,27 +76,53 @@ def game_assets(slug: str) -> dict[int, str]:
     return found
 
 
-def download_asset(slug: str, asset_id: int) -> bytes:
-    asset_page = f"{BASE}/game_boy_advance/{slug}/asset/{asset_id}/"
-    direct = f"{BASE}/download/{asset_id}/"
-    data = request(direct, referer=asset_page)
-    if data.startswith(b"\x89PNG\r\n\x1a\n"):
-        return data
-
-    page = request(asset_page).decode("utf-8", "replace")
-    candidates = re.findall(
+def image_candidates(page: str) -> list[str]:
+    values = re.findall(
         r"(?:https?:)?//[^\"']+\.png(?:\?[^\"']*)?|/resources/[^\"']+\.png(?:\?[^\"']*)?",
         page,
         re.I,
     )
-    for candidate in candidates:
-        if candidate.startswith("//"):
-            candidate = "https:" + candidate
-        elif candidate.startswith("/"):
-            candidate = BASE + candidate
-        image = request(candidate, referer=asset_page)
-        if image.startswith(b"\x89PNG\r\n\x1a\n"):
-            return image
+    result: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        value = html.unescape(value)
+        if value.startswith("//"):
+            value = "https:" + value
+        elif value.startswith("/"):
+            value = BASE + value
+        if value not in seen:
+            seen.add(value)
+            result.append(value)
+    return result
+
+
+def download_asset(slug: str, asset_id: int) -> bytes:
+    asset_page = f"{BASE}/game_boy_advance/{slug}/asset/{asset_id}/"
+    fullview_page = f"{BASE}/fullview/{asset_id}/"
+
+    # The full-view page works for legacy sheets whose old /download/{id}/
+    # endpoint now returns 404, while newer assets still use the same ID.
+    for page_url in (fullview_page, asset_page):
+        try:
+            page = request(page_url, referer=asset_page).decode("utf-8", "replace")
+        except Exception:
+            continue
+        for candidate in image_candidates(page):
+            try:
+                image = request(candidate, referer=page_url)
+            except Exception:
+                continue
+            if image.startswith(b"\x89PNG\r\n\x1a\n"):
+                return image
+
+    # Keep the modern download endpoint as a final fallback.
+    try:
+        data = request(f"{BASE}/download/{asset_id}/", referer=asset_page)
+        if data.startswith(b"\x89PNG\r\n\x1a\n"):
+            return data
+    except Exception:
+        pass
+
     raise RuntimeError(f"Asset {slug}/{asset_id} did not resolve to a PNG")
 
 
