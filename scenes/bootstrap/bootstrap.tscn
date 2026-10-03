@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3]
+[gd_scene load_steps=30 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/world/kame_island.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
@@ -28,7 +28,6 @@
 [ext_resource type="Script" path="res://world/world_ambient_fx.gd" id="26_ambient"]
 [ext_resource type="Script" path="res://core/combat/transformation_visual_system.gd" id="27_transform_fx"]
 [ext_resource type="PackedScene" path="res://ui/hud/resource_hud.tscn" id="28_resource_hud"]
-[ext_resource type="Script" path="res://core/visual/character_shadow_system.gd" id="29_shadows"]
 [ext_resource type="Script" path="res://world/gba_reference_map_system.gd" id="30_gba_maps"]
 
 [node name="Bootstrap" type="Node2D"]
@@ -75,9 +74,6 @@ script = ExtResource("30_gba_maps")
 
 [node name="TransformationVisualSystem" type="Node" parent="."]
 script = ExtResource("27_transform_fx")
-
-[node name="CharacterShadowSystem" type="Node" parent="."]
-script = ExtResource("29_shadows")
 
 [node name="GameStatsManager" type="Node" parent="." groups=["game_stats"]]
 script = ExtResource("19_stats")
