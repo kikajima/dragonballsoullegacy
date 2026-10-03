@@ -7,10 +7,17 @@ const MODE_WASTES: StringName = &"wastes"
 const MODE_CITY: StringName = &"city"
 
 const DEPTH_BASE: int = 1000
-const GBA_CAMERA_ZOOM := Vector2(1.42, 1.42)
-const CAMERA_CENTER_BIAS := Vector2(0.0, -5.0)
-const CAMERA_LOOK_AHEAD: float = 12.0
+# Slightly closer than the original project camera, but far less zoomed than
+# the previous GBA pass. This keeps combat readable without making the island
+# feel cramped.
+const GBA_CAMERA_ZOOM := Vector2(1.10, 1.10)
+const CAMERA_CENTER_BIAS := Vector2(0.0, -3.0)
+const CAMERA_LOOK_AHEAD: float = 7.5
 
+const GBA_KAME_MAP_PATH := (
+	"res://assets/vendor/dragon_ball_gba/dbzlog2/Backgrounds/"
+	+ "Master Roshi Island__584997.png"
+)
 const DMI_SPRITE_SHEET_SCRIPT = preload(
 	"res://core/assets/dmi_sprite_sheet.gd"
 )
@@ -92,8 +99,12 @@ func _setup_for_world(world: Node) -> void:
 	if world_name.contains("kame"):
 		_mode = MODE_KAME
 		_build_kame_glints()
-		_build_kame_foliage()
-		_build_kame_flower_density()
+		# The original LoG II map already contains its own coherent palms,
+		# flowers and shoreline clutter. Never stack our procedural foliage on
+		# top of it; that was the source of disconnected trees / visual noise.
+		if not ResourceLoader.exists(GBA_KAME_MAP_PATH):
+			_build_kame_foliage()
+			_build_kame_flower_density()
 	elif world_name.contains("rocky") or world_name.contains("wastes"):
 		_mode = MODE_WASTES
 		_build_waste_dust()
@@ -130,26 +141,26 @@ func _refresh_player_camera() -> void:
 		if _camera != null:
 			_camera.zoom = GBA_CAMERA_ZOOM
 			_camera.position_smoothing_enabled = true
-			_camera.position_smoothing_speed = 9.0
+			_camera.position_smoothing_speed = 8.0
 			_camera.limit_smoothed = false
 
 func _update_gba_camera(delta: float) -> void:
 	if _player == null or _camera == null:
 		return
 
-	var velocity := Vector2.ZERO
+	var velocity: Vector2 = Vector2.ZERO
 	if _player is CharacterBody2D:
 		velocity = (_player as CharacterBody2D).velocity
 
-	var look_direction := Vector2.ZERO
+	var look_direction: Vector2 = Vector2.ZERO
 	if velocity.length_squared() > 16.0:
 		look_direction = velocity.normalized()
 
 	var target_offset: Vector2 = CAMERA_CENTER_BIAS + Vector2(
 		look_direction.x * CAMERA_LOOK_AHEAD,
-		look_direction.y * CAMERA_LOOK_AHEAD * 0.55
+		look_direction.y * CAMERA_LOOK_AHEAD * 0.45
 	)
-	var weight: float = clampf(delta * 7.5, 0.0, 1.0)
+	var weight: float = clampf(delta * 6.5, 0.0, 1.0)
 	_camera.position = _camera.position.lerp(target_offset, weight).round()
 
 func _update_depth_sorting() -> void:
@@ -157,13 +168,13 @@ func _update_depth_sorting() -> void:
 		_player.z_index = DEPTH_BASE + roundi(_player.global_position.y)
 
 	var enemies: Array[Node] = get_tree().get_nodes_in_group("enemy")
-	for enemy in enemies:
+	for enemy: Node in enemies:
 		var enemy_2d: Node2D = enemy as Node2D
 		if enemy_2d != null:
 			enemy_2d.z_index = DEPTH_BASE + roundi(enemy_2d.global_position.y)
 
 	var npcs: Array[Node] = get_tree().get_nodes_in_group("npc")
-	for npc in npcs:
+	for npc: Node in npcs:
 		var npc_2d: Node2D = npc as Node2D
 		if npc_2d != null:
 			npc_2d.z_index = DEPTH_BASE + roundi(npc_2d.global_position.y)
@@ -198,25 +209,18 @@ func _build_kame_foliage() -> void:
 	if _detail_root == null:
 		return
 
+	# Sparse fallback only. The original GBA reference map supplies the dense
+	# vegetation whenever it is available.
 	var positions: Array[Vector2] = [
-		Vector2(205, 224),
-		Vector2(266, 152),
-		Vector2(348, 124),
-		Vector2(610, 132),
-		Vector2(690, 170),
-		Vector2(748, 270),
-		Vector2(720, 392),
-		Vector2(604, 456),
-		Vector2(328, 452),
-		Vector2(230, 356),
+		Vector2(248, 210),
+		Vector2(680, 206),
+		Vector2(704, 350),
+		Vector2(284, 360),
 	]
-	var scales: Array[float] = [
-		0.60, 0.72, 0.54, 0.62, 0.76,
-		0.58, 0.68, 0.52, 0.57, 0.63,
-	]
+	var scales: Array[float] = [0.62, 0.68, 0.58, 0.60]
 
 	for index in range(positions.size()):
-		var palm := Sprite2D.new()
+		var palm: Sprite2D = Sprite2D.new()
 		palm.name = "GbaPalm%02d" % index
 		palm.texture = PALM_TEXTURE
 		palm.position = positions[index]
@@ -238,20 +242,16 @@ func _build_kame_flower_density() -> void:
 	if state_keys.is_empty():
 		return
 
-	var flower_state := StringName(String(state_keys[0]))
+	var flower_state: StringName = StringName(String(state_keys[0]))
 	var frame_count: int = dmi.get_frame_count(flower_state)
 	if frame_count <= 0:
 		return
 
 	var positions: Array[Vector2] = [
-		Vector2(292, 190), Vector2(318, 208), Vector2(370, 168),
-		Vector2(418, 154), Vector2(546, 154), Vector2(586, 182),
-		Vector2(632, 208), Vector2(674, 244), Vector2(706, 316),
-		Vector2(674, 354), Vector2(646, 406), Vector2(582, 424),
-		Vector2(540, 396), Vector2(472, 422), Vector2(396, 420),
-		Vector2(350, 394), Vector2(304, 362), Vector2(274, 318),
-		Vector2(328, 302), Vector2(390, 326), Vector2(530, 304),
-		Vector2(572, 342), Vector2(612, 314), Vector2(450, 366),
+		Vector2(320, 212), Vector2(388, 176), Vector2(566, 182),
+		Vector2(636, 226), Vector2(654, 362), Vector2(548, 410),
+		Vector2(404, 414), Vector2(310, 348), Vector2(390, 326),
+		Vector2(530, 304), Vector2(584, 338), Vector2(454, 370),
 	]
 
 	for index in range(positions.size()):
@@ -263,10 +263,10 @@ func _build_kame_flower_density() -> void:
 		if texture == null:
 			continue
 
-		var flower := Sprite2D.new()
+		var flower: Sprite2D = Sprite2D.new()
 		flower.texture = texture
 		flower.position = positions[index]
-		var scale_value: float = 0.48 + float(index % 4) * 0.07
+		var scale_value: float = 0.46 + float(index % 3) * 0.06
 		flower.scale = Vector2(scale_value, scale_value)
 		flower.z_index = -1
 		_detail_root.add_child(flower)
@@ -282,7 +282,7 @@ func _build_kame_glints() -> void:
 	]
 
 	for index in range(positions.size()):
-		var glint := Polygon2D.new()
+		var glint: Polygon2D = Polygon2D.new()
 		var size: float = 1.5 + float(index % 3) * 0.5
 		glint.polygon = PackedVector2Array([
 			Vector2(0, -size),
@@ -298,7 +298,7 @@ func _build_kame_glints() -> void:
 
 func _build_waste_dust() -> void:
 	for index in range(22):
-		var mote := Polygon2D.new()
+		var mote: Polygon2D = Polygon2D.new()
 		var size: float = 0.8 + float(index % 4) * 0.35
 		mote.polygon = PackedVector2Array([
 			Vector2(-size, -size * 0.4),
@@ -322,7 +322,7 @@ func _build_city_lights() -> void:
 		Vector2(900, 330), Vector2(940, 330), Vector2(980, 330),
 	]
 	for index in range(positions.size()):
-		var light := Polygon2D.new()
+		var light: Polygon2D = Polygon2D.new()
 		light.polygon = PackedVector2Array([
 			Vector2(-2, -1), Vector2(2, -1),
 			Vector2(2, 1), Vector2(-2, 1),
