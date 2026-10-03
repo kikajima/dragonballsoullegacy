@@ -1,6 +1,8 @@
 class_name ComboCounter
 extends Control
 
+const COMBO_MILESTONES: Array[int] = [5, 10, 20, 30, 50]
+
 @onready var panel: Control = $Panel
 @onready var count_text: LegacyBitmapText = $Panel/Count
 @onready var hits_text: LegacyBitmapText = $Panel/Hits
@@ -83,7 +85,7 @@ func _pulse_panel(hit_count: int) -> void:
 
 func _check_milestone(hit_count: int) -> void:
 	var milestone: int = 0
-	for value in [5, 10, 20, 30, 50]:
+	for value: int in COMBO_MILESTONES:
 		if _previous_hits < value and hit_count >= value:
 			milestone = value
 
