@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3]
 
-[ext_resource type="Script" path="res://combat/special/special_attack_beam.gd" id="1_beam"]
+[ext_resource type="Script" path="res://combat/special/special_attack_beam_contact_fix.gd" id="1_beam"]
 
 [sub_resource type="RectangleShape2D" id="BeamShape"]
 size = Vector2(160, 8)
