@@ -76,54 +76,18 @@ def game_assets(slug: str) -> dict[int, str]:
     return found
 
 
-def image_candidates(page: str) -> list[str]:
-    values = re.findall(
-        r"(?:https?:)?//[^\"']+\.png(?:\?[^\"']*)?|/resources/[^\"']+\.png(?:\?[^\"']*)?",
-        page,
-        re.I,
-    )
-    result: list[str] = []
-    seen: set[str] = set()
-    for value in values:
-        value = html.unescape(value)
-        if value.startswith("//"):
-            value = "https:" + value
-        elif value.startswith("/"):
-            value = BASE + value
-        if value not in seen:
-            seen.add(value)
-            result.append(value)
-    return result
-
-
 def download_asset(slug: str, asset_id: int) -> bytes:
+    # The site's image CDN buckets assets by the integer thousands group.
+    # Example: asset 14506 -> /media/assets/14/14506.png
     asset_page = f"{BASE}/game_boy_advance/{slug}/asset/{asset_id}/"
-    fullview_page = f"{BASE}/fullview/{asset_id}/"
-
-    # The full-view page works for legacy sheets whose old /download/{id}/
-    # endpoint now returns 404, while newer assets still use the same ID.
-    for page_url in (fullview_page, asset_page):
-        try:
-            page = request(page_url, referer=asset_page).decode("utf-8", "replace")
-        except Exception:
-            continue
-        for candidate in image_candidates(page):
-            try:
-                image = request(candidate, referer=page_url)
-            except Exception:
-                continue
-            if image.startswith(b"\x89PNG\r\n\x1a\n"):
-                return image
-
-    # Keep the modern download endpoint as a final fallback.
-    try:
-        data = request(f"{BASE}/download/{asset_id}/", referer=asset_page)
-        if data.startswith(b"\x89PNG\r\n\x1a\n"):
-            return data
-    except Exception:
-        pass
-
-    raise RuntimeError(f"Asset {slug}/{asset_id} did not resolve to a PNG")
+    bucket = asset_id // 1000
+    media_url = f"{BASE}/media/assets/{bucket}/{asset_id}.png"
+    data = request(media_url, referer=asset_page)
+    if not data.startswith(b"\x89PNG\r\n\x1a\n"):
+        raise RuntimeError(
+            f"Asset {slug}/{asset_id} CDN response was not a PNG"
+        )
+    return data
 
 
 def main() -> None:
@@ -154,7 +118,7 @@ def main() -> None:
             total += 1
             if index % 20 == 0 or index == len(assets):
                 print(f"  {index}/{len(assets)} downloaded")
-            time.sleep(0.15)
+            time.sleep(0.1)
 
     (DEST / "CATALOG.tsv").write_text(
         "\n".join(catalog) + "\n", encoding="utf-8"
