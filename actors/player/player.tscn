@@ -57,16 +57,6 @@ script = ExtResource("1_player")
 
 [node name="Visuals" type="Node2D" parent="."]
 
-[node name="GroundShadow" type="AnimatedSprite2D" parent="Visuals"]
-position = Vector2(0, 18)
-z_index = -5
-scale = Vector2(0.75, 0.75)
-modulate = Color(1, 1, 1, 0.58)
-script = ExtResource("31_dmi_effect")
-dmi_path = "res://assets/vendor/hu2/Icons/Other/Other.dmi"
-dmi_state = &"FlightShadow"
-loop_animation = false
-
 [node name="ChargeAura" type="AnimatedSprite2D" parent="Visuals"]
 visible = false
 z_index = -2
