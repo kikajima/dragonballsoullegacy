@@ -156,7 +156,7 @@ func _spawn_afterimage() -> void:
 	ghost.texture = texture
 	ghost.flip_h = _sprite.flip_h
 	ghost.flip_v = _sprite.flip_v
-	ghost.z_index = -1
+	ghost.z_index = _player.z_index - 1
 	ghost.modulate = Color(0.55, 0.9, 1.0, 0.42)
 	world_container.add_child(ghost)
 
