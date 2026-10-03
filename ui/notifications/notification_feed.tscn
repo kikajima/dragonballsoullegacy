@@ -5,10 +5,13 @@
 
 [node name="NotificationFeed" type="Control"]
 layout_mode = 0
-offset_left = 130.0
-offset_top = 36.0
-offset_right = 350.0
-offset_bottom = 55.0
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -110.0
+offset_top = 6.0
+offset_right = 110.0
+offset_bottom = 25.0
+grow_horizontal = 2
 mouse_filter = 2
 script = ExtResource("1_notification")
 
@@ -19,7 +22,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.02, 0.025, 0.04, 0.56)
+color = Color(0.02, 0.025, 0.04, 0.42)
 mouse_filter = 2
 
 [node name="Label" type="Control" parent="Panel"]
