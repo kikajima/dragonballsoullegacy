@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=28 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/world/kame_island.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
@@ -26,6 +26,7 @@
 [ext_resource type="Script" path="res://core/movement/player_dash_system.gd" id="24_dash"]
 [ext_resource type="PackedScene" path="res://ui/abilities/special_status_hud.tscn" id="25_special_status"]
 [ext_resource type="Script" path="res://world/world_ambient_fx.gd" id="26_ambient"]
+[ext_resource type="Script" path="res://core/combat/transformation_visual_system.gd" id="27_transform_fx"]
 
 [node name="Bootstrap" type="Node2D"]
 
@@ -65,6 +66,9 @@ script = ExtResource("24_dash")
 
 [node name="WorldAmbientFX" type="Node" parent="."]
 script = ExtResource("26_ambient")
+
+[node name="TransformationVisualSystem" type="Node" parent="."]
+script = ExtResource("27_transform_fx")
 
 [node name="GameStatsManager" type="Node" parent="." groups=["game_stats"]]
 script = ExtResource("19_stats")
