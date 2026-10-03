@@ -14,6 +14,9 @@ var perfect_damage_multiplier: float = 0.05
 @export_range(0.0, 0.5, 0.01)
 var perfect_guard_window: float = 0.12
 
+@export_range(0.0, 20.0, 0.5)
+var perfect_guard_ki_restore: float = 3.0
+
 @export_range(-1.0, 1.0, 0.05)
 var front_dot_threshold: float = 0.0
 
@@ -108,6 +111,12 @@ func _report_guard_feedback(perfect: bool) -> void:
 		) as HitStopComponent
 		if hit_stop != null:
 			hit_stop.trigger()
+
+		var ki: KiComponent = actor.get_node_or_null(
+			"Components/KiComponent"
+		) as KiComponent
+		if ki != null and perfect_guard_ki_restore > 0.0:
+			ki.restore(perfect_guard_ki_restore)
 
 func _facing_vector(facing: StringName) -> Vector2:
 	match facing:
