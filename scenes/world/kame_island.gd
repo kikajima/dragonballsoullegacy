@@ -110,6 +110,7 @@ func _setup_organic_coast() -> void:
 	_grass_base.polygon = _scaled_coast_points(0.93)
 	_grass_base.color = Color(0.34, 0.54, 0.08, 1.0)
 	_grass_base.z_index = -9
+	_grass_base.visible = false
 	terrain.add_child(_grass_base)
 	terrain.move_child(_grass_base, 2)
 
@@ -201,36 +202,34 @@ func _build_island_tiles() -> void:
 		return
 
 	var grass_textures: Array[Texture2D] = []
-	for state_name in [
-		&"Grass1",
-		&"Grass2",
-		&"Grass3",
-		&"Grass4",
-	]:
-		var texture: Texture2D = dmi.get_frame_texture(
+	for state_name in [&"Grass1", &"Grass2", &"Grass3", &"Grass4"]:
+		var grass_texture: Texture2D = dmi.get_frame_texture(
 			state_name,
 			&"down",
 			0
 		)
-		if texture != null:
-			grass_textures.append(texture)
+		if grass_texture != null:
+			grass_textures.append(grass_texture)
 
 	if grass_textures.is_empty():
 		push_warning("Kame Island: Grass tiles missing from NewTurfs.dmi.")
 		return
 
 	var soil_dmi = DMI_SPRITE_SHEET_SCRIPT.load_file(SOIL_DMI_PATH)
-	var grass_dirt_texture: Texture2D = null
+	var sand_texture: Texture2D = null
 	if soil_dmi != null:
-		grass_dirt_texture = soil_dmi.get_frame_texture(
-			&"GrassDirt",
+		var dirt_texture: Texture2D = soil_dmi.get_frame_texture(
+			&"Dirt",
 			&"down",
 			0
 		)
+		if dirt_texture != null:
+			sand_texture = _create_sand_texture(dirt_texture)
 
 	_sand_tiles = Node2D.new()
 	_sand_tiles.name = "SandTiles"
 	_sand_tiles.z_index = 0
+	_sand_tiles.visible = false
 	terrain.add_child(_sand_tiles)
 
 	for row in range(WORLD_ROWS):
@@ -248,33 +247,64 @@ func _build_island_tiles() -> void:
 				Color(0.84, 0.97, 1.0, 1.0)
 			)
 
-			# Grass tiles intentionally stop before the organic coastline.
-			# The LandSilhouette fills that rim, hiding the square tile steps.
 			if not _is_grass_tile(column, row):
-				if grass_dirt_texture != null and _is_sand_tile(
-					column,
-					row
-				):
-					_add_tile(
-						_sand_tiles,
-						grass_dirt_texture,
-						world_position,
-						-8,
-						Color(1.0, 0.94, 0.78, 1.0)
-					)
 				continue
-
-			# Keep the island on one coherent base turf. The alternate DarkGrass
-			# variants contain decorative clutter that reads as scattered rocks.
-			var grass_index: int = 0
 
 			_add_tile(
 				grass_tiles,
-				grass_textures[grass_index],
+				grass_textures[0],
 				world_position,
-				-9,
-				Color(1.0, 1.0, 1.0, 1.0)
+				-8,
+				Color.WHITE
 			)
+
+func _create_sand_texture(source: Texture2D) -> Texture2D:
+	var image := source.get_image()
+	if image == null:
+		return source
+
+	for y in range(image.get_height()):
+		for x in range(image.get_width()):
+			var pixel := image.get_pixel(x, y)
+			if pixel.a <= 0.0:
+				continue
+
+			var luminance := (
+				pixel.r * 0.30
+				+ pixel.g * 0.59
+				+ pixel.b * 0.11
+			)
+			image.set_pixel(
+				x,
+				y,
+				Color(
+					0.66 + luminance * 0.25,
+					0.48 + luminance * 0.22,
+					0.25 + luminance * 0.16,
+					pixel.a
+				)
+			)
+
+	return ImageTexture.create_from_image(image)
+
+func _create_tiled_texture(source: Texture2D) -> Texture2D:
+	var source_image := source.get_image()
+	var canvas := Image.create(
+		WORLD_COLUMNS * TILE_SIZE,
+		WORLD_ROWS * TILE_SIZE,
+		false,
+		Image.FORMAT_RGBA8
+	)
+	var tile_width := source_image.get_width()
+	var tile_height := source_image.get_height()
+	for y in range(0, canvas.get_height(), tile_height):
+		for x in range(0, canvas.get_width(), tile_width):
+			canvas.blit_rect(
+				source_image,
+				Rect2i(0, 0, tile_width, tile_height),
+				Vector2i(x, y)
+			)
+	return ImageTexture.create_from_image(canvas)
 
 func _is_sand_tile(column: int, row: int) -> bool:
 	return (
@@ -374,12 +404,15 @@ func _build_flower_patches() -> void:
 	if dmi == null:
 		return
 
-	var flower_state: StringName = &""
+	var flower_state: StringName = &"flower1"
 	if not dmi.has_state(flower_state):
-		var state_keys: Array = dmi.states.keys()
-		if state_keys.is_empty():
-			return
-		flower_state = StringName(String(state_keys[0]))
+		for state_key in dmi.states.keys():
+			var candidate := StringName(String(state_key))
+			if String(candidate).to_lower().begins_with("flower"):
+				flower_state = candidate
+				break
+	if not dmi.has_state(flower_state):
+		return
 
 	var frame_count: int = dmi.get_frame_count(flower_state)
 	if frame_count <= 0:
@@ -492,6 +525,7 @@ func _add_tile(
 	tile.texture = texture
 	tile.position = position_value
 	tile.centered = true
+	tile.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	tile.z_index = z_value
 	tile.modulate = color_value
 	parent.add_child(tile)
