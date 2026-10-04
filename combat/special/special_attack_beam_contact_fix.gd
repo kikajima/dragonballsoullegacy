@@ -12,7 +12,6 @@ extends SpecialAttackBeam
 
 const CONTACT_TILE_SIZE: float = 32.0
 const CONTACT_FIRST_CENTER: float = 16.0
-const CONTACT_HIT_HALF_LENGTH: float = 16.0
 const CONTACT_MIN_SEGMENT_GAP: float = 4.0
 const CONTACT_DMI_PATH := "res://assets/sprites/effects/hu2/Effects.dmi"
 const CONTACT_START_STATE: StringName = &"KameStart"
@@ -47,7 +46,7 @@ func _resolve_nearest_target_length(max_length: float) -> float:
 	)
 
 	var nearest_collision: float = max_length
-	var nearest_hit_center: float = 0.0
+	var nearest_visual_front: float = 0.0
 
 	for hit in hits:
 		var collider: Area2D = hit.get("collider") as Area2D
@@ -78,16 +77,12 @@ func _resolve_nearest_target_length(max_length: float) -> float:
 		if collision_length < nearest_collision:
 			nearest_collision = collision_length
 
-			# KameHit is 32 px wide. Put its center half a tile before the
-			# hurtbox front so its leading edge, not its center, touches the
-			# enemy. This is what prevents the beam appearing behind them.
-			nearest_hit_center = maxf(
-				front_distance - CONTACT_HIT_HALF_LENGTH,
-				CONTACT_FIRST_CENTER
-			)
+			# Store the contact edge; rendering fits the terminal tile into
+			# the available distance, including point-blank contact.
+			nearest_visual_front = front_distance
 
-	if nearest_hit_center > 0.0:
-		_impact_visual_length = nearest_hit_center
+	if nearest_visual_front > 0.0:
+		_impact_visual_length = nearest_visual_front
 
 	return nearest_collision
 
@@ -168,10 +163,9 @@ func _refresh_kamehameha_visual(length: float) -> void:
 		super._refresh_kamehameha_visual(length)
 		return
 
-	var hit_center: float = maxf(
-		_impact_visual_length,
-		CONTACT_FIRST_CENTER
-	)
+	# At point-blank range a full tile would extend through the victim.
+	var hit_length: float = minf(_impact_visual_length, CONTACT_TILE_SIZE)
+	var hit_center: float = _impact_visual_length - hit_length * 0.5
 	var segment_positions: Array[float] = []
 
 	# Build complete tiles from the caster forward, but reserve the final
@@ -212,6 +206,12 @@ func _refresh_kamehameha_visual(length: float) -> void:
 			0.0
 		)
 		segment.rotation = -rotation
+		segment.scale = Vector2.ONE
+		if is_last:
+			if absf(_direction.x) > absf(_direction.y):
+				segment.scale.x = hit_length / CONTACT_TILE_SIZE
+			else:
+				segment.scale.y = hit_length / CONTACT_TILE_SIZE
 		segment.visible = true
 		segment.call(
 			"configure",

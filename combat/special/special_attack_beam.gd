@@ -112,12 +112,13 @@ func _physics_process(delta: float) -> void:
 	if _stopping:
 		return
 
+	# Contact is continuous even between damage pulses.
+	_refresh_geometry()
 	_tick_left -= delta
 	if _tick_left > 0.0:
 		return
 
 	_tick_left += _tick_interval
-	_refresh_geometry()
 	_apply_damage_tick()
 
 func follow_caster(
@@ -452,11 +453,17 @@ func _resolve_nearest_target_length(max_length: float) -> float:
 	return nearest
 
 func _is_live_damage_receiver(receiver: Area2D) -> bool:
-	if receiver == null:
+	if not is_instance_valid(receiver) or not receiver.monitorable:
 		return false
 
-	if receiver.has_method("can_receive_hit"):
-		return bool(receiver.call("can_receive_hit"))
+	# Invulnerability prevents damage, not physical contact. Using
+	# can_receive_hit() here lets the beam pass through after every hit.
+	if receiver is HurtboxComponent:
+		var hurtbox := receiver as HurtboxComponent
+		return (
+			hurtbox.health_component != null
+			and not hurtbox.health_component.is_dead()
+		)
 
 	var actor: Node = receiver.get_parent()
 	if actor == null:
@@ -588,6 +595,7 @@ func _refresh_kamehameha_visual(length: float) -> void:
 		# The parent rotates tile positions along the beam. The DMI state
 		# itself already contains the proper NORTH/SOUTH/EAST/WEST art.
 		segment.rotation = -rotation
+		segment.scale = Vector2.ONE
 		segment.visible = true
 		segment.call(
 			"configure",
