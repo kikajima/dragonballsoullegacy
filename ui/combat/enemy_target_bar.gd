@@ -10,11 +10,13 @@ extends Control
 
 var _health: HealthComponent
 var _time_left: float = 0.0
+var _visibility_tween: Tween
 
 func _ready() -> void:
 	_layout_bar()
 	get_viewport().size_changed.connect(_layout_bar)
 	visible = false
+	modulate.a = 0.0
 	call_deferred("_bind_feedback")
 
 func _layout_bar() -> void:
@@ -76,6 +78,7 @@ func _on_target_changed(target: Node) -> void:
 	tier_label.modulate = _tier_color(tier_name)
 	_time_left = visible_duration
 	visible = true
+	_fade_in()
 
 	_on_health_changed(
 		_health.current_health,
@@ -115,7 +118,14 @@ func _tier_color(tier_name: String) -> Color:
 	return Color.WHITE
 
 func _hide_target() -> void:
-	visible = false
+	if not visible:
+		return
+
+	if _visibility_tween != null and _visibility_tween.is_valid():
+		_visibility_tween.kill()
+	_visibility_tween = create_tween()
+	_visibility_tween.tween_property(self, "modulate:a", 0.0, 0.16)
+	_visibility_tween.tween_callback(_finish_hide)
 
 	if is_instance_valid(_health) and _health.health_changed.is_connected(
 		_on_health_changed
@@ -123,3 +133,13 @@ func _hide_target() -> void:
 		_health.health_changed.disconnect(_on_health_changed)
 
 	_health = null
+
+func _fade_in() -> void:
+	if _visibility_tween != null and _visibility_tween.is_valid():
+		_visibility_tween.kill()
+	modulate.a = 0.0
+	_visibility_tween = create_tween()
+	_visibility_tween.tween_property(self, "modulate:a", 1.0, 0.12)
+
+func _finish_hide() -> void:
+	visible = false
