@@ -162,21 +162,6 @@ func _add_surface_relief(path: String) -> void:
 	rim.default_color = Color(0.96, 0.87, 0.64, 0.65)
 	surface.add_child(rim)
 
-func _ensure_actor_shadow(actor: Node2D) -> void:
-	if actor.has_node("GbaContactShadow"):
-		return
-	var shadow := Polygon2D.new()
-	shadow.name = "GbaContactShadow"
-	shadow.polygon = PackedVector2Array([
-		Vector2(-6, 9), Vector2(6, 9), Vector2(6, 10),
-		Vector2(9, 10), Vector2(9, 13), Vector2(6, 13),
-		Vector2(6, 14), Vector2(-6, 14), Vector2(-6, 13),
-		Vector2(-9, 13), Vector2(-9, 10), Vector2(-6, 10)])
-	shadow.color = Color(0.08, 0.12, 0.18, 0.3)
-	shadow.show_behind_parent = true
-	actor.add_child(shadow)
-	actor.move_child(shadow, 0)
-
 func _clear_fx() -> void:
 	_items.clear()
 	_base_positions.clear()
@@ -208,21 +193,18 @@ func _refresh_player_camera() -> void:
 
 func _update_depth_sorting() -> void:
 	if _player != null and is_instance_valid(_player):
-		_ensure_actor_shadow(_player)
 		_player.z_index = DEPTH_BASE + roundi(_player.global_position.y)
 
 	var enemies: Array[Node] = get_tree().get_nodes_in_group("enemy")
 	for enemy: Node in enemies:
 		var enemy_2d: Node2D = enemy as Node2D
 		if enemy_2d != null:
-			_ensure_actor_shadow(enemy_2d)
 			enemy_2d.z_index = DEPTH_BASE + roundi(enemy_2d.global_position.y)
 
 	var npcs: Array[Node] = get_tree().get_nodes_in_group("npc")
 	for npc: Node in npcs:
 		var npc_2d: Node2D = npc as Node2D
 		if npc_2d != null:
-			_ensure_actor_shadow(npc_2d)
 			npc_2d.z_index = DEPTH_BASE + roundi(npc_2d.global_position.y)
 
 	if _mode == MODE_KAME and _world != null:

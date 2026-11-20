@@ -19,6 +19,10 @@ func _run() -> void:
 
 	var player := get_first_node_in_group("player") as Player
 	player.set_physics_process(false)
+	_check(
+		player.get_node_or_null("GbaContactShadow") == null,
+		"Player must not have a duplicate contact shadow"
+	)
 	_check(player.collision_mask == 5, "Player must collide with enemy bodies")
 	var movement_target := load(
 		"res://actors/enemies/debug_goku_enemy.tscn"
