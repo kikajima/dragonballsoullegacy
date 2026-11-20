@@ -7,6 +7,7 @@ extends Control
 @onready var label: Label = $Panel/Label
 
 var _tween: Tween
+var _resting_position: Vector2
 
 func _ready() -> void:
 	get_viewport().size_changed.connect(_layout_banner)
@@ -27,7 +28,11 @@ func _on_world_change(_path: String) -> void:
 
 func _layout_banner() -> void:
 	var viewport_size := get_viewport_rect().size
-	position = Vector2((viewport_size.x - 200.0) * 0.5, viewport_size.y - 112.0)
+	_resting_position = Vector2(
+		(viewport_size.x - 200.0) * 0.5,
+		viewport_size.y - 112.0
+	)
+	position = _resting_position
 	size = Vector2(200, 25)
 
 func show_location(location_name: String) -> void:
@@ -40,6 +45,7 @@ func show_location(location_name: String) -> void:
 	label.text = location_name
 	visible = true
 	modulate.a = 0.0
+	position = _resting_position + Vector2(0.0, 4.0)
 
 	_tween = create_tween()
 	_tween.tween_property(
@@ -47,14 +53,20 @@ func show_location(location_name: String) -> void:
 		"modulate:a",
 		1.0,
 		fade_duration
-	)
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_tween.parallel().tween_property(
+		self,
+		"position",
+		_resting_position,
+		fade_duration
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	_tween.tween_interval(display_duration)
 	_tween.tween_property(
 		self,
 		"modulate:a",
 		0.0,
 		fade_duration
-	)
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	_tween.tween_callback(_hide_banner)
 
 func _hide_banner() -> void:

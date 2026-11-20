@@ -7,11 +7,13 @@ extends Control
 
 var _queue: Array[String] = []
 var _time_left: float = 0.0
+var _show_tween: Tween
 
 func _ready() -> void:
 	_layout_feed()
 	get_viewport().size_changed.connect(_layout_feed)
 	visible = false
+	modulate.a = 0.0
 	call_deferred("_bind_sources")
 
 func _layout_feed() -> void:
@@ -54,6 +56,16 @@ func _show_next() -> void:
 	_layout_feed()
 	_time_left = message_duration
 	visible = true
+	if _show_tween != null and _show_tween.is_valid():
+		_show_tween.kill()
+	modulate.a = 0.0
+	_show_tween = create_tween()
+	_show_tween.tween_property(
+		self,
+		"modulate:a",
+		1.0,
+		0.12
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func _bind_sources() -> void:
 	var player := get_tree().get_first_node_in_group("player")
