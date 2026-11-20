@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://world/location_area.tscn" id="7_location"]
 [ext_resource type="PackedScene" path="res://world/world_portal.tscn" id="8_portal"]
 [ext_resource type="PackedScene" path="res://actors/npcs/turtle_npc.tscn" id="9_turtle"]
+[ext_resource type="PackedScene" path="res://actors/npcs/world_npc.tscn" id="11_npc"]
 [ext_resource type="Script" path="res://world/world_camera_bounds.gd" id="10_bounds"]
 [ext_resource type="Texture2D" path="res://assets/vendor/hu2/Icons/Images/CapsuleShip.png" id="11_ship"]
 [ext_resource type="Script" path="res://world/info_interactable.gd" id="12_info"]
@@ -232,6 +233,12 @@ position = Vector2(414, 372)
 
 [node name="Turtle" parent="." instance=ExtResource("9_turtle")]
 position = Vector2(318, 360)
+
+[node name="Krillin" parent="." instance=ExtResource("11_npc")]
+position = Vector2(720, 360)
+display_name = "Krillin"
+dmi_path = "res://assets/vendor/hu2/Icons/Characters/Krillin.dmi"
+dialogue_text = "Roshi says this island is the best place to build fundamentals.|I will keep watch while you train with the sparring fighter.|Come back when your basics are ready for a real journey."
 
 [node name="TrainingRing" type="Line2D" parent="."]
 z_index = 0

@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://world/checkpoint_area.tscn" id="3_checkpoint"]
 [ext_resource type="PackedScene" path="res://world/location_area.tscn" id="4_location"]
 [ext_resource type="Script" path="res://world/world_camera_bounds.gd" id="5_bounds"]
+[ext_resource type="PackedScene" path="res://actors/npcs/world_npc.tscn" id="6_npc"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(1280, 20)
@@ -127,6 +128,12 @@ min_zeni_drop = 28
 max_zeni_drop = 55
 senzu_drop_chance = 0.12
 respawn_delay = 4.0
+
+[node name="Piccolo" parent="." instance=ExtResource("6_npc")]
+position = Vector2(300, 420)
+display_name = "Piccolo"
+dmi_path = "res://assets/vendor/hu2/Icons/Characters/Piccolo.dmi"
+dialogue_text = "These wastes punish careless fighters.|Watch the distance between the common enemies and the elite ahead.|If you can keep your footing here, the city will feel easy."
 
 [node name="WastesCheckpoint" parent="." instance=ExtResource("3_checkpoint")]
 position = Vector2(160, 585)

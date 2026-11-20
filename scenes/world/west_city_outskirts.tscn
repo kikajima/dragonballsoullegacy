@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://world/location_area.tscn" id="4_location"]
 [ext_resource type="PackedScene" path="res://world/world_portal.tscn" id="5_portal"]
 [ext_resource type="Script" path="res://world/world_camera_bounds.gd" id="6_bounds"]
+[ext_resource type="PackedScene" path="res://actors/npcs/world_npc.tscn" id="7_npc"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(1280, 20)
@@ -105,6 +106,12 @@ reward_scale = 0.9
 min_zeni_drop = 0
 max_zeni_drop = 0
 senzu_drop_chance = 0.0
+
+[node name="Bulma" parent="." instance=ExtResource("7_npc")]
+position = Vector2(350, 470)
+display_name = "Bulma"
+dmi_path = "res://assets/vendor/hu2/Icons/Characters/SABulma.dmi"
+dialogue_text = "The road to Capsule Corp is open, but the wastes are not a sightseeing trip.|If your equipment is damaged, return to the city before pushing farther west.|The training capsule can prepare you for the next route."
 
 [node name="WestCityCheckpoint" parent="." instance=ExtResource("3_checkpoint")]
 position = Vector2(250, 185)

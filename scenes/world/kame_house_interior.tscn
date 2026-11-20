@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://world/world_portal.tscn" id="5_portal"]
 [ext_resource type="PackedScene" path="res://world/location_area.tscn" id="6_location"]
 [ext_resource type="Script" path="res://world/world_camera_bounds.gd" id="7_bounds"]
+[ext_resource type="PackedScene" path="res://actors/npcs/world_npc.tscn" id="8_npc"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(480, 18)
@@ -193,6 +194,12 @@ collision_mask = 0
 [node name="Visual" type="Polygon2D" parent="CoffeeTable"]
 polygon = PackedVector2Array(-32, -14, 32, -14, 32, 14, -32, 14)
 color = Color(0.78, 0.75, 0.69, 1)
+
+[node name="ChiChi" parent="." instance=ExtResource("8_npc")]
+position = Vector2(210, 270)
+display_name = "Chi-Chi"
+dmi_path = "res://assets/vendor/hu2/Icons/Characters/ChiChi.dmi"
+dialogue_text = "Kame House is a good place to recover between lessons.|Keep your supplies organized before you leave the island.|Roshi's students always seem to find trouble outside."
 
 [node name="HouseLocation" parent="." instance=ExtResource("6_location")]
 position = Vector2(272, 192)
