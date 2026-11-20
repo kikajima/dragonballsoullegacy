@@ -19,7 +19,7 @@ func _run() -> void:
 
 	var player := get_first_node_in_group("player") as Player
 	player.set_physics_process(false)
-	_check(player.collision_mask == 1, "Player movement must not be blocked by enemy bodies")
+	_check(player.collision_mask == 5, "Player must collide with enemy bodies")
 	var movement_target := load(
 		"res://actors/enemies/debug_goku_enemy.tscn"
 	).instantiate() as DebugGokuEnemy
@@ -32,8 +32,17 @@ func _run() -> void:
 		player.move_and_slide()
 		await physics_frame
 	_check(
-		player.position.y > movement_target.position.y - 20.0,
-		"Player must reach enemy contact distance"
+		absf(player.position.y - movement_target.position.y) <= 34.0,
+		"Player must stop at enemy body contact"
+	)
+	player.facing_component.update_from_direction(Vector2.DOWN)
+	player.melee_combat_component.start_attack(&"down", &"punch")
+	for _frame in 24:
+		player.melee_combat_component.tick_attack(1.0 / 60.0)
+		await physics_frame
+	_check(
+		movement_target.health_component.current_health < movement_target.health_component.max_health,
+		"Melee must reach an enemy at body contact"
 	)
 	movement_target.queue_free()
 	player.velocity = Vector2.ZERO
@@ -55,7 +64,7 @@ func _run() -> void:
 		).instantiate() as DebugGokuEnemy
 		game.add_child(target)
 		target.set_physics_process(false)
-		_check(target.collision_mask == 1, "Enemy body must collide with world only")
+		_check(target.collision_mask == 3, "Enemy body must collide with player and world")
 		target.health_component.max_health = 10000
 		target.health_component.restore_full()
 		target.position = Vector2(420, 360)
