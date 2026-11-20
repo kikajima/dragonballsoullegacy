@@ -72,7 +72,8 @@ var ki_blast_sheet_path: String = "res://assets/sprites/characters/goku/processe
 @export var persistent_aggro: bool = true
 @export var use_spawn_leash: bool = false
 @export var hard_disengage_range: float = 1200.0
-@export var attack_range: float = 36.0
+@export var attack_range: float = 18.0
+@export var vertical_attack_range: float = 36.0
 @export var attack_cooldown: float = 0.60
 @export var facing_change_cooldown: float = 0.16
 
@@ -275,9 +276,10 @@ func _physics_process(delta: float) -> void:
 		return
 
 	_update_facing_from_direction(to_target)
+	var melee_range := _melee_range_for_direction(to_target)
 
 	if (
-		distance_to_target <= attack_range * 1.25
+		distance_to_target <= melee_range * 1.25
 		and _attack_cooldown_left <= 0.0
 		and ai_component.consume_counterattack()
 	):
@@ -292,7 +294,7 @@ func _physics_process(delta: float) -> void:
 		_start_ranged_attack()
 		return
 
-	if distance_to_target <= attack_range:
+	if distance_to_target <= melee_range:
 		movement_component.stop(self)
 		_current_facing = _facing_toward(
 			_target.global_position
@@ -330,8 +332,9 @@ func _process_ai_rush() -> void:
 		_target.global_position - global_position
 	)
 	var distance_to_target: float = to_target.length()
+	var melee_range := _melee_range_for_direction(to_target)
 
-	if distance_to_target <= attack_range:
+	if distance_to_target <= melee_range:
 		ai_component.cancel_rush()
 		movement_component.stop(self)
 		_current_facing = _facing_toward(
@@ -519,6 +522,11 @@ func _start_attack() -> void:
 	if melee_combat_component.start_attack(_current_facing):
 		state_machine.change_state(melee_combat_component.get_attack_state())
 		_play_current_animation()
+
+func _melee_range_for_direction(to_target: Vector2) -> float:
+	if absf(to_target.x) > absf(to_target.y):
+		return attack_range
+	return vertical_attack_range
 
 func _set_idle() -> void:
 	guard_component.set_guarding(false)

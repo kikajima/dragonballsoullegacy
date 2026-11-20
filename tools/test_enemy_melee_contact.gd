@@ -36,7 +36,7 @@ func run() -> void:
 		game.add_child(enemy)
 		enemy.set_physics_process(false)
 		check(
-			enemy.attack_range >= 32.0,
+			enemy.vertical_attack_range >= 32.0,
 			"Enemy attack range must reach vertical body contact"
 		)
 		enemy.position = Vector2(420, 360)
@@ -60,22 +60,29 @@ func run() -> void:
 		enemy.queue_free()
 		await create_timer(0.5).timeout
 
-	var south_enemy := load(
-		"res://actors/enemies/debug_goku_enemy.tscn"
-	).instantiate() as DebugGokuEnemy
-	game.add_child(south_enemy)
-	south_enemy.position = Vector2(420, 420)
-	south_enemy.ai_component.profile.ranged_attack_chance = 0.0
-	south_enemy.attack_cooldown = 0.2
-	player.position = Vector2(420, 360)
-	player.health_component.restore_full()
-	for _frame in 120:
-		await physics_frame
-	check(
-		player.health_component.current_health < player.health_component.max_health,
-		"Enemy AI must attack when approaching from the south"
-	)
-	south_enemy.queue_free()
+	var ai_cases := {
+		"south": Vector2(420, 420),
+		"west": Vector2(360, 360),
+		"east": Vector2(480, 360),
+	}
+	for label in ai_cases:
+		var ai_enemy := load(
+			"res://actors/enemies/debug_goku_enemy.tscn"
+		).instantiate() as DebugGokuEnemy
+		game.add_child(ai_enemy)
+		ai_enemy.position = ai_cases[label]
+		ai_enemy.ai_component.profile.ranged_attack_chance = 0.0
+		ai_enemy.attack_cooldown = 0.2
+		player.position = Vector2(420, 360)
+		player.health_component.restore_full()
+		for _frame in 120:
+			await physics_frame
+		check(
+			player.health_component.current_health < player.health_component.max_health,
+			"Enemy AI must attack when approaching from the " + label
+		)
+		ai_enemy.queue_free()
+		await create_timer(0.5).timeout
 
 	print("Enemy melee contact: ", "PASS" if failures == 0 else "FAIL")
 	quit(failures)
