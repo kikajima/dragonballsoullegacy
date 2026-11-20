@@ -72,7 +72,7 @@ var ki_blast_sheet_path: String = "res://assets/sprites/characters/goku/processe
 @export var persistent_aggro: bool = true
 @export var use_spawn_leash: bool = false
 @export var hard_disengage_range: float = 1200.0
-@export var attack_range: float = 30.0
+@export var attack_range: float = 36.0
 @export var attack_cooldown: float = 0.60
 @export var facing_change_cooldown: float = 0.16
 
