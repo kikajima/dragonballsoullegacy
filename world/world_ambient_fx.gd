@@ -104,6 +104,7 @@ func _setup_for_world(world: Node) -> void:
 	elif world_name.contains("rocky") or world_name.contains("wastes"):
 		_mode = MODE_WASTES
 		_texture_surface("Ground", "MineCraft", &"Dirt")
+		_tint_surface("Ground", Color("d9b78c"))
 		for rock in ["RockA/Visual", "RockB/Visual", "RockC/Visual"]:
 			_texture_surface(rock, "MineCraft", &"Stone")
 			(_world.get_node(rock) as Polygon2D).modulate = Color(0.83, 0.72, 0.57)
@@ -112,6 +113,7 @@ func _setup_for_world(world: Node) -> void:
 	elif world_name.contains("west") or world_name.contains("city"):
 		_mode = MODE_CITY
 		_texture_surface("Ground", "CityTurfs", &"Tile")
+		_tint_surface("Ground", Color("e1e5e3"))
 		_texture_surface("RoadHorizontal", "CityTurfs", &"Road")
 		_texture_surface("RoadVertical", "CityTurfs", &"Road")
 		_texture_surface("CityPark/Visual", "NewTurfs", &"Grass1")
@@ -120,7 +122,9 @@ func _setup_for_world(world: Node) -> void:
 		_add_surface_relief("CityPark/Visual")
 	else:
 		_mode = MODE_NONE
-		if world is CapsuleTrainingChamber:
+		if world_name.contains("kamehouse") or world_name.contains("interior"):
+			_tint_surface("Floor", Color("d9b5b0"))
+		elif world is CapsuleTrainingChamber:
 			_texture_surface("Floor", "ApartmentInts", &"BaseTile")
 			(_world.get_node("Floor") as Polygon2D).modulate = Color(0.48, 0.55, 0.65)
 			_texture_surface("TrainingFloor", "DbzTurfs", &"GrayTile")
@@ -129,6 +133,11 @@ func _setup_for_world(world: Node) -> void:
 
 func _texture_surface(path: String, sheet_name: String, state: StringName) -> void:
 	SURFACE_TEXTURE.apply(_world.get_node_or_null(path) as Polygon2D, sheet_name, state)
+
+func _tint_surface(path: String, color: Color) -> void:
+	var surface := _world.get_node_or_null(path) as Polygon2D
+	if surface != null:
+		surface.modulate = color
 
 func _add_surface_relief(path: String) -> void:
 	var surface := _world.get_node_or_null(path) as Polygon2D
