@@ -34,6 +34,8 @@ func _process(delta: float) -> void:
 		0.0,
 		-rise_distance * ratio
 	)
+	var pop_ratio := clampf(_elapsed / 0.1, 0.0, 1.0)
+	label.scale = Vector2.ONE * lerpf(1.12, 1.0, pop_ratio)
 	label.modulate.a = 1.0 - ratio
 
 	if ratio >= 1.0:
