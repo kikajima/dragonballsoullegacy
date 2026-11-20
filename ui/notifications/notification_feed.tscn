@@ -12,14 +12,13 @@ grow_horizontal = 2
 mouse_filter = 2
 script = ExtResource("1_notification")
 
-[node name="Panel" type="ColorRect" parent="."]
+[node name="Panel" type="Panel" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.067, 0.122, 0.173, 0.92)
 mouse_filter = 2
 
 [node name="Label" type="Label" parent="Panel"]

@@ -4,17 +4,28 @@ extends Control
 @export var display_duration: float = 2.4
 @export var fade_duration: float = 0.35
 
+@onready var panel: Panel = $Panel
 @onready var label: Label = $Panel/Label
 
 var _tween: Tween
 var _resting_position: Vector2
 
 func _ready() -> void:
+	_style_panel()
 	get_viewport().size_changed.connect(_layout_banner)
 	_layout_banner()
 	visible = false
 	modulate.a = 0.0
 	call_deferred("_bind_world")
+
+func _style_panel() -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("101a25")
+	style.border_color = Color("849aa6")
+	style.set_border_width_all(1)
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.5)
+	style.shadow_size = 2
+	panel.add_theme_stylebox_override("panel", style)
 
 func _bind_world() -> void:
 	var world := get_tree().get_first_node_in_group("world_manager") as WorldManager

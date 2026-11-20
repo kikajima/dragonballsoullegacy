@@ -3,6 +3,7 @@ extends Control
 
 @export var message_duration: float = 1.8
 
+@onready var panel: Panel = $Panel
 @onready var label: Label = $Panel/Label
 
 var _queue: Array[String] = []
@@ -10,11 +11,21 @@ var _time_left: float = 0.0
 var _show_tween: Tween
 
 func _ready() -> void:
+	_style_panel()
 	_layout_feed()
 	get_viewport().size_changed.connect(_layout_feed)
 	visible = false
 	modulate.a = 0.0
 	call_deferred("_bind_sources")
+
+func _style_panel() -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("111f2c")
+	style.border_color = Color("506775")
+	style.set_border_width_all(1)
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.45)
+	style.shadow_size = 2
+	panel.add_theme_stylebox_override("panel", style)
 
 func _layout_feed() -> void:
 	var font := label.get_theme_font("font")
