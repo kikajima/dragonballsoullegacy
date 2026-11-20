@@ -41,6 +41,21 @@ func show_all() -> void:
 func get_character_count() -> int:
 	return _wrapped_text.length()
 
+func paginate_text(value: String) -> Array[String]:
+	# Include the glyph footprint, which extends beyond the line advance.
+	var max_lines: int = maxi(
+		int(floor(
+			(size.y - glyph_draw_offset.y - glyph_size.y)
+			/ float(maxi(line_height, 1))
+		)) + 1,
+		1
+	)
+	var wrapped_lines := _wrap_text(value).split("\n", true)
+	var pages: Array[String] = []
+	for start in range(0, wrapped_lines.size(), max_lines):
+		pages.append("\n".join(wrapped_lines.slice(start, start + max_lines)))
+	return pages
+
 func _draw() -> void:
 	if _sheet == null or _wrapped_text.is_empty():
 		return
@@ -91,7 +106,10 @@ func _wrap_text(value: String) -> String:
 		return ""
 
 	var max_columns: int = maxi(
-		int(floor(size.x / float(maxi(character_advance, 1)))),
+		int(floor(
+			(size.x - glyph_draw_offset.x - glyph_size.x)
+			/ float(maxi(character_advance, 1))
+		)) + 1,
 		1
 	)
 	var output_lines := PackedStringArray()
@@ -108,21 +126,25 @@ func _wrap_text(value: String) -> String:
 		for word in words:
 			var safe_word: String = String(word)
 
-			if current_line.is_empty():
-				current_line = safe_word
-				continue
-
 			var candidate_length: int = (
 				current_line.length()
 				+ 1
 				+ safe_word.length()
 			)
 
-			if candidate_length <= max_columns:
-				current_line += " " + safe_word
-			else:
+			if not current_line.is_empty() and candidate_length > max_columns:
 				output_lines.append(current_line)
+				current_line = ""
+
+			# Ordinary words stay together. An overlong token must still fit.
+			while safe_word.length() > max_columns:
+				output_lines.append(safe_word.left(max_columns))
+				safe_word = safe_word.substr(max_columns)
+
+			if current_line.is_empty():
 				current_line = safe_word
+			else:
+				current_line += " " + safe_word
 
 		if not current_line.is_empty():
 			output_lines.append(current_line)

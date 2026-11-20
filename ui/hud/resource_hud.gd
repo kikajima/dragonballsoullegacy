@@ -13,10 +13,14 @@ var _experience: ExperienceComponent
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var viewport_size := get_viewport_rect().size
-	position = Vector2(viewport_size.x - 136.0, 6.0)
-	size = Vector2(126.0, 26.0)
+	_layout_hud()
+	get_viewport().size_changed.connect(_layout_hud)
 	call_deferred("_bind_player")
+
+func _layout_hud() -> void:
+	size = Vector2(108.0, 38.0)
+	scale = Vector2(0.5, 0.5)
+	position = Vector2(get_viewport_rect().size.x - size.x * scale.x - 8.0, 8.0)
 
 func _bind_player() -> void:
 	var player: Node = get_tree().get_first_node_in_group("player")

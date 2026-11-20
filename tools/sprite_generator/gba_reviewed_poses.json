@@ -1,0 +1,2026 @@
+{
+  "version": 1,
+  "sheets": [
+    {
+      "relative_path": "dbzlog/Playable Characters/Goku__39935.png",
+      "sha256": "68f49e76ff8e7725286211826b210b9f65f64c2bac25e108f674e00c5a02b48b",
+      "review_status": "partial",
+      "notes": "Reviewed against visible source labels. 'side' preserves the sheet's direction label without fabricating a second side. Timing and feet anchors unmeasured. Grabbing Raditz and separate effects remain pending.",
+      "poses": [
+        {
+          "name": "idle",
+          "source_label": "Idle",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                40,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                40,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                40,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                40,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                40,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                448,
+                40,
+                24,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "walk",
+          "source_label": "Walks",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                104,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                104,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                104,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                104,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                104,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                104,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                264,
+                104,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                288,
+                104,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                104,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                448,
+                104,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                472,
+                104,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                496,
+                104,
+                24,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "punch",
+          "source_label": "Punching",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 4,
+              "rect": [
+                112,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 5,
+              "rect": [
+                136,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 6,
+              "rect": [
+                160,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 7,
+              "rect": [
+                184,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                264,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                288,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 4,
+              "rect": [
+                312,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 5,
+              "rect": [
+                336,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 6,
+              "rect": [
+                360,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 7,
+              "rect": [
+                384,
+                168,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                464,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                504,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                544,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 4,
+              "rect": [
+                592,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 5,
+              "rect": [
+                632,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 6,
+              "rect": [
+                672,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 7,
+              "rect": [
+                712,
+                168,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "charge",
+          "source_label": "Charging",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                232,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                232,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                232,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                232,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                232,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                232,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                264,
+                232,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                288,
+                232,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                232,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                448,
+                232,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                472,
+                232,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                496,
+                232,
+                24,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "fire",
+          "source_label": "Firing",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                296,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                296,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                296,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                296,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                296,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                264,
+                296,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                296,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                464,
+                296,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                504,
+                296,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "fly",
+          "source_label": "Fly",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                360,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                360,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                360,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                360,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                360,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                264,
+                360,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                360,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                464,
+                360,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                504,
+                360,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "defeated",
+          "source_label": "Defeated",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                424,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                424,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                424,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                424,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                424,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                424,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                264,
+                424,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                288,
+                424,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                424,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                464,
+                424,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                504,
+                424,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                544,
+                424,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "hammer_carry",
+          "source_label": "Carries a Hammer",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                488,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                48,
+                488,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                488,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                256,
+                488,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                488,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                464,
+                488,
+                32,
+                64
+              ]
+            }
+          ]
+        },
+        {
+          "name": "hammer_walk",
+          "source_label": "Walks with a Hammer",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                584,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                48,
+                584,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                88,
+                584,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                128,
+                584,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                584,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                256,
+                584,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                296,
+                584,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                336,
+                584,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                584,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                464,
+                584,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                504,
+                584,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                544,
+                584,
+                32,
+                64
+              ]
+            }
+          ]
+        },
+        {
+          "name": "hammer_swing",
+          "source_label": "Swings a Hammer",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                680,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                48,
+                680,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                88,
+                680,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                128,
+                680,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                680,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                256,
+                680,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                296,
+                680,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                336,
+                680,
+                32,
+                64
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                680,
+                64,
+                64
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                496,
+                680,
+                64,
+                64
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                568,
+                680,
+                64,
+                64
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                640,
+                680,
+                64,
+                64
+              ]
+            }
+          ]
+        },
+        {
+          "name": "hammer_fly",
+          "source_label": "Flies with a Hammer",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                776,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                776,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                776,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                776,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                776,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                264,
+                776,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                776,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                464,
+                776,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                504,
+                776,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "hammer_unused",
+          "source_label": "Unused Hammer Actions",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                840,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                840,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                840,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                840,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 4,
+              "rect": [
+                104,
+                840,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                840,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                840,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                264,
+                840,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                288,
+                840,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 4,
+              "rect": [
+                312,
+                840,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                840,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                448,
+                840,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                472,
+                840,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                496,
+                840,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 4,
+              "rect": [
+                520,
+                840,
+                24,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "excited",
+          "source_label": "Excited",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                904,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                904,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                904,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                904,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                904,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                904,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                264,
+                904,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                288,
+                904,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                904,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                448,
+                904,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                472,
+                904,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                496,
+                904,
+                24,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "sad",
+          "source_label": "Sad",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                968,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                968,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                968,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                968,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                968,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                264,
+                968,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                968,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                448,
+                968,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                472,
+                968,
+                24,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "angry",
+          "source_label": "Angry",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                1032,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                1032,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                1032,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                1032,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                1032,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                1032,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                264,
+                1032,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                288,
+                1032,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                1032,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                448,
+                1032,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                472,
+                1032,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                496,
+                1032,
+                24,
+                32
+              ]
+            }
+          ],
+          "review_note": "2026-10-24: visual confirmation: four front frames; removed empty fifth rectangle."
+        },
+        {
+          "name": "raise_arms",
+          "source_label": "Raises his arms",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                1096,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                1096,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                1096,
+                24,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "bored",
+          "source_label": "Bored",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                1160,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                1160,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                1160,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                1160,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 4,
+              "rect": [
+                104,
+                1160,
+                24,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "transform_super_saiyan",
+          "source_label": "Transforms into Super Saiyan",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                200,
+                1160,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                240,
+                1160,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                280,
+                1160,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                320,
+                1160,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 4,
+              "rect": [
+                360,
+                1160,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "grab_raditz",
+          "source_label": "Grabbing Raditz",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                1160,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                488,
+                1160,
+                32,
+                32
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -9,10 +9,14 @@ var _training: TrainingManager
 var _prompt: String = ""
 
 func _ready() -> void:
-	position = Vector2(286.0, 60.0)
-	size = Vector2(184.0, 40.0)
+	_layout_hud()
+	get_viewport().size_changed.connect(_layout_hud)
 	visible = false
 	call_deferred("_bind_training")
+
+func _layout_hud() -> void:
+	position = Vector2(get_viewport_rect().size.x - 194.0, 100.0)
+	size = Vector2(184.0, 40.0)
 
 func _bind_training() -> void:
 	_training = get_tree().get_first_node_in_group(

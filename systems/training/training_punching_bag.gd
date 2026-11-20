@@ -5,12 +5,18 @@ extends Area2D
 @export var min_prompt_delay: float = 0.75
 @export var max_prompt_delay: float = 1.55
 
-@onready var visual: Polygon2D = $Visual
+@onready var visual: DmiEffectSprite2D = $HU2Visual
 
 var _prompt_open: bool = false
 var _prompt_left: float = 0.0
 var _next_prompt_left: float = 0.6
 var _flash_tween: Tween
+
+func _ready() -> void:
+	visual.animation_finished.connect(_on_hit_animation_finished)
+
+func _on_hit_animation_finished() -> void:
+	visual.configure(visual.dmi_path, &"PunchingBag", "down", true, true)
 
 func _process(delta: float) -> void:
 	var training := _get_training()
@@ -101,6 +107,8 @@ func _schedule_next_prompt() -> void:
 func _flash() -> void:
 	if _flash_tween != null and _flash_tween.is_valid():
 		_flash_tween.kill()
+	visual.configure(visual.dmi_path, &"PunchingBagHit", "down", false, true)
+	visual.set_frame_and_progress(0, 0.0)
 
 	visual.modulate = Color(1.0, 0.75, 0.45, 1.0)
 	_flash_tween = create_tween()

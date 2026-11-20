@@ -4,11 +4,15 @@ extends Control
 @onready var label: Label = $Panel/Label
 
 func _ready() -> void:
-	position = Vector2(170.0, 232.0)
-	size = Vector2(140.0, 22.0)
+	_layout_prompt()
+	get_viewport().size_changed.connect(_layout_prompt)
 	z_index = 100
 	visible = false
 	call_deferred("_bind_player")
+
+func _layout_prompt() -> void:
+	size = Vector2(180, 18)
+	position = Vector2(floorf((get_viewport_rect().size.x - size.x) / 2.0), get_viewport_rect().size.y - 84)
 
 func _bind_player() -> void:
 	var player := get_tree().get_first_node_in_group("player")

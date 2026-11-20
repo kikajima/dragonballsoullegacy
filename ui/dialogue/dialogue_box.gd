@@ -90,11 +90,15 @@ func show_dialogue(
 	if _sheet == null:
 		_load_legacy_sheet()
 
-	_pages = lines.duplicate()
+	_pages.clear()
+	for line in lines:
+		_pages.append_array(text_renderer.paginate_text(line))
 	_speaker = speaker
 	_page_index = 0
 	_typing_progress = 0.0
-	_previous_pause_state = get_tree().paused
+	# Replacing an open dialogue must retain the pause state from before it.
+	if _state == DialogueState.CLOSED:
+		_previous_pause_state = get_tree().paused
 
 	_apply_portrait(portrait_texture_path)
 

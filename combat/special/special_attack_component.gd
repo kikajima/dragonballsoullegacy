@@ -28,6 +28,7 @@ signal selection_changed(
 )
 signal cast_started(ability_id: StringName)
 signal cast_finished(ability_id: StringName)
+signal cast_rejected(reason: String)
 signal charge_changed(ability_id: StringName, ratio: float)
 
 @export var abilities: Array[SpecialAttackData] = []
@@ -169,10 +170,9 @@ func start_cast(
 	):
 		loadout_component.unlock_ability(data.ability_id)
 
-	if not loadout_component.can_use(data.ability_id):
-		return false
-
-	if not ki_component.can_consume(data.ki_cost):
+	var blocked := get_cast_block_reason(data)
+	if not blocked.is_empty():
+		cast_rejected.emit(blocked)
 		return false
 
 	_casting = true
@@ -224,7 +224,7 @@ func tick_cast(
 			return
 
 	if _active_data.is_charge_attack() and not _fired:
-		if input_held:
+		if input_held and _can_continue_charging():
 			if get_charge_ratio() < 1.0:
 				_advance_charge(delta)
 			_update_charge_preview(caster)
@@ -280,12 +280,42 @@ func cancel_cast() -> void:
 func is_casting() -> bool:
 	return _casting
 
+func get_cast_block_reason(data: SpecialAttackData) -> String:
+	if data == null:
+		return "SEM HABILIDADE"
+	if not unlock_all_for_prototype and not loadout_component.is_unlocked(data.ability_id):
+		return "NAO ADQUIRIDA"
+	if loadout_component.get_cooldown_left(data.ability_id) > 0.0:
+		return "EM RECARGA"
+	var required_ki := data.ki_cost
+	if data.is_transformation():
+		if is_transformation_active(data.transformation_id):
+			return ""
+		var definition := transformation_component.get_definition(data.transformation_id)
+		if definition == null:
+			return "FORMA INDISPONIVEL"
+		if experience_component.current_level < definition.minimum_level:
+			return "REQUER NIVEL %d" % definition.minimum_level
+		required_ki += definition.ki_activation_cost
+	if not ki_component.can_consume(required_ki):
+		return "KI INSUFICIENTE"
+	return ""
+
+func _can_continue_charging() -> bool:
+	return (
+		get_charge_ratio() >= 1.0
+		or _active_data.get_charge_ki_drain_rate() <= 0.0
+		or ki_component.current_ki > _active_data.ki_cost + 0.001
+	)
+
 func get_cast_facing() -> StringName:
 	return _cast_facing
 
 func get_cast_state() -> StringName:
 	if _active_data == null:
 		return &"special_projectile"
+	if _active_data.ability_id == &"spirit_bomb" and not _fired:
+		return &"special_spirit_charge"
 
 	# HU2 uses a dedicated "charge" character state while preparing a
 	# beam, then switches to "Beam" only when the attack is actually fired.
@@ -334,8 +364,11 @@ func _tick_continuous_beam(
 	delta: float,
 	input_held: bool
 ) -> void:
+	if _fired and (not is_instance_valid(_active_beam) or _active_beam._stopping):
+		_finish_cast(true)
+		return
 	if not _fired and _active_data.charge_duration > 0.0:
-		if input_held and get_charge_ratio() < 1.0:
+		if input_held and get_charge_ratio() < 1.0 and _can_continue_charging():
 			_advance_charge(delta)
 			_update_charge_preview(caster)
 			charge_changed.emit(
@@ -366,8 +399,11 @@ func _tick_continuous_beam(
 		if not _fired:
 			_finish_cast(false)
 			return
+		# A released charge must survive long enough for a physics pulse.
+		_lock_left = maxf(_active_data.cast_lock_duration, _active_data.beam_tick_interval)
 
-	if not input_held:
+	_lock_left = maxf(_lock_left - delta, 0.0)
+	if not input_held and _lock_left <= 0.0:
 		_finish_cast(true)
 		return
 
@@ -399,7 +435,7 @@ func _advance_charge(delta: float) -> void:
 		)
 		return
 
-	var requested: float = rate * maxf(delta, 0.0)
+	var requested: float = rate * minf(maxf(delta, 0.0), maxf(_active_data.charge_duration - _charge_time, 0.0))
 	var consumed: float = ki_component.consume_up_to(
 		requested,
 		_active_data.ki_cost
@@ -933,6 +969,10 @@ func _toggle_transformation(data: SpecialAttackData) -> bool:
 	var current_level: int = 1
 	if experience_component != null:
 		current_level = experience_component.current_level
+	# Ownership is shared with the skill catalog, including purchased forms.
+	# Loading an older save must not introduce a second, hidden unlock gate.
+	if unlock_all_for_prototype or loadout_component.is_unlocked(data.ability_id):
+		transformation_component.unlock(data.transformation_id)
 
 	return transformation_component.start_transformation(
 		data.transformation_id,

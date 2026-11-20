@@ -1,0 +1,4063 @@
+{
+  "version": 1,
+  "review_date": "2026-10-21",
+  "sheets": [
+    {
+      "relative_path": "dbzbuusfury/Playable Characters/Goku__47770.png",
+      "sha256": "e6834c5e8efc9ec32e77f6dd0ef5a24a036b58b7ffc51ebd0e9c0575a9c88e87",
+      "review_status": "partial",
+      "notes": "Additional visually checked Goku Buu sequences; other source columns remain pending.",
+      "poses": [
+        {
+          "name": "run",
+          "status": "visually_confirmed",
+          "timing_status": "preview_only_7fps",
+          "notes": "Visual sequence from numbered source columns; gameplay trigger and timing unmeasured.",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                192,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                224,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                256,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                288,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 0,
+              "rect": [
+                192,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 1,
+              "rect": [
+                224,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 2,
+              "rect": [
+                256,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 3,
+              "rect": [
+                288,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 0,
+              "rect": [
+                192,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 1,
+              "rect": [
+                224,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 2,
+              "rect": [
+                256,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 3,
+              "rect": [
+                288,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                192,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                224,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                256,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                288,
+                128,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "attack_arms_extended",
+          "status": "visually_confirmed",
+          "timing_status": "preview_only_7fps",
+          "notes": "Visual sequence from numbered source columns; gameplay trigger and timing unmeasured.",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                704,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                736,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                768,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                800,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 0,
+              "rect": [
+                704,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 1,
+              "rect": [
+                736,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 2,
+              "rect": [
+                768,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 3,
+              "rect": [
+                800,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 0,
+              "rect": [
+                704,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 1,
+              "rect": [
+                736,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 2,
+              "rect": [
+                768,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 3,
+              "rect": [
+                800,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                704,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                736,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                768,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                800,
+                128,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vanish",
+          "status": "visually_confirmed",
+          "timing_status": "preview_only_7fps",
+          "notes": "Visual sequence from numbered source columns; gameplay trigger and timing unmeasured.",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                832,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                864,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 0,
+              "rect": [
+                832,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 1,
+              "rect": [
+                864,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 0,
+              "rect": [
+                832,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 1,
+              "rect": [
+                864,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                832,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                864,
+                128,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "attack_hands_together",
+          "status": "visually_confirmed",
+          "timing_status": "preview_only_7fps",
+          "notes": "Visual sequence from numbered source columns; gameplay trigger and timing unmeasured.",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                896,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                928,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                960,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                992,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 0,
+              "rect": [
+                896,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 1,
+              "rect": [
+                928,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 2,
+              "rect": [
+                960,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 3,
+              "rect": [
+                992,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 0,
+              "rect": [
+                896,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 1,
+              "rect": [
+                928,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 2,
+              "rect": [
+                960,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 3,
+              "rect": [
+                992,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                896,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                928,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                960,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                992,
+                128,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "fly_horizontal",
+          "status": "visually_confirmed",
+          "timing_status": "preview_only_7fps",
+          "notes": "Visual sequence from numbered source columns; gameplay trigger and timing unmeasured.",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                1280,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                1312,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                1344,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                1376,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 0,
+              "rect": [
+                1280,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 1,
+              "rect": [
+                1312,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 2,
+              "rect": [
+                1344,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 3,
+              "rect": [
+                1376,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 0,
+              "rect": [
+                1280,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 1,
+              "rect": [
+                1312,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 2,
+              "rect": [
+                1344,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 3,
+              "rect": [
+                1376,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                1280,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                1312,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                1344,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                1376,
+                128,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "fly_diagonal",
+          "status": "visually_confirmed",
+          "timing_status": "preview_only_7fps",
+          "notes": "Visual sequence from numbered source columns; gameplay trigger and timing unmeasured.",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                1408,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                1440,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                1472,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                1504,
+                32,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 0,
+              "rect": [
+                1408,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 1,
+              "rect": [
+                1440,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 2,
+              "rect": [
+                1472,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 3,
+              "rect": [
+                1504,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 0,
+              "rect": [
+                1408,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 1,
+              "rect": [
+                1440,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 2,
+              "rect": [
+                1472,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 3,
+              "rect": [
+                1504,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                1408,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                1440,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                1472,
+                128,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                1504,
+                128,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "defeated_side",
+          "status": "visually_confirmed",
+          "timing_status": "preview_only_7fps",
+          "notes": "Visual sequence from numbered source columns; gameplay trigger and timing unmeasured.",
+          "frames": [
+            {
+              "direction": "left",
+              "frame": 0,
+              "rect": [
+                1600,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "left",
+              "frame": 1,
+              "rect": [
+                1632,
+                64,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 0,
+              "rect": [
+                1600,
+                96,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "right",
+              "frame": 1,
+              "rect": [
+                1632,
+                96,
+                32,
+                32
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relative_path": "dbzlog2/Prototype/Spiky Armadillo__573630.png",
+      "sha256": "d0e126be693a3c1a80ef8f1a6fb3f0dbc0e1ff67398fd2a56e8772bee87dc81e",
+      "review_status": "partial",
+      "notes": "Source explicitly labels WALK, ATTACK and DAMAGE. Four frames each, front/back/side; side is not mirrored. Variable widths preserve pixels; anchor offsets unmeasured.",
+      "poses": [
+        {
+          "name": "walk",
+          "status": "visually_confirmed",
+          "source_label": "WALK",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                12,
+                208,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                45,
+                208,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                78,
+                208,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                111,
+                208,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                177,
+                208,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                210,
+                208,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                243,
+                208,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                276,
+                208,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                339,
+                208,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                372,
+                208,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                405,
+                208,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                438,
+                208,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "attack",
+          "status": "visually_confirmed",
+          "source_label": "ATTACK",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                10,
+                272,
+                29,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                44,
+                272,
+                28,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                78,
+                272,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                111,
+                272,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                177,
+                272,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                210,
+                272,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                243,
+                272,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                276,
+                272,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                340,
+                272,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                372,
+                272,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                406,
+                272,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                438,
+                272,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "hurt",
+          "status": "visually_confirmed",
+          "source_label": "DAMAGE",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                10,
+                336,
+                30,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                42,
+                336,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                75,
+                336,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                109,
+                336,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                174,
+                336,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                207,
+                336,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                240,
+                336,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                274,
+                336,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                342,
+                336,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                370,
+                336,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                403,
+                336,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                436,
+                336,
+                31,
+                32
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relative_path": "dbzlog/Enemies & Bosses/Nappa__237431.png",
+      "sha256": "970bf497f7e534cbfbf2ace636a96dc597be1beea237d3b310fe3d18699d1735",
+      "review_status": "partial",
+      "notes": "2026-10-24: verified against explicit labels in original sheet. Front/back/side retained; no mirrored side or original timing inferred.",
+      "poses": [
+        {
+          "name": "idle",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "idle",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                40,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                40,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                112,
+                40,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                136,
+                40,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                216,
+                40,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                240,
+                40,
+                16,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "walk",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "walk",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                112,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                136,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                160,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                184,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                216,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                240,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                264,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                288,
+                104,
+                16,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "punch",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "punch",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                112,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                136,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                160,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                184,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                216,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                256,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                296,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                336,
+                168,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "fire",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "fire",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                112,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                136,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                160,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                216,
+                232,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                256,
+                232,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                296,
+                232,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "defeated",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "defeated",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                296,
+                16,
+                32
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relative_path": "dbzlog/Non-Playable Characters/Piccolo__39941.png",
+      "sha256": "b96186d99bf6802c3e2bee5f3c2d6e75ad9fc95b3d3c66bda74d83aae076dd80",
+      "review_status": "partial",
+      "notes": "2026-10-24: verified against explicit labels in original sheet. Front/back/side retained; no mirrored side or original timing inferred.",
+      "poses": [
+        {
+          "name": "idle",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "idle",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                40,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                40,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                112,
+                40,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                136,
+                40,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                216,
+                40,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                240,
+                40,
+                16,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "walk",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "walk",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                112,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                136,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                160,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                184,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                216,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                240,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                264,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                288,
+                104,
+                16,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "punch",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "punch",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                112,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                136,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                160,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                184,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                216,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                256,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                296,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                336,
+                168,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "fire",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "fire",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                112,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                136,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                160,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                216,
+                232,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                256,
+                232,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                296,
+                232,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "defeated",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "defeated",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                296,
+                16,
+                32
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relative_path": "dbzlog/Enemies & Bosses/Raditz__39942.png",
+      "sha256": "0b5c76c97e0ff7f55c8a355ca07274250f3c4c202d5c9b1a729ba52f1b333291",
+      "review_status": "partial",
+      "notes": "2026-10-24: verified against explicit labels in original sheet. Front/back/side retained; no mirrored side or original timing inferred.",
+      "poses": [
+        {
+          "name": "idle",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "idle",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                40,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                40,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                40,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                40,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                40,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                448,
+                40,
+                16,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "walk",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "walk",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                264,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                288,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                448,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                472,
+                104,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                496,
+                104,
+                16,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "punch",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "punch",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 4,
+              "rect": [
+                112,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 5,
+              "rect": [
+                136,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 6,
+              "rect": [
+                160,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 7,
+              "rect": [
+                184,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                264,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                288,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 4,
+              "rect": [
+                320,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 5,
+              "rect": [
+                344,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 6,
+              "rect": [
+                368,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 7,
+              "rect": [
+                392,
+                168,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                464,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                504,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                544,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 4,
+              "rect": [
+                592,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 5,
+              "rect": [
+                632,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 6,
+              "rect": [
+                672,
+                168,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 7,
+              "rect": [
+                712,
+                168,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "fire",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "fire",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                264,
+                232,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                232,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                464,
+                232,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                504,
+                232,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "angry",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "angry",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                216,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                240,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                264,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                288,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                424,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                448,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                472,
+                296,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                496,
+                296,
+                16,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "defeated",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "defeated",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                8,
+                360,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                32,
+                360,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                56,
+                360,
+                16,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                80,
+                360,
+                16,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "grabbed_by_goku",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "source_label": "grabbed_by_goku",
+          "frames": [
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                216,
+                360,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                272,
+                360,
+                32,
+                32
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relative_path": "dbzlog2/Prototype/Rock Throwing Dino__569643.png",
+      "sha256": "3f2856c49c31ec8331121f08e92e40f0670f3148490ae9afc0519bb6a71d4d14",
+      "review_status": "partial",
+      "notes": "Actions explicitly labelled IDLE, WALK, ATTACK 1, ATTACK 2 (unused), DAMAGE. Separate rows preserve rock-carrying variants; side not mirrored.",
+      "poses": [
+        {
+          "name": "idle",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                16,
+                144,
+                22,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                49,
+                144,
+                22,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                110,
+                144,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                175,
+                144,
+                30,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                208,
+                144,
+                30,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "idle_with_rock",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                16,
+                176,
+                22,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                49,
+                176,
+                22,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                110,
+                176,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                175,
+                176,
+                30,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                208,
+                176,
+                30,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "walk",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                16,
+                240,
+                23,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                49,
+                240,
+                19,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                77,
+                240,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                115,
+                240,
+                19,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                180,
+                240,
+                22,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                213,
+                240,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                248,
+                240,
+                20,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                277,
+                240,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                339,
+                240,
+                28,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                373,
+                240,
+                30,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                405,
+                240,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                439,
+                240,
+                30,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "walk_with_rock",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                16,
+                272,
+                23,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                49,
+                272,
+                19,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                77,
+                272,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                115,
+                272,
+                19,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                180,
+                272,
+                22,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                213,
+                272,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                248,
+                272,
+                20,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                277,
+                272,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                339,
+                272,
+                28,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                373,
+                272,
+                30,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                405,
+                272,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                439,
+                272,
+                30,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "attack",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                13,
+                336,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                45,
+                336,
+                26,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                79,
+                336,
+                23,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                176,
+                336,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                212,
+                336,
+                23,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                243,
+                336,
+                26,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                345,
+                336,
+                26,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                372,
+                336,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                406,
+                336,
+                30,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                439,
+                336,
+                30,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "attack_with_rock",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                13,
+                368,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                45,
+                368,
+                26,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                79,
+                368,
+                23,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                176,
+                368,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                211,
+                368,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                243,
+                368,
+                26,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                343,
+                368,
+                28,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                372,
+                368,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                406,
+                368,
+                30,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                439,
+                368,
+                30,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "attack_unused",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                16,
+                440,
+                23,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                49,
+                440,
+                23,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                79,
+                440,
+                25,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                112,
+                440,
+                23,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                177,
+                440,
+                25,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                210,
+                440,
+                25,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                246,
+                440,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                279,
+                440,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                340,
+                440,
+                30,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                373,
+                440,
+                30,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                405,
+                440,
+                32,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                438,
+                440,
+                32,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "hurt",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                13,
+                536,
+                23,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                45,
+                536,
+                23,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                81,
+                536,
+                21,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                116,
+                536,
+                21,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                178,
+                536,
+                25,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                212,
+                536,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                244,
+                536,
+                25,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                276,
+                536,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                339,
+                536,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                372,
+                536,
+                30,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                406,
+                536,
+                30,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                439,
+                536,
+                30,
+                32
+              ]
+            }
+          ]
+        },
+        {
+          "name": "hurt_with_rock",
+          "status": "visually_confirmed",
+          "timing_status": "not_in_sheet",
+          "frames": [
+            {
+              "direction": "down",
+              "frame": 0,
+              "rect": [
+                13,
+                568,
+                23,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 1,
+              "rect": [
+                45,
+                568,
+                23,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 2,
+              "rect": [
+                81,
+                568,
+                21,
+                32
+              ]
+            },
+            {
+              "direction": "down",
+              "frame": 3,
+              "rect": [
+                116,
+                568,
+                21,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 0,
+              "rect": [
+                178,
+                568,
+                25,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 1,
+              "rect": [
+                212,
+                568,
+                24,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 2,
+              "rect": [
+                244,
+                568,
+                25,
+                32
+              ]
+            },
+            {
+              "direction": "up",
+              "frame": 3,
+              "rect": [
+                276,
+                568,
+                27,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 0,
+              "rect": [
+                340,
+                568,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 1,
+              "rect": [
+                373,
+                568,
+                30,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 2,
+              "rect": [
+                407,
+                568,
+                31,
+                32
+              ]
+            },
+            {
+              "direction": "side",
+              "frame": 3,
+              "rect": [
+                440,
+                568,
+                30,
+                32
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

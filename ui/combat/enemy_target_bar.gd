@@ -12,13 +12,20 @@ var _health: HealthComponent
 var _time_left: float = 0.0
 
 func _ready() -> void:
-	position = Vector2(180.0, 5.0)
-	size = Vector2(120.0, 20.0)
+	_layout_bar()
+	get_viewport().size_changed.connect(_layout_bar)
 	visible = false
 	call_deferred("_bind_feedback")
 
+func _layout_bar() -> void:
+	size = Vector2(120, 20)
+	position = Vector2(floorf((get_viewport_rect().size.x - size.x) / 2), 5)
+
 func _process(delta: float) -> void:
 	if not visible:
+		return
+	if not is_instance_valid(_health):
+		_hide_target()
 		return
 
 	_time_left -= delta
@@ -45,7 +52,7 @@ func _on_target_changed(target: Node) -> void:
 	if health == null:
 		return
 
-	if _health != null and _health.health_changed.is_connected(
+	if is_instance_valid(_health) and _health.health_changed.is_connected(
 		_on_health_changed
 	):
 		_health.health_changed.disconnect(_on_health_changed)
@@ -110,7 +117,7 @@ func _tier_color(tier_name: String) -> Color:
 func _hide_target() -> void:
 	visible = false
 
-	if _health != null and _health.health_changed.is_connected(
+	if is_instance_valid(_health) and _health.health_changed.is_connected(
 		_on_health_changed
 	):
 		_health.health_changed.disconnect(_on_health_changed)

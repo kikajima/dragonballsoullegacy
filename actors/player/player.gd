@@ -19,6 +19,7 @@ var kick_move_speed_scale: float = 0.70
 
 @export var hurt_duration: float = 0.24
 @export var ki_charge_per_second: float = 28.0
+@export var respawn_invulnerability_duration: float = 1.0
 
 @onready var input_controller: PlayerInputController = $Controllers/PlayerInputController
 @onready var movement_component: MovementComponent = $Components/MovementComponent
@@ -595,9 +596,18 @@ func _on_died() -> void:
 		return
 
 	_respawning = true
+	# Cancel immediately; the respawn fade must not leave a damaging cast.
+	melee_combat_component.cancel_attack()
+	ki_blast_component.cancel_cast()
+	special_attack_component.cancel_cast()
+	movement_component.stop(self)
 	call_deferred("_respawn_sequence")
 
 func _respawn_sequence() -> void:
+	# Travel already owns the fade. Finish it before returning to checkpoint.
+	var world := get_tree().get_first_node_in_group("world_manager") as WorldManager
+	if world != null and world.is_transitioning():
+		await world.transition_finished
 	var transition := get_tree().get_first_node_in_group(
 		"screen_transition"
 	) as ScreenTransition
@@ -612,9 +622,35 @@ func _respawn_sequence() -> void:
 
 	_respawning = false
 
+func reset_runtime_after_load() -> void:
+	melee_combat_component.cancel_attack()
+	ki_blast_component.cancel_cast()
+	special_attack_component.cancel_cast()
+	status_effect_component.clear_all()
+	combo_tracker_component.break_combo()
+	knockback_component.stop(self)
+	knockback_component.clear_start_suppression()
+	guard_component.set_guarding(false)
+	_hurt_time_left = 0.0
+	_ki_quest_second_accumulator = 0.0
+	charge_aura.visible = false
+	if _flash_tween != null and _flash_tween.is_valid():
+		_flash_tween.kill()
+	$Visuals.modulate = Color.WHITE
+	var dash := get_tree().get_first_node_in_group("player_dash_system") as PlayerDashSystem
+	if dash != null:
+		dash.reset_after_load()
+	state_machine.change_state(STATE_IDLE)
+	animation_controller.update_visual(STATE_IDLE, facing_component.current_facing, 0.0)
+
 func _reset_after_defeat() -> void:
+	status_effect_component.clear_all()
+	combo_tracker_component.break_combo()
+	_hurt_time_left = 0.0
 	health_component.restore_full()
 	ki_component.restore_full()
+	# Health returns before fade-in ends; protect the arrival at the checkpoint.
+	hurtbox.grant_invulnerability(respawn_invulnerability_duration)
 	melee_combat_component.cancel_attack()
 	ki_blast_component.cancel_cast()
 	special_attack_component.cancel_cast()

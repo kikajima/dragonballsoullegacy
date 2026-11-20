@@ -33,8 +33,11 @@ func _travel() -> void:
 	if world != null:
 		# WorldManager owns the async transition. This portal is part of the
 		# outgoing world and may be freed before fade-in completes.
-		world.load_world_with_transition(
+		await world.load_world_with_transition(
 			target_scene,
 			target_spawn,
 			true
 		)
+	# Failed/rejected travel leaves this portal alive. Allow another attempt.
+	# A successful scene-owned portal is freed with its world during the await.
+	_transitioning = false

@@ -1,12 +1,9 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://ui/notifications/notification_feed.gd" id="1_notification"]
-[ext_resource type="Script" path="res://ui/fonts/legacy_bitmap_text.gd" id="2_bitmap"]
 
 [node name="NotificationFeed" type="Control"]
 layout_mode = 0
-anchor_left = 0.5
-anchor_right = 0.5
 offset_left = -110.0
 offset_top = 6.0
 offset_right = 110.0
@@ -22,10 +19,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.02, 0.025, 0.04, 0.42)
+color = Color(0.067, 0.122, 0.173, 0.92)
 mouse_filter = 2
 
-[node name="Label" type="Control" parent="Panel"]
+[node name="Label" type="Label" parent="Panel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -33,9 +30,12 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-script = ExtResource("2_bitmap")
 text = "Notification"
-render_scale = 0.9
-glyph_advance = 6.0
+offset_left = 6.0
+offset_right = -6.0
+clip_text = true
+autowrap_mode = 2
+text_overrun_behavior = 3
+theme_override_font_sizes/font_size = 7
 horizontal_alignment = 1
-vertical_center = true
+vertical_alignment = 1

@@ -160,6 +160,9 @@ func _animation_name_for_state(
 		return &"charge_ki"
 
 	match state:
+		&"special_spirit_charge":
+			var spirit_name := StringName("special_spirit_charge_%s" % facing)
+			return spirit_name if _has_animation(spirit_name) else StringName("special_projectile_%s" % facing)
 		&"special_melee":
 			return StringName("attack_1_%s" % facing)
 		&"special_kick":
@@ -558,8 +561,36 @@ func _try_build_dmi_sprite_frames() -> bool:
 		return false
 
 	frame_size = dmi.frame_size
+	_add_spirit_charge_pose(frames)
 	sprite.sprite_frames = frames
 	return true
+
+func _add_spirit_charge_pose(frames: SpriteFrames) -> void:
+	# Buu's Fury source: column 35, rows down/left/right/up after the header.
+	# Keep the supplied sheet intact; remove only each cell's background key.
+	if dmi_sprite_path.get_file() != "Goku.dmi":
+		return
+	var source_path := "res://assets/sprites/characters/goku/source/goku_buus_fury_source.png"
+	if not ResourceLoader.exists(source_path):
+		return
+	var texture := load(source_path) as Texture2D
+	if texture == null:
+		return
+	var source := texture.get_image()
+	if source == null:
+		return
+	for facing in DIRECTION_ROWS:
+		var cell := source.get_region(Rect2i(1120, 32 + int(DIRECTION_ROWS[facing]) * 32, 32, 32))
+		cell.convert(Image.FORMAT_RGBA8)
+		var background := cell.get_pixel(0, 0)
+		for y in range(32):
+			for x in range(32):
+				if cell.get_pixel(x, y).is_equal_approx(background):
+					cell.set_pixel(x, y, Color.TRANSPARENT)
+		var animation := StringName("special_spirit_charge_%s" % facing)
+		frames.add_animation(animation)
+		frames.set_animation_loop(animation, true)
+		frames.add_frame(animation, ImageTexture.create_from_image(cell))
 
 func _find_dmi_state(dmi, candidates: Array) -> StringName:
 	for candidate in candidates:

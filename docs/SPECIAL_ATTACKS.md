@@ -10,7 +10,7 @@ Goku prototype
     └── every registered special can be selected
 ```
 
-Later, custom characters can set `unlock_all_for_prototype = false` and receive abilities through race/class/progression/quests/items without changing the combat implementation.
+For the MMORPG, all characters can acquire the same skills through purchases, without character or race exclusivity. With `unlock_all_for_prototype = false`, the selector only exposes owned abilities in `AbilityLoadoutComponent`. A future shop grants ownership with `unlock_ability(id)` after validating the transaction. Ownership is already serialized in saves. Prices, shop UI and server-authoritative purchases are not implemented yet.
 
 The ability loadout now supports 8 slots by default, with room for 12.
 
@@ -34,6 +34,7 @@ Some skills react to **hold/release** instead of a single press.
 - stops on world geometry;
 - damages the nearest target in the beam path;
 - releasing O ends the beam.
+- defeating a target does not end the held cast: the beam extends to the next living target, wall or maximum range and continues draining Ki.
 
 ### Special Beam Cannon
 
@@ -140,7 +141,18 @@ The prototype Goku uses the shared two-handed beam casting pose. Character-speci
 - transformations drain Ki continuously and end automatically when Ki is exhausted;
 - active transformation data multiplies basic melee, Ki Blast, special-attack damage and movement speed;
 - the prototype shows a persistent aura while transformed;
-- Goku temporarily unlocks both forms for system testing. Future custom characters can restrict forms through progression/race/loadout data.
+- Both forms are unlocked for system testing. Owning a transformation skill also unlocks its form when cast, including after restoring older saves; there is no character/race gate. Level and Ki requirements still apply.
+- Super Namek keeps the caster's base appearance and green aura instead of playing Goku's golden Super Saiyan transformation frames.
+
+## HUD and charge regression checks
+
+- The selected skill stays visible, with R to cycle and O usage instructions.
+- Charging, casting, cooldown and active transformation are distinct states.
+- Insufficient Ki and level requirements are reported before casting starts.
+- When charging exhausts the available Ki above the activation reserve, the attack releases its partial charge. A fully charged projectile can still be held until release.
+- Charge drain is capped at the remaining charge time.
+- `tools/test_special_catalog.gd` exercises all 17 skills in four directions, Ki exhaustion, ownership restored from saves and HUD state. Add `-- --visual` for right-facing captures only.
+- `tools/test_special_hits.gd` checks damage/status against actual enemy hurtboxes for all 15 non-transformation skills.
 
 ## Runtime architecture
 
@@ -187,3 +199,8 @@ assets/sprites/characters/goku/processed/goku_buus_fury_beam_cast.png
 ```
 
 If those files are absent, the combat code remains structurally valid but some special visuals will be missing.
+# Spirit Bomb — revisão visual
+
+A esfera se eleva conforme cresce durante a carga e recebe partículas de energia convergentes. No voo, usa o quadro final da esfera com pulsação discreta, em vez de repetir os quadros de crescimento. O impacto dura 0,42 s e desenha uma onda expansiva até o raio de explosão calculado para a carga. Dano, custo de Ki, alcance e atordoamento permanecem definidos pelo recurso da habilidade.
+
+Verificação focada: `--script tools/test_special_catalog.gd -- --spirit` (quatro direções); dano e atordoamento cobertos por `tools/test_special_hits.gd`.

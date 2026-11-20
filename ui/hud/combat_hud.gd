@@ -40,9 +40,6 @@ const SPECIAL_CHARACTER_STATES := {
 	&"two_handed_smash": &"punch2",
 }
 
-@export_file("*.png")
-var hud_sheet_path: String = "res://assets/ui/legacy/processed/hud.png"
-
 @onready var player_panel: Control = $PlayerPanel
 @onready var fallback: ColorRect = $PlayerPanel/Fallback
 @onready var frame: TextureRect = $PlayerPanel/Frame
@@ -52,24 +49,6 @@ var hud_sheet_path: String = "res://assets/ui/legacy/processed/hud.png"
 @onready var ki_fill: TextureRect = $PlayerPanel/KiFill
 @onready var xp_fill: TextureRect = $PlayerPanel/XPFill
 
-# Regiões medidas diretamente no hud.png transparente fornecido.
-const FRAME_REGION := Rect2(8, 8, 80, 16)
-const ICON_BLUE_REGION := Rect2(137, 13, 21, 13)
-const ICON_YELLOW_REGION := Rect2(161, 13, 21, 13)
-const DIVIDER_REGION := Rect2(95, 8, 7, 7)
-const HP_REGION := Rect2(92, 18, 43, 3)
-const KI_REGION := Rect2(88, 22, 43, 3)
-const XP_REGION := Rect2(111, 9, 73, 2)
-
-# Posições locais reconstruídas a partir do HUD no vídeo do jogo:
-# frame nativo = 80x16.
-const ICON_POSITION := Vector2(0, 0)
-const DIVIDER_POSITION := Vector2(22, 3)
-const HP_POSITION := Vector2(32, 3)
-const KI_POSITION := Vector2(29, 7)
-const XP_POSITION := Vector2(2, 12)
-
-var _sheet: Texture2D
 var _player_health: HealthComponent
 var _player_ki: KiComponent
 var _player_experience: ExperienceComponent
@@ -78,57 +57,70 @@ var _xp_ratio: float = 0.0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_load_hud_sheet()
+	_build_hud()
 	call_deferred("_bind_player")
 
-func _load_hud_sheet() -> void:
-	if not ResourceLoader.exists(hud_sheet_path):
-		_show_fallback()
-		return
+func _build_hud() -> void:
+	# Original pixel geometry, independent of the borrowed legacy HUD sheet.
+	player_panel.position = Vector2(8, 8)
+	player_panel.size = Vector2(170, 46)
+	player_panel.scale = Vector2(0.5, 0.5)
+	fallback.hide()
+	frame.hide()
+	divider.hide()
+	var plate := Panel.new()
+	plate.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("111f2c")
+	style.border_color = Color("506775")
+	style.set_border_width_all(1)
+	style.border_width_left = 3
+	style.shadow_color = Color(0, 0, 0, 0.4)
+	style.shadow_size = 2
+	plate.add_theme_stylebox_override("panel", style)
+	player_panel.add_child(plate)
+	player_panel.move_child(plate, 0)
+	_add_label("Identity", "GUERREIRO", Vector2(40, 3), Vector2(122, 11), Color("edc18a"), 8)
+	_add_label("HPText", "VIDA", Vector2(40, 14), Vector2(122, 10), Color("edf2df"), 7)
+	_add_label("KiText", "KI", Vector2(40, 27), Vector2(122, 10), Color("b7e9ed"), 7)
+	icon.position = Vector2(7, 8)
+	icon.size = Vector2(27, 30)
+	icon.hide()
+	# Character-neutral energy crest, usable by future custom characters.
+	for layer in range(3):
+		var crest := Polygon2D.new()
+		var radius := 13 - layer * 4
+		crest.polygon = PackedVector2Array([Vector2(0, -radius), Vector2(radius, 0), Vector2(0, radius), Vector2(-radius, 0)])
+		crest.position = Vector2(21, 24)
+		crest.color = [Color("e9ad65"), Color("203a4a"), Color("8fe5e6")][layer]
+		crest.z_index = 2
+		player_panel.add_child(crest)
+	hp_fill.position = Vector2(40, 24)
+	ki_fill.position = Vector2(40, 37)
+	xp_fill.position = Vector2(7, 43)
+	for bar in [hp_fill, ki_fill, xp_fill]:
+		var back := ColorRect.new()
+		back.position = bar.position - Vector2.ONE
+		back.size = Vector2(124 if bar != xp_fill else 157, 5 if bar != xp_fill else 3)
+		back.color = Color("080f19")
+		back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		player_panel.add_child(back)
+		player_panel.move_child(back, 1)
+	_set_texture_bar(hp_fill, 1.0)
+	_set_texture_bar(ki_fill, 1.0)
+	_set_texture_bar(xp_fill, 0.0)
 
-	_sheet = load(hud_sheet_path) as Texture2D
-	if _sheet == null:
-		_show_fallback()
-		return
-
-	if _sheet.get_width() < 184 or _sheet.get_height() < 25:
-		push_warning(
-			"hud.png inesperado. Esperado ao menos 184x25 px, recebido %dx%d."
-			% [_sheet.get_width(), _sheet.get_height()]
-		)
-		_show_fallback()
-		return
-
-	fallback.visible = false
-
-	frame.texture = _atlas_region(FRAME_REGION)
-	frame.visible = true
-
-	# The old Ki Blast icon is intentionally gone. Ki Blast is a basic
-	# attack now; this slot belongs to the currently selected special.
-	icon.position = ICON_POSITION
-	icon.visible = false
-
-	divider.texture = _atlas_region(DIVIDER_REGION)
-	divider.position = DIVIDER_POSITION
-	divider.visible = true
-
-	hp_fill.position = HP_POSITION
-	ki_fill.position = KI_POSITION
-	xp_fill.position = XP_POSITION
-
-	_set_texture_bar(hp_fill, HP_REGION, 1.0)
-	_set_texture_bar(ki_fill, KI_REGION, 1.0)
-	_set_texture_bar(xp_fill, XP_REGION, _xp_ratio)
-
-func _show_fallback() -> void:
-	fallback.visible = true
-	frame.visible = false
-	icon.visible = false
-	divider.visible = false
-	hp_fill.visible = false
-	ki_fill.visible = false
-	xp_fill.visible = false
+func _add_label(node_name: String, text: String, at: Vector2, extent: Vector2, tint: Color, font_size: int) -> void:
+	var label := Label.new()
+	label.name = node_name
+	label.text = text
+	label.position = at
+	label.size = extent
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", tint)
+	player_panel.add_child(label)
 
 func _bind_player() -> void:
 	var player := get_tree().get_first_node_in_group("player")
@@ -187,27 +179,30 @@ func _on_health_changed(current_health: int, max_health: int) -> void:
 		0.0,
 		1.0
 	)
-	_set_texture_bar(hp_fill, HP_REGION, ratio)
+	_set_texture_bar(hp_fill, ratio)
+	player_panel.get_node("HPText").text = "VIDA   %d / %d" % [current_health, max_health]
 
 func _on_ki_changed(current_ki: float, max_ki: float) -> void:
 	var safe_max := maxf(max_ki, 1.0)
 	var ratio := clampf(current_ki / safe_max, 0.0, 1.0)
-	_set_texture_bar(ki_fill, KI_REGION, ratio)
+	_set_texture_bar(ki_fill, ratio)
+	player_panel.get_node("KiText").text = "KI      %d / %d" % [ceili(current_ki), ceili(max_ki)]
 
 func _on_experience_changed(
 	current_experience: int,
 	experience_to_next_level: int,
 	_current_level: int
 ) -> void:
+	player_panel.get_node("Identity").text = "GUERREIRO   /   NV %02d" % _current_level
 	var safe_required := maxi(experience_to_next_level, 1)
 	set_experience_ratio(
 		float(current_experience) / float(safe_required)
 	)
 
-# A barra fina azul/ciano na parte inferior da moldura representa XP.
+# The thin copper line tracks progress toward the next level.
 func set_experience_ratio(ratio: float) -> void:
 	_xp_ratio = clampf(ratio, 0.0, 1.0)
-	_set_texture_bar(xp_fill, XP_REGION, _xp_ratio)
+	_set_texture_bar(xp_fill, _xp_ratio)
 
 func _on_special_selection_changed(
 	_ability_id: StringName,
@@ -223,9 +218,19 @@ func _on_special_selection_changed(
 
 func _set_special_icon(data: SpecialAttackData) -> void:
 	var texture: Texture2D = _resolve_special_icon(data)
-	icon.texture = texture
-	icon.visible = texture != null
-	icon.tooltip_text = data.display_name
+	# Effect frames contain transparent padding sized for world animation.
+	# Fit the visible art into the HUD slot instead of shrinking that padding.
+	if texture != null:
+		var source := texture.get_image()
+		if source != null:
+			var bounds := source.get_used_rect()
+			if bounds.has_area():
+				texture = ImageTexture.create_from_image(source.get_region(bounds))
+	var skill_icon := get_node_or_null("../SpecialStatusHUD/Panel/Icon") as TextureRect
+	if skill_icon != null:
+		skill_icon.texture = texture
+		skill_icon.visible = texture != null
+		skill_icon.tooltip_text = data.display_name
 
 func _resolve_special_icon(data: SpecialAttackData) -> Texture2D:
 	if data == null:
@@ -310,29 +315,17 @@ func _legacy_special_icon(region: Rect2) -> Texture2D:
 
 func _set_texture_bar(
 	target: TextureRect,
-	source_region: Rect2,
 	ratio: float
 ) -> void:
-	if _sheet == null:
-		return
-
-	var safe_ratio := clampf(ratio, 0.0, 1.0)
-	var width := floori(source_region.size.x * safe_ratio)
-
-	if width <= 0:
-		target.visible = false
-		target.size = Vector2(0, source_region.size.y)
-		return
-
-	var visible_region := source_region
-	visible_region.size.x = float(width)
-
-	target.texture = _atlas_region(visible_region)
-	target.size = Vector2(float(width), source_region.size.y)
-	target.visible = true
-
-func _atlas_region(region: Rect2) -> AtlasTexture:
-	var atlas := AtlasTexture.new()
-	atlas.atlas = _sheet
-	atlas.region = region
-	return atlas
+	var bar_width := 155 if target == xp_fill else 122
+	var height := 1 if target == xp_fill else 3
+	var width := floori(bar_width * clampf(ratio, 0.0, 1.0))
+	var tint := Color("e9ad65") if target == xp_fill else (Color("8dce91") if target == hp_fill else Color("65cbd6"))
+	if target == hp_fill and ratio <= 0.25:
+		tint = Color("ef7b70")
+	var pixels := Image.create(1, height, false, Image.FORMAT_RGBA8)
+	pixels.fill(tint)
+	pixels.set_pixel(0, 0, tint.lightened(0.25))
+	target.texture = ImageTexture.create_from_image(pixels)
+	target.size = Vector2(width, height)
+	target.visible = width > 0

@@ -5,7 +5,7 @@ signal hit_confirmed(target: Node, damage: int)
 
 @export var damage: int = 10
 @export var offset_distance: float = 12.0
-@export var debug_visible: bool = true
+@export var debug_visible: bool = false
 
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var debug_shape: Polygon2D = $DebugShape
@@ -43,6 +43,13 @@ func set_active(active: bool) -> void:
 func is_active() -> bool:
 	return _active
 
+func _physics_process(_delta: float) -> void:
+	if not _active:
+		return
+	# Existing overlaps do not necessarily emit area_entered on activation.
+	for area in get_overlapping_areas():
+		_try_apply_hit(area)
+
 func _on_body_entered(body: Node2D) -> void:
 	_try_apply_hit(body)
 
@@ -64,8 +71,6 @@ func _try_apply_hit(target: Node) -> void:
 	if _hit_targets.has(receiver_id):
 		return
 
-	_hit_targets[receiver_id] = true
-
 	var result: Variant = receiver.call(
 		"receive_hit",
 		damage,
@@ -76,4 +81,5 @@ func _try_apply_hit(target: Node) -> void:
 	if applied_damage <= 0:
 		return
 
+	_hit_targets[receiver_id] = true
 	hit_confirmed.emit(receiver, applied_damage)

@@ -7,10 +7,14 @@ extends Control
 var _quest_manager: QuestManager
 
 func _ready() -> void:
-	position = Vector2(292.0, 8.0)
-	size = Vector2(178.0, 46.0)
+	_layout_tracker()
+	get_viewport().size_changed.connect(_layout_tracker)
 	visible = false
 	call_deferred("_bind_manager")
+
+func _layout_tracker() -> void:
+	position = Vector2(get_viewport_rect().size.x - 186, 50)
+	size = Vector2(178, 46)
 
 func _bind_manager() -> void:
 	_quest_manager = get_tree().get_first_node_in_group(

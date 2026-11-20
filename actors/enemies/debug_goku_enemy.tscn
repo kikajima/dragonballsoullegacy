@@ -63,7 +63,7 @@ monitoring = true
 monitorable = false
 script = ExtResource("8_hitbox")
 damage = 8
-debug_visible = true
+debug_visible = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Combat/AttackHitbox"]
 shape = SubResource("AttackShape")

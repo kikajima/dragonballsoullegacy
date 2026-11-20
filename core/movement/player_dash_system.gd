@@ -22,7 +22,13 @@ var _cooldown_left: float = 0.0
 var _afterimage_left: float = 0.0
 
 func _ready() -> void:
+	add_to_group("player_dash_system")
 	call_deferred("_bind_player")
+
+func reset_after_load() -> void:
+	if _dash_left > 0.0:
+		_finish_dash()
+	_cooldown_left = 0.0
 
 func _process(delta: float) -> void:
 	if _player == null or not is_instance_valid(_player):
@@ -32,6 +38,9 @@ func _process(delta: float) -> void:
 	_cooldown_left = maxf(_cooldown_left - delta, 0.0)
 
 	if _dash_left > 0.0:
+		if not _can_dash():
+			_finish_dash()
+			return
 		_dash_left = maxf(_dash_left - delta, 0.0)
 		_afterimage_left -= delta
 		if _afterimage_left <= 0.0:
@@ -84,13 +93,7 @@ func _try_start_dash() -> void:
 	if move_intent.is_zero_approx():
 		return
 
-	var state: StringName = _player.get_current_state()
-	var can_dash: bool = (
-		state == &"idle"
-		or state == &"walk"
-		or state == &"run"
-	)
-	if not can_dash:
+	if not _can_dash():
 		return
 
 	if not _ki.consume(dash_ki_cost):
@@ -114,7 +117,26 @@ func _try_start_dash() -> void:
 	if feedback != null:
 		feedback.request_camera_shake(0.55, 0.045)
 
+func _can_dash() -> bool:
+	# Stun uses the idle pose, so animation state alone cannot authorize dash.
+	if (
+		_player._respawning
+		or _player.health_component.is_dead()
+		or _player.status_effect_component.has_status(&"stun")
+		or _player.special_attack_component.is_casting()
+		or _player.ki_blast_component.is_casting()
+		or _player.melee_combat_component.is_attacking()
+	):
+		return false
+	var training := get_tree().get_first_node_in_group("training_manager") as TrainingManager
+	if training != null and training.is_treadmill_active():
+		return false
+	var state := _player.get_current_state()
+	return state == &"idle" or state == &"walk" or state == &"run"
+
 func _finish_dash() -> void:
+	_dash_left = 0.0
+	_afterimage_left = 0.0
 	if _movement != null:
 		_movement.move_speed = _base_move_speed
 

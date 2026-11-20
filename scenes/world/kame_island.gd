@@ -8,9 +8,7 @@ const DMI_SPRITE_SHEET_SCRIPT = preload(
 const TURF_DMI_PATH := (
 	"res://assets/vendor/hu2/Icons/Turfs/NewTurfs.dmi"
 )
-const SOIL_DMI_PATH := (
-	"res://assets/vendor/hu2/Icons/Turfs/MineCraft.dmi"
-)
+const SAND_TEXTURE_PATH := "res://assets/tiles/kame_island/sand-light-v1.png"
 const FLOWERS_DMI_PATH := (
 	"res://assets/vendor/hu2/Icons/Turfs/Flowers.dmi"
 )
@@ -38,9 +36,45 @@ func _ready() -> void:
 	_setup_depth_sorting()
 	_setup_organic_coast()
 	_build_island_tiles()
+	var grass_palette := ShaderMaterial.new()
+	grass_palette.shader = preload("res://assets/tiles/kame_island/terrain_palette.gdshader")
+	_grass_base.material = grass_palette
 	_build_shore_collision()
 	_build_flower_patches()
 	_polish_layout()
+	_detail_island_props()
+
+func _detail_island_props() -> void:
+	var dock := $Dock/Planks as Polygon2D
+	dock.color = Color("62462e")
+	# Geometry remains on the existing walkable deck; no collision changes.
+	for index in range(18):
+		var x := -72 + index * 8
+		var wood := Color("a77849") if index % 3 == 0 else Color("91653e")
+		_prop_rect(dock, Rect2(x, -14, 7, 27), wood)
+		_prop_rect(dock, Rect2(x, -14, 1, 27), Color("c19863"))
+		for y in [-11, 9]:
+			_prop_rect(dock, Rect2(x + 3, y, 1, 1), Color("453d36"))
+	_prop_rect(dock, Rect2(-74, 13, 148, 2), Color("493626"))
+	for x in [-69, 65]:
+		for y in [-14, 10]:
+			_prop_rect(dock, Rect2(x, y, 4, 4), Color("d3b17b"))
+			_prop_rect(dock, Rect2(x + 1, y + 1, 2, 2), Color("846040"))
+	var paper := $BeachGuide/Paper as Polygon2D
+	_prop_rect(paper, Rect2(-10, -7, 2, 12), Color("c6b07a"))
+	for row in range(3):
+		_prop_rect(paper, Rect2(-5, -5 + row * 4, 13 - row * 2, 1), Color("786b4e"))
+	_prop_rect($BeachGuide/Sign, Rect2(-17, -13, 34, 2), Color("b38c59"))
+	_prop_rect($BeachGuide/Sign, Rect2(-17, 11, 34, 2), Color("573c26"))
+
+func _prop_rect(parent: Node2D, rect: Rect2, tint: Color) -> void:
+	var detail := Polygon2D.new()
+	detail.polygon = PackedVector2Array([
+		rect.position, Vector2(rect.end.x, rect.position.y), rect.end,
+		Vector2(rect.position.x, rect.end.y),
+	])
+	detail.color = tint
+	parent.add_child(detail)
 
 func _process(delta: float) -> void:
 	_ambient_time += delta
@@ -214,17 +248,21 @@ func _build_island_tiles() -> void:
 	if grass_textures.is_empty():
 		push_warning("Kame Island: Grass tiles missing from NewTurfs.dmi.")
 		return
+	# Use the same continuous outline as the beach instead of exposing
+	# square grass tiles against the rounded coastline.
+	_grass_base.texture = _create_tiled_texture(grass_textures[0])
+	_grass_base.uv = _grass_base.polygon
+	_grass_base.color = Color.WHITE
+	_grass_base.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_grass_base.visible = true
+	grass_tiles.visible = false
 
-	var soil_dmi = DMI_SPRITE_SHEET_SCRIPT.load_file(SOIL_DMI_PATH)
-	var sand_texture: Texture2D = null
-	if soil_dmi != null:
-		var dirt_texture: Texture2D = soil_dmi.get_frame_texture(
-			&"Dirt",
-			&"down",
-			0
-		)
-		if dirt_texture != null:
-			sand_texture = _create_sand_texture(dirt_texture)
+	var sand_texture: Texture2D = _create_sand_texture()
+	if sand_texture != null:
+		_land_silhouette.texture = _create_tiled_texture(sand_texture)
+		_land_silhouette.uv = _land_silhouette.polygon
+		_land_silhouette.color = Color.WHITE
+		_land_silhouette.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 	_sand_tiles = Node2D.new()
 	_sand_tiles.name = "SandTiles"
@@ -258,37 +296,22 @@ func _build_island_tiles() -> void:
 				Color.WHITE
 			)
 
-func _create_sand_texture(source: Texture2D) -> Texture2D:
+func _create_sand_texture() -> Texture2D:
+	var source := load(SAND_TEXTURE_PATH) as Texture2D
+	if source == null:
+		push_warning("Kame Island: beach sand texture could not be loaded.")
+		return null
 	var image := source.get_image()
 	if image == null:
-		return source
-
-	for y in range(image.get_height()):
-		for x in range(image.get_width()):
-			var pixel := image.get_pixel(x, y)
-			if pixel.a <= 0.0:
-				continue
-
-			var luminance := (
-				pixel.r * 0.30
-				+ pixel.g * 0.59
-				+ pixel.b * 0.11
-			)
-			image.set_pixel(
-				x,
-				y,
-				Color(
-					0.66 + luminance * 0.25,
-					0.48 + luminance * 0.22,
-					0.25 + luminance * 0.16,
-					pixel.a
-				)
-			)
-
+		return null
+	# One 4x4-tile patch keeps the grain at world-pixel scale and avoids
+	# repeating the same marks on every 32px tile. Preserve the source PNG.
+	image.resize(TILE_SIZE * 4, TILE_SIZE * 4, Image.INTERPOLATE_NEAREST)
 	return ImageTexture.create_from_image(image)
 
 func _create_tiled_texture(source: Texture2D) -> Texture2D:
 	var source_image := source.get_image()
+	source_image.convert(Image.FORMAT_RGBA8)
 	var canvas := Image.create(
 		WORLD_COLUMNS * TILE_SIZE,
 		WORLD_ROWS * TILE_SIZE,
@@ -332,25 +355,24 @@ func _is_grass_tile(column: int, row: int) -> bool:
 	return normalized.length_squared() <= 1.0
 
 func _build_shore_collision() -> void:
-	for row in range(WORLD_ROWS):
-		for column in range(WORLD_COLUMNS):
-			if _is_island_tile(column, row):
-				continue
-			if not _touches_island(column, row):
-				continue
-			if _is_dock_opening(column, row):
-				continue
-
-			var shape: RectangleShape2D = RectangleShape2D.new()
-			shape.size = Vector2(TILE_SIZE, TILE_SIZE)
-
-			var collision: CollisionShape2D = CollisionShape2D.new()
-			collision.shape = shape
-			collision.position = Vector2(
-				float(column * TILE_SIZE + TILE_SIZE / 2),
-				float(row * TILE_SIZE + TILE_SIZE / 2)
-			)
-			sea_collision.add_child(collision)
+	# The continuous coast replaces these coarse legacy blockers, including
+	# the southeast rectangle that cut across the walkable dock.
+	for blocker in get_node("SeaBoundaries").get_children():
+		if blocker is StaticBody2D:
+			blocker.collision_layer = 0
+	# The old ellipse of full blocking tiles did not match the visible land.
+	# Merge the walkable dock into the shoreline before building its border.
+	var dock_outline := PackedVector2Array([
+		Vector2(626, 411), Vector2(774, 411),
+		Vector2(774, 441), Vector2(626, 441),
+	])
+	for outline in Geometry2D.merge_polygons(_coast_points(), dock_outline):
+		var border := CollisionPolygon2D.new()
+		border.build_mode = CollisionPolygon2D.BUILD_SEGMENTS
+		border.polygon = outline
+		sea_collision.add_child(border)
+	var dock_blocker := get_node("Dock/CollisionShape2D") as CollisionShape2D
+	dock_blocker.disabled = true
 
 func _touches_island(column: int, row: int) -> bool:
 	for offset_y in range(-1, 2):
@@ -481,17 +503,17 @@ func _polish_layout() -> void:
 	# Tropical props frame the island instead of competing with the house.
 	_set_node_position(&"PalmTreeLeft", Vector2(282, 286))
 	_set_node_position(&"PalmTreeRight", Vector2(690, 292))
-	_set_node_position(&"BeachUmbrella", Vector2(248, 405))
-	_set_node_position(&"BeachChair", Vector2(208, 430))
+	_set_node_position(&"BeachUmbrella", Vector2(286, 397))
+	_set_node_position(&"BeachChair", Vector2(318, 422))
 
 	# Keep the tutorial/checkpoint readable but out of Roshi's foreground.
 	_set_node_position(&"BeachGuide", Vector2(438, 452))
-	_set_node_position(&"IslandCheckpoint", Vector2(510, 452))
+	_set_node_position(&"IslandCheckpoint", Vector2(510, 444))
 
 	# Dock/travel capsule remains in the southeast corner.
-	_set_node_position(&"Dock", Vector2(790, 468))
-	_set_node_position(&"TravelCapsule", Vector2(836, 450))
-	_set_node_position(&"WestCityBoat", Vector2(792, 444))
+	_set_node_position(&"Dock", Vector2(700, 426))
+	_set_node_position(&"TravelCapsule", Vector2(746, 404))
+	_set_node_position(&"WestCityBoat", Vector2(716, 423))
 
 func _set_node_position(node_path: StringName, value: Vector2) -> void:
 	var node: Node2D = get_node_or_null(

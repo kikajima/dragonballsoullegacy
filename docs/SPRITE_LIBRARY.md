@@ -1,8 +1,18 @@
 # Sprite source library
 
+## Preferência do projeto: consultar o GitHub primeiro
+
+Por orientação do usuário, sempre consultar os diretórios de sprites no GitHub antes de concluir que uma pose está ausente ou solicitar novamente um arquivo. Conferir a branch `develop` de `kikajima/dragonballsoullegacy`, além da branch padrão, e comparar os hashes dos arquivos com a cópia local. Inspecionar os quadros visualmente: nomes de estados DMI não comprovam a pose.
+
+Verificação de 17/10/2026: `main` contém apenas a estrutura inicial; `develop` contém a biblioteca HU2. O `assets/sprites/characters/goku/hu2/Goku.dmi` remoto tem blob SHA `51b4051146a6352d28682eafe408d2da26062224`, idêntico ao arquivo local. A pose de mãos erguidas da Spirit Bomb permanece sem identificação confirmada.
+
 This project uses a vendor/reference asset library so original source sheets remain intact while game-ready assets are integrated selectively.
 
 ## Dragon Ball GBA archive
+
+Local adicional informado pelo usuário: `C:\spriters-resource-downloader\Spriters-Resource-Downloader-v2.7-unofficial\downloaded\game_boy_advance`.
+
+Spirit Bomb confirmada visualmente em `dbzbuusfury/Playable Characters/Goku__47770.png` (crédito impresso: SPYN). Coluna 35, contando de zero: quadros de 32 × 32 em x=1120 e y=32/64/96/128 (baixo/esquerda/direita/cima), com braços erguidos. Cópia integral local em `assets/sprites/characters/goku/source/goku_buus_fury_source.png`, ignorada pelo Git. O controlador remove a cor de fundo em memória e usa a pose durante a preparação, retornando ao disparo ao lançar. Esta confirmação substitui a investigação inconclusiva do DMI registrada acima.
 
 Source: user-provided `dragonballgba.rar`.
 

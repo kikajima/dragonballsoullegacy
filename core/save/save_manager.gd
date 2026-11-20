@@ -18,6 +18,9 @@ func save_game() -> bool:
 	if player == null:
 		save_failed.emit("Player not found.")
 		return false
+	if player is Player and (player._respawning or player.health_component.is_dead()):
+		save_failed.emit("Aguarde o retorno ao checkpoint antes de salvar.")
+		return false
 
 	var data := {
 		"version": SAVE_VERSION,
@@ -71,6 +74,22 @@ func load_game() -> bool:
 	if player == null:
 		load_failed.emit("Player not found.")
 		return false
+	if player is Player and player._respawning:
+		load_failed.emit("Aguarde o retorno ao checkpoint antes de carregar.")
+		return false
+	var world := get_tree().get_first_node_in_group("world_manager") as WorldManager
+	if world != null and world.is_transitioning():
+		load_failed.emit("Aguarde a troca de mapa antes de carregar.")
+		return false
+
+	# Same-map loads do not rebuild the world. Cancel unsaved combat state
+	# before restoring resources; cancellation can emit cooldown notifications.
+	if player is Player:
+		player.reset_runtime_after_load()
+	for group in [&"combat_projectile", &"active_special_beam"]:
+		for effect in get_tree().get_nodes_in_group(group):
+			effect.process_mode = Node.PROCESS_MODE_DISABLED
+			effect.queue_free()
 
 	# Restore the active world before restoring the player's position.
 	_load_group_node_state(

@@ -1,0 +1,691 @@
+{
+  "repository": "kikajima/dragonballsoullegacy",
+  "branch": "develop",
+  "commit": "68124171efe28d9e7129d6a1392c15fdcc6257ed",
+  "files": [
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/AdultGTGoku.dmi",
+      "sha": "8b4c22a4ae42ec7f9a8f5eadb2620ccae303bb2b"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/AdultGTGokuSS1.dmi",
+      "sha": "4eb7f57456e44ba80349683023604cfbaad1846e"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/AdultGTGokuSS2.dmi",
+      "sha": "b05e2245df77779f0728a5a38e17a4ae43b2c3f0"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/AdultGohan.dmi",
+      "sha": "0e733e6da062b969430e08c35bba8f40f38b66e9"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/AdultPiccoloGohan.dmi",
+      "sha": "8c939ed471a3bf3dfe2ecca6fdae94b7e6ea9929"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/AltGTVegeta.dmi",
+      "sha": "b1f9f54dbb066d4950c989ba8b1b6a549eb38b3e"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/AltGTVegetaSS.dmi",
+      "sha": "4f254daa76d455ec5ceceff7b86f2eba53322676"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/AltGokuSS4.dmi",
+      "sha": "d90f32525c809aab2b9a649921fd62e6ef25727c"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/AltVegeta.dmi",
+      "sha": "2709457d8de1aadd0786c710f8e1c712660bed0e"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/AltVegetaMajin.dmi",
+      "sha": "7465bc4005a2d091582a5cb2437a45c6496343e4"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/AltVegetaSS2.dmi",
+      "sha": "73f9b404d9f628dcd64f435e08eacbf1a28d2984"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Android17.dmi",
+      "sha": "d37ee320d7f9071747d42d69c949d363de96bdae"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Android19.dmi",
+      "sha": "3589dde47cafc47bf9be42854a3f70a3d300a773"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Babidi.dmi",
+      "sha": "d55ddb86df49c5b746d6070d4151807787c8ca85"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/BabyVegeta.dmi",
+      "sha": "8eaf2b402070c99414a89a0d8f84aa604d4c5ed8"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Bardock.dmi",
+      "sha": "8016d366797281a84a52a6b33d93dd55b6805911"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/BardockSS1.dmi",
+      "sha": "d713a525bf846f71e888c24a4a39307b7dbaa2bf"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/BardockSS4.dmi",
+      "sha": "d7f276077f84560053b33e6d914ee464aa10a3bb"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/BlackSuitRoshi.dmi",
+      "sha": "c12e009c33d51751af364830c705e6127e054152"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/BojackGohan.dmi",
+      "sha": "7917742927b26810fb4765693de9180912482e7d"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/BojackGohanSS1.dmi",
+      "sha": "50b7b0beebfa7a5faa731d304a13671c038210bf"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/BojackTrunks.dmi",
+      "sha": "695615f41aafa3de407fe5c20d0019f7b0bd09bc"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Broku.dmi",
+      "sha": "8a34058a9dea2b1d7c4f0e2ddf2f4567c6a3b380"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Broly.dmi",
+      "sha": "87b198dfdfcf87bcbef0c8c85332452db7acc9db"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/BrolySS1.dmi",
+      "sha": "6b38865c3b2e215094b81a2419677c79506b91ce"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/BrolySS3.dmi",
+      "sha": "085c86bd92d61beb4d09fd452fce17eaa6a7278d"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Burter.dmi",
+      "sha": "c936231fab69b5868e47b747bcfb2aa6f1b60cdd"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/BuuGohan.dmi",
+      "sha": "9319fd092927c3a68049d5630bc14cc8f8a86fd5"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/CaptainGinyu.dmi",
+      "sha": "b434896ed19b8d47ed71da75953b316c1d01ce80"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Cell.dmi",
+      "sha": "71cec3c42d1d124dbeab76553809596e81fda0ad"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/CellForm2.dmi",
+      "sha": "de04cd5e968c90db4599bdb685bd1db6ddd8e070"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/CellJr.dmi",
+      "sha": "f63d49dfc205486bee5ff3740e858049d685bb76"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/CellPerfectForm.dmi",
+      "sha": "7e902d5d943d2b5ca4b6bd418ef85524644e2ff9"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/ChiChi.dmi",
+      "sha": "18e9872e68dbd376f5e310bba94b9d6502ada0ec"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Chiaotzu.dmi",
+      "sha": "209c25411390fb689c76ec29c36ef97b6b6e5816"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Cooler.dmi",
+      "sha": "5db1ece3b9bc1becdc4384c684b336b73fb39df2"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Dabura.dmi",
+      "sha": "4c72b602de5902b3ffe6062fd69261271108fa73"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Dodoria.dmi",
+      "sha": "14d5c52876d9215c770608cf5ae2a76b620d68a5"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/ElderKaiGohan.dmi",
+      "sha": "c298c873e97c76a85d58c07f9960fa2d7a6694cc"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/ElderKaiGohanSword.dmi",
+      "sha": "a5eb1da2a3ce0a6ecfbd1dda53028c28ac742a78"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Frieza.dmi",
+      "sha": "49cf335e96109b9d8dc39fc962b8e3b38f978539"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/FriezaForm3.dmi",
+      "sha": "3e80d449bfa46e5a410f89db8aa2d4a98abc9482"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/FriezaForm4.dmi",
+      "sha": "70f8ce21c86a20740a024491a8c61380322ed0dc"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/FriezaHenchman.dmi",
+      "sha": "149f5d5418584e1f0796aaac8bb4a6d844853c98"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/FutureGohanAftermath.dmi",
+      "sha": "7375c2f69db53db335c13673004e2735aea48779"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/FutureGohanSS.dmi",
+      "sha": "3eb16686af796581328593e384a4b20055432854"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/FutureTrunks.dmi",
+      "sha": "4b84052a3119d349f7e0ac811d2019d44a83f554"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/FutureTrunksSS.dmi",
+      "sha": "8449a64b5afc0e27a3baf3dcbeb7b08e1514600b"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GTGoku.dmi",
+      "sha": "0fde3ba2f62924d83251c6d02d2d1d2baa5ef8d1"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GTGokuSS1.dmi",
+      "sha": "dbec2a373677189058893232d6c3a65eb25255cd"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GTGokuSS3.dmi",
+      "sha": "17eb8b00cd083fa17716eadf6e53c55e75fe41a3"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GTGoten.dmi",
+      "sha": "6be653c543b836c7e53165f0dc1f13fde189cb88"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GTKrillin.dmi",
+      "sha": "978369aa68e9f6dbebbd1cc0b7a7f60a5e3779d2"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GTTrunks.dmi",
+      "sha": "ea1607af8358d8bd48ae90855ce619ec484bdd48"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GTTrunksSS.dmi",
+      "sha": "18b4b696484d556e1262eb49390fc2c83b35040f"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GTVegeta.dmi",
+      "sha": "ef895473c9280d4e734a18373f51220c81516d21"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GTVegetaSS.dmi",
+      "sha": "3fb851618a61dcbdd0112059ec0eb9b11c7b4bf5"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GeneralTao.dmi",
+      "sha": "c0fad6aaa85b9a44c4a80d5b65fb9b7bd065bda3"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Ghost.dmi",
+      "sha": "ef6dc6a23a0e66f114e387d9ff94cad964bd6343"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Gogeta.dmi",
+      "sha": "f96aa5ca85603f66b3a123c5b5858cb872b8f568"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GogetaSS.dmi",
+      "sha": "462f9ce2383e4b797fd45a2e5c2d7eb4f38ed181"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GogetaSS4.dmi",
+      "sha": "35a63af798d0826562e6746e1bc58d4b354c2889"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GohanSS4.dmi",
+      "sha": "f80f6d78597e77eaad06fdbea26fd574d970938e"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Goku.dmi",
+      "sha": "51b4051146a6352d28682eafe408d2da26062224"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GokuJr.dmi",
+      "sha": "451f65f6a22206ec82c240f8670ad2e000ac22b2"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GokuKaioken.dmi",
+      "sha": "fbd258b66f8d92ca2118717047156e389e39a1c2"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GokuSS1.dmi",
+      "sha": "9041b1368372dee8af57ca83aa5d1776edf48660"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GokuSS2.dmi",
+      "sha": "9ef252049db05ec2e93dc4a0da92f78841624219"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GokuSS3.dmi",
+      "sha": "48ac20cc75eea2224c42107580b0b9b682ee7fcd"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GokuSS4.dmi",
+      "sha": "ebd2ae87832b5c69a032652eab31d8d289cbbcf3"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GokuSS5.dmi",
+      "sha": "e91f1f0e7d645e7e1fa999c90cb1bcab6c86edd8"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Goten.dmi",
+      "sha": "10eb50f66f72fefc699d2a37b2dacaa791fd02f7"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GotenSS.dmi",
+      "sha": "a6f27f4d060d600aa0d4ba209f695e8e291d8085"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GotenSS2.dmi",
+      "sha": "0e88dab99d1f8f49b36712e7a1c26829658568c9"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Gotenks.dmi",
+      "sha": "f5f00a39af2502109847a0850f914c0f06ba9cd4"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GotenksSS1.dmi",
+      "sha": "5ce8e87c30dda75cbb4a50fbcb7fa6b207c36a26"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GotenksSS3.dmi",
+      "sha": "215300a3d530862dee84d0299b2b477158200d9c"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GreatSaiyaGoku.dmi",
+      "sha": "229a670d502fc14594d7f47fadb161977652cdf1"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GreatSaiyagirl.dmi",
+      "sha": "cd0462c6d7f60aae4d59ed8d598eacb5e4e99cc2"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GreatSaiyaman.dmi",
+      "sha": "5791321696cf3ee232df4b08a727db5205f13832"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GreatSaiyaman1.dmi",
+      "sha": "c5e3aacac83ab9b68812a29ac38ae72d69bddb02"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GreatSaiyamanSS.dmi",
+      "sha": "648f92f100869362a9f001e5e8560802fd32e6a9"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/GreatSaiyamanSS2.dmi",
+      "sha": "d39e68f4b79dbb20c8ee12bc2c6bed6c2bca28e1"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Guldo.dmi",
+      "sha": "388869c087efde8a3a7cf26da756d5ca4e88dedb"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Hercule.dmi",
+      "sha": "6ec68603569ec8d9b7fef8084544a8233033dbf6"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Janemba.dmi",
+      "sha": "9be43271e5ed5994cfc327318f82de0c606bbde5"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Jeice.dmi",
+      "sha": "baa14cf7ec90b45c16b3911208c6a1ed51c0a652"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/KidBuu.dmi",
+      "sha": "66183c5dc81bdbc7e57ee1889cd31ae99f4a4d12"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/KidGohan.dmi",
+      "sha": "5b4c801213df02dc9be66cc66f06cab7c8f0d339"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/KidGoku.dmi",
+      "sha": "fa186972b462b80e5f6d3095154450b871d138c1"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/KidTrunks.dmi",
+      "sha": "89bffcd2481b10ba7c664c6ccedc1db07739b8a8"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/KidTrunksSS.dmi",
+      "sha": "45bec82f3674b11e5633e3decaab55382f6db969"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/KingPiccolo.dmi",
+      "sha": "f026b589018097c72955fc0a8bcc04eda7ab8231"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/KingVegeta.dmi",
+      "sha": "b8bc9f74dd22e50b5a2f3b591e60f58e728bc48c"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/KingVegetaSS.dmi",
+      "sha": "3daa5e4e757872acc99691f27328209db09fa762"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/KingVegetaSS2.dmi",
+      "sha": "4c18de11dbd2b506147edfc22396614382e5d6e3"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Krillin.dmi",
+      "sha": "6417a60d1b519783a7ccfcc4815a3b43fdd858cf"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/LordSlug.dmi",
+      "sha": "928e9a5ae192961d7d555c19b9514065efbc63d3"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/MasterRoshi.dmi",
+      "sha": "61b027c8bbbf8813a2aae263d04e8fe543808c48"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/MysticGohan.dmi",
+      "sha": "3c48277f368ed7b4ca89805e8359367a5527e5cb"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/MysticGohanMystic.dmi",
+      "sha": "6c892adfad4568caf7470aa8ddd8eb10facdcdec"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/MysticGohanSS.dmi",
+      "sha": "d8bce975c4b476cefb37e71cad9f20af2986f990"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/MysticGohanSS2.dmi",
+      "sha": "09c6078684a6e3513a4ba5d8d719c7445d322d2e"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Nail.dmi",
+      "sha": "3782f9075d738724c13525c9d9e5c48e964276bf"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/NamekGohan.dmi",
+      "sha": "249eed82e59054e50d23e5db976c733a2de2d58b"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Nappa.dmi",
+      "sha": "fb31dfa24147ec38868b4e591a5129b73cb07bdc"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/NightmareBroly.dmi",
+      "sha": "f9d61ce4edd3490fe5d55e7d3d7a99e86b4e09a1"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Olibu.dmi",
+      "sha": "a4d5978fba9722b7f080e8232e2b09cc6463b992"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/OmegaShenron.dmi",
+      "sha": "3bb2005d19ba07703ba3b6ed6458abd2c2b23fe0"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Pan.dmi",
+      "sha": "95d447be5b6845630f5e83355f28020bb470a1ff"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/PanSS.dmi",
+      "sha": "3c61acbb137988bdfb5a6d35726dd102fcb13f97"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Piccolo.dmi",
+      "sha": "6cada208643622e3b62e40764f7b8044c6087367"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/PiccoloForm2.dmi",
+      "sha": "889b634cd4d70394d060d648c8a8efe71bd45ae8"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/PiccoloForm3.dmi",
+      "sha": "3d49e7aaa927ee29f07a95985be3309eb6c669e2"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/PiccoloTrainedGohan.dmi",
+      "sha": "703f28414b4d0cf2a7bcd147af0875a6355f4a3c"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Pikkon.dmi",
+      "sha": "a3516908425d3f3f6f61d2fa060b2a34b226b007"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/PrinceVegeta.dmi",
+      "sha": "3e8a7b9e05c01f9be2befdd667131c099dcbe722"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/PrinceVegetaSS.dmi",
+      "sha": "2138ab2f93b1be51c19c7764539fe044dd393f00"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Raditz.dmi",
+      "sha": "39dea9b580c5c87e7bcfa7f66ca0b54d745c21d4"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/RaditzSS3.dmi",
+      "sha": "74a0f52f80a81bdce2f0365a210ac053505eb0eb"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Recoome.dmi",
+      "sha": "c6beb2b4d723b5c6a00e5f0b55e23eda5a49759b"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SABulma.dmi",
+      "sha": "2e56ab498eb867a761d705bd9a01986c2f8e14e7"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SAGohan.dmi",
+      "sha": "feea3f4f24871d8041f0e3c80a9e730f75f84b95"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SAGohanSS.dmi",
+      "sha": "2f7a219eb7132926c2f1ae569e51a2b85c0dfa52"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SAGohanSS2.dmi",
+      "sha": "909f98e0c560ebe40edc1d0c4228ed45ef4ad6e3"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SAGoku.dmi",
+      "sha": "da5112e5a356624da6e7b6dafce87f6f4e6a5f9f"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SAGokuSS.dmi",
+      "sha": "d0da7b2ee1001def348baacb1e52025f6bf21cf3"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SAGokuUSS.dmi",
+      "sha": "3f73cd557a67cf6627862166c38c36f392f86937"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SATrunks.dmi",
+      "sha": "cca8a9802c26efc5a2ba86d4901af5325d4c685b"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SATrunksSS.dmi",
+      "sha": "d47aed9fa2977141bbc803de7997c5d5e1ef335b"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SATrunksSS3.dmi",
+      "sha": "3a5f136ec7bea85231c3f74b6066a0e7ad66f200"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SATrunksUSS.dmi",
+      "sha": "852d5f5e64ddde4a5b580ae8c5c7a75c006de0cf"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SAVegeta.dmi",
+      "sha": "ef788d39eb9451cad09ec6bae40672343ae19d49"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SAVegetaSS.dmi",
+      "sha": "043bb4ea87d74fd34c0cf969be4af4d05ed0541e"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SAVegetaUSS.dmi",
+      "sha": "2e1e395efdeca8ab9d69220cceb82399a932c7ef"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Saibaman.dmi",
+      "sha": "ce777141266ff373fca51644247396bb804e6e6e"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Salza.dmi",
+      "sha": "7c41ce717c206fc1d5136e9e584f4ba0dc4793b4"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/ScouterVegeta.dmi",
+      "sha": "085c3cc33fe3a8d7f98d3b56806e8299b9ce8344"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/ShirtlessGoku.dmi",
+      "sha": "08dfa86e4a4f22ff85c617766d9cdd09ec6e818e"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/ShirtlessGokuFalseSS.dmi",
+      "sha": "dea9d3d452063ffd1a95a0f82bfc973795638f73"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SuperBuu.dmi",
+      "sha": "01ae5d309a0506e95cb6604a381859013a346e22"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SuperGoku.dmi",
+      "sha": "c71eb2eeb72282535ca2a3392ec587711db3862d"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SuperTrunksSS.dmi",
+      "sha": "801175e79748eb80c9a59b19b9cee3327e176489"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/SuperTrunksSS2.dmi",
+      "sha": "64c02f00a0c0ed3b801a29d11bfc6f6627c2eff2"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/TeenGohan.dmi",
+      "sha": "06c4779fe5969322ec6e081bd346db15233057d3"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/TeenGohanSS.dmi",
+      "sha": "31236265a42ae829cfb4bbd4c01d95c20fd6f4ed"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/TeenGoten.dmi",
+      "sha": "6d936f9d9232d4a0946d087a7d53ef20c0946a2d"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Tien.dmi",
+      "sha": "8e3cd77f71089a61b6a8485cec4ad77fffa4d664"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Tora.dmi",
+      "sha": "2cf658ac96572836c4d26c9ff4d7b175015ee150"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Trunks.dmi",
+      "sha": "aeb887be071711f175e75f1629a09aeb6e44a414"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/TrunksSS.dmi",
+      "sha": "8c4e786e054a38533ca174cccaee50898a152349"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/TrunksSS2.dmi",
+      "sha": "f329a0dd653caf80b7c4efee6194002ce10a91fc"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/TrunksSS3.dmi",
+      "sha": "812943624a7bfa3c2f853fa3602ada08c7aa52af"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/TrunksSS4.dmi",
+      "sha": "39154af37b0f24977fd922da990af02f9d2d9e24"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Turtle.dmi",
+      "sha": "08e175c59c247785f8d7fa2b9a9e305f1de36ea0"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Uub.dmi",
+      "sha": "9fc85398dfbe75218ff0f8ec1df1248ae0c256b8"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Vegeta.dmi",
+      "sha": "dffdf1daf188e9903987d451602c5ab3128795e7"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/VegetaMajin.dmi",
+      "sha": "b7bbef00355eb694586e37355f0eee66f5d71d3f"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/VegetaSS.dmi",
+      "sha": "f50d2ed41dba6d93539bbf65d35633f1d2131933"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/VegetaSS3.dmi",
+      "sha": "5e98cb6773b6b8e0f331fd2021391545d3a40a90"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/VegetaSS4.dmi",
+      "sha": "88d710f6c3bcd9dfcecaeb0f023efb537c7c5003"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Vegetrunks.dmi",
+      "sha": "b21de2c4d73cc36f1b83df9a7b21bb2283937346"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/VegetrunksSS.dmi",
+      "sha": "5c5ce7f9d5ba12efabc24d78a53104b0e0c0af94"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Vegito.dmi",
+      "sha": "bbbaf8066a437cd382f147413930d0dac07e907a"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/VegitoSS.dmi",
+      "sha": "56eaccb630e3bcae3304c5bebb54f8ff79be8591"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Videl.dmi",
+      "sha": "07a37e0ebf48abcfd255ac02fc30f645a324c308"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Yajirobe.dmi",
+      "sha": "c76a85426f6f51ad09c8d5b277d0834153bfae54"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Yamcha.dmi",
+      "sha": "2b7b7ea6d6d1efd98682916bdb957dd646b9a5eb"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/YardratGoku.dmi",
+      "sha": "055a9f46b9710b2c6957728fd48354e5b20ed827"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/YardratGokuSS.dmi",
+      "sha": "4ad9dc6395c31a0649faf5b27419e6c6eb673c13"
+    },
+    {
+      "path": "assets/vendor/hu2/Icons/Characters/Zarbon.dmi",
+      "sha": "d5586e501f94b5852ee3b6b7241815a57d2be1c5"
+    }
+  ]
+}

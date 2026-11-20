@@ -42,6 +42,8 @@ var _beam_impacting: bool = false
 var _impact_visual_length: float = 0.0
 var _beam_battle_visual: bool = false
 var _kame_segments: Array[AnimatedSprite2D] = []
+var _contact_receiver: Area2D
+var _had_target_contact: bool = false
 
 func setup(
 	data: SpecialAttackData,
@@ -97,6 +99,9 @@ func setup(
 		hit_area.collision_mask = 4
 
 	_effect_key = data.effect_key
+	if _effect_key == &"blue_beam":
+		# The head/impact art occupies a 16px corridor, not just the 8px core.
+		_beam_width = maxf(_beam_width, 16.0)
 	_configure_beam_visual(_effect_key)
 
 	if _source_actor is Node2D:
@@ -114,6 +119,8 @@ func _physics_process(delta: float) -> void:
 
 	# Contact is continuous even between damage pulses.
 	_refresh_geometry()
+	if _stopping:
+		return
 	_tick_left -= delta
 	if _tick_left > 0.0:
 		return
@@ -160,6 +167,10 @@ func stop_beam() -> void:
 	tween.tween_callback(queue_free)
 
 func _refresh_geometry() -> void:
+	if _stopping:
+		return
+	# A defeated or removed receiver no longer blocks a sustained beam.
+	# Re-query the corridor so the next live target or wall becomes its end.
 	var length: float = _resolve_beam_length(
 		_max_range
 	)
@@ -200,6 +211,8 @@ func _refresh_geometry() -> void:
 	)
 
 func _apply_damage_tick() -> void:
+	if _stopping:
+		return
 	var candidates := _query_beam_receivers()
 
 	if candidates.is_empty():
@@ -338,6 +351,8 @@ func _apply_stun(receiver: Area2D) -> void:
 func _resolve_beam_length(max_range: float) -> float:
 	_beam_impacting = false
 	_impact_visual_length = 0.0
+	_contact_receiver = null
+	_had_target_contact = false
 
 	var environment_length: float = _resolve_environment_length(max_range)
 	if environment_length < max_range - 0.5:
@@ -358,33 +373,21 @@ func _resolve_beam_length(max_range: float) -> float:
 	)
 
 func _resolve_environment_length(max_range: float) -> float:
-	var end_position: Vector2 = (
-		global_position
-		+ _direction * max_range
-	)
-	var query := PhysicsRayQueryParameters2D.create(
-		global_position,
-		end_position
-	)
+	# Sweep the beam's width: a center ray misses walls touching its edges.
+	var strip := RectangleShape2D.new()
+	strip.size = Vector2(0.1, _beam_width)
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = strip
+	query.transform = Transform2D(_direction.angle(), global_position)
 	query.collision_mask = 1
 	query.collide_with_bodies = true
 	query.collide_with_areas = false
-
-	var result: Dictionary = (
-		get_world_2d()
-		.direct_space_state
-		.intersect_ray(query)
-	)
-
-	if result.is_empty():
-		return max_range
-
-	var hit_position: Vector2 = result.get(
-		"position",
-		global_position
-	) as Vector2
-
-	return global_position.distance_to(hit_position)
+	var space := get_world_2d().direct_space_state
+	if not space.intersect_shape(query, 1).is_empty():
+		return 0.0
+	query.motion = _direction * max_range
+	var motion := space.cast_motion(query)
+	return max_range * motion[0]
 
 func _resolve_nearest_target_length(max_length: float) -> float:
 	if max_length <= 0.0:

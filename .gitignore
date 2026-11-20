@@ -8,4 +8,17 @@
 /assets/sprites/characters/goku/processed/
 
 /assets/sprites/effects/processed/
+/assets/sprites/environment/gba_furniture/
 /assets/ui/legacy/processed/
+
+# Reproducible local QA captures, logs and disposable save slot.
+/audit-*.png
+/audit-*.log
+/audit-save.json
+/audit-*-save.json
+
+# Local reference ROMs and emulator saves; never part of game deployment.
+/references/roms/
+
+# Local sprite-generator exports.
+/generated/sprites/

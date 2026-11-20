@@ -4,6 +4,14 @@ extends Area2D
 signal target_changed(target: Node)
 
 var _candidates: Array[Area2D] = []
+var _reported_target: Area2D
+
+func _physics_process(_delta: float) -> void:
+	# The nearest candidate can change without an area entry/exit event.
+	var nearest := get_closest_interactable()
+	if nearest != _reported_target:
+		_reported_target = nearest
+		target_changed.emit(nearest)
 
 func _ready() -> void:
 	area_entered.connect(_on_area_entered)

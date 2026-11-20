@@ -22,6 +22,13 @@ func _ready() -> void:
 	resume_button.pressed.connect(_resume)
 	save_button.pressed.connect(_save)
 	load_button.pressed.connect(_load)
+	var manager := get_tree().get_first_node_in_group("save_manager") as SaveManager
+	if manager != null:
+		manager.save_failed.connect(_show_save_error)
+		manager.load_failed.connect(_show_save_error)
+
+func _show_save_error(reason: String) -> void:
+	status_label.text = reason
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not event.is_action_pressed("ui_cancel"):
@@ -59,11 +66,9 @@ func _save() -> void:
 		status_label.text = "SaveManager not found."
 		return
 
-	status_label.text = (
-		"Game saved."
-		if manager.save_game()
-		else "Failed to save."
-	)
+	status_label.text = "Failed to save."
+	if manager.save_game():
+		status_label.text = "Game saved."
 
 func _load() -> void:
 	var manager := get_tree().get_first_node_in_group(
@@ -73,14 +78,9 @@ func _load() -> void:
 		status_label.text = "SaveManager not found."
 		return
 
-	var loaded: bool = manager.load_game()
-	status_label.text = (
-		"Save loaded."
-		if loaded
-		else "No valid save found."
-	)
-
-	if loaded:
+	status_label.text = "No valid save found."
+	if manager.load_game():
+		status_label.text = "Save loaded."
 		_refresh_status()
 
 func _refresh_status() -> void:

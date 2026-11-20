@@ -5,7 +5,7 @@ const DMI_SPRITE_SHEET_SCRIPT = preload(
 	"res://core/assets/dmi_sprite_sheet.gd"
 )
 const FLOOR_DMI_PATH := (
-	"res://assets/vendor/hu2/Icons/Turfs/NewTurfs.dmi"
+	"res://assets/vendor/hu2/Icons/Turfs/ApartmentInts.dmi"
 )
 const WALL_DMI_PATH := (
 	"res://assets/vendor/hu2/Icons/Turfs/ApartmentInts.dmi"
@@ -24,9 +24,7 @@ func _build_floor() -> void:
 	if dmi == null:
 		return
 
-	var state: StringName = &"Tile"
-	if not dmi.has_state(state):
-		state = &"GrayTile"
+	var state: StringName = &"BaseTile"
 	if not dmi.has_state(state):
 		return
 

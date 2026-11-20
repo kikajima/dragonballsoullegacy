@@ -1,23 +1,11 @@
 class_name SpecialAttackBeamContactFix
 extends SpecialAttackBeam
 
-# Kamehameha is non-piercing. The base beam finds the nearest receiver, but
-# HU2's visual pieces are full 32 px tiles. Centering KameHit directly on the
-# front face of a hurtbox makes half of that tile appear behind the victim.
-# Keep physics and art separate:
-#
-# - physics overlaps the hurtbox by only a few pixels so damage is reliable;
-# - the *front edge* of KameHit is aligned to the front face of the hurtbox;
-# - no KameMid is allowed to continue beyond the KameHit tile.
+# Fit visible DMI pixels to the physical contact boundary. KameHit occupies
+# only part of its transparent 32px cell, so full-cell bounds leave a gap.
 
 const CONTACT_TILE_SIZE: float = 32.0
-const CONTACT_FIRST_CENTER: float = 16.0
-const CONTACT_MIN_SEGMENT_GAP: float = 4.0
 const CONTACT_DMI_PATH := "res://assets/sprites/effects/hu2/Effects.dmi"
-const CONTACT_START_STATE: StringName = &"KameStart"
-const CONTACT_MID_STATE: StringName = &"KameMid"
-const CONTACT_HIT_STATE: StringName = &"KameHit"
-const CONTACT_BATTLE_STATE: StringName = &"KameBattle"
 
 func _resolve_nearest_target_length(max_length: float) -> float:
 	if max_length <= 0.0:
@@ -76,6 +64,8 @@ func _resolve_nearest_target_length(max_length: float) -> float:
 
 		if collision_length < nearest_collision:
 			nearest_collision = collision_length
+			_contact_receiver = collider
+			_had_target_contact = true
 
 			# Store the contact edge; rendering fits the terminal tile into
 			# the available distance, including point-blank contact.
@@ -157,69 +147,69 @@ func _shape_forward_extent(shape_node: CollisionShape2D) -> float:
 
 	return maxf(_beam_width * 0.5, 4.0)
 
+var _visual_bounds: Dictionary = {}
+
+func _state_bounds(state: StringName, facing: StringName) -> Rect2:
+	var key := String(state) + ":" + String(facing)
+	if _visual_bounds.has(key):
+		return _visual_bounds[key]
+	var sheet := DmiSpriteSheet.load_file(CONTACT_DMI_PATH)
+	var bounds := Rect2i()
+	for frame in range(sheet.get_frame_count(state)):
+		var used := sheet.get_frame_texture(state, facing, frame).get_image().get_used_rect()
+		bounds = used if frame == 0 else bounds.merge(used)
+	var result := Rect2(bounds)
+	_visual_bounds[key] = result
+	return result
+
 func _refresh_kamehameha_visual(length: float) -> void:
-	# Free flight and wall collisions still use the base HU2 tile logic.
-	if not _beam_impacting or _impact_visual_length <= 0.0:
-		super._refresh_kamehameha_visual(length)
+	if length <= 0.0:
+		_clear_kamehameha_visual()
 		return
-
-	# At point-blank range a full tile would extend through the victim.
-	var hit_length: float = minf(_impact_visual_length, CONTACT_TILE_SIZE)
-	var hit_center: float = _impact_visual_length - hit_length * 0.5
-	var segment_positions: Array[float] = []
-
-	# Build complete tiles from the caster forward, but reserve the final
-	# 32 px interval exclusively for KameHit. A final Mid may be nudged so
-	# it joins the hit cleanly, but no Mid can overlap the victim side.
-	var cursor: float = CONTACT_FIRST_CENTER
-	var pre_hit_center: float = hit_center - CONTACT_TILE_SIZE
-
-	while cursor <= pre_hit_center:
-		segment_positions.append(cursor)
-		cursor += CONTACT_TILE_SIZE
-
-	if (
-		pre_hit_center > CONTACT_FIRST_CENTER
-		and not segment_positions.is_empty()
-	):
-		var last_mid: float = segment_positions[segment_positions.size() - 1]
-		if pre_hit_center - last_mid >= CONTACT_MIN_SEGMENT_GAP:
-			segment_positions.append(pre_hit_center)
-
-	segment_positions.append(hit_center)
-	_ensure_kame_segment_count(segment_positions.size())
-
-	for index in range(segment_positions.size()):
-		var segment: AnimatedSprite2D = _kame_segments[index]
-		var is_last: bool = index == segment_positions.size() - 1
-		var state: StringName = CONTACT_MID_STATE
-
-		if is_last and _beam_battle_visual:
-			state = CONTACT_BATTLE_STATE
-		elif is_last:
-			state = CONTACT_HIT_STATE
+	var end: float = _impact_visual_length if _impact_visual_length > 0.0 else length
+	var facing := StringName(_facing_from_direction(_direction))
+	var cardinal := Vector2.RIGHT
+	match facing:
+		&"left": cardinal = Vector2.LEFT
+		&"up": cardinal = Vector2.UP
+		&"down": cardinal = Vector2.DOWN
+	var terminal: StringName = KAME_HEAD_STATE
+	if _beam_battle_visual:
+		terminal = KAME_BATTLE_STATE
+	elif _beam_impacting:
+		terminal = KAME_HIT_STATE
+	var bounds := _state_bounds(terminal, facing)
+	var terminal_span: float = bounds.size.x if cardinal.x != 0 else bounds.size.y
+	var terminal_length: float = minf(end, terminal_span)
+	var body_end: float = end - terminal_length
+	var pieces: Array[Vector2] = []
+	var cursor: float = 0.0
+	while cursor < body_end - 0.001:
+		var next: float = minf(cursor + CONTACT_TILE_SIZE, body_end)
+		pieces.append(Vector2(cursor, next))
+		cursor = next
+	pieces.append(Vector2(body_end, end))
+	_ensure_kame_segment_count(pieces.size())
+	for index in range(pieces.size()):
+		var state: StringName = KAME_MID_STATE
+		if index == pieces.size() - 1:
+			state = terminal
 		elif index == 0:
-			state = CONTACT_START_STATE
-
-		segment.position = Vector2(
-			segment_positions[index],
-			0.0
-		)
-		segment.rotation = -rotation
-		segment.scale = Vector2.ONE
-		if is_last:
-			if absf(_direction.x) > absf(_direction.y):
-				segment.scale.x = hit_length / CONTACT_TILE_SIZE
-			else:
-				segment.scale.y = hit_length / CONTACT_TILE_SIZE
+			state = KAME_START_STATE
+		var segment := _kame_segments[index]
+		bounds = _state_bounds(state, facing)
+		var axis_start: float
+		var span: float
+		if cardinal.x != 0:
+			span = bounds.size.x
+			axis_start = bounds.position.x - 16.0 if cardinal.x > 0 else 16.0 - bounds.end.x
+		else:
+			span = bounds.size.y
+			axis_start = bounds.position.y - 16.0 if cardinal.y > 0 else 16.0 - bounds.end.y
+		var axis_scale: float = (pieces[index].y - pieces[index].x) / maxf(span, 1.0)
+		segment.position = Vector2(pieces[index].x - axis_start * axis_scale, 0)
+		segment.scale = Vector2(axis_scale, 1) if cardinal.x != 0 else Vector2(1, axis_scale)
+		segment.rotation = -cardinal.angle()
 		segment.visible = true
-		segment.call(
-			"configure",
-			CONTACT_DMI_PATH,
-			state,
-			_facing_from_direction(_direction),
-			true,
-			true
-		)
-
+		segment.call("configure", CONTACT_DMI_PATH, state, String(facing), true, true)
 	_synchronize_kame_segments()

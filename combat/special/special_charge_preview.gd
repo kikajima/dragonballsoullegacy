@@ -28,6 +28,7 @@ var _base_scale: float = 0.35
 var _max_scale: float = 1.0
 var _ratio: float = 0.0
 var _spawn_distance: float = 16.0
+var _energy_time: float = 0.0
 
 func setup(
 	effect_key: StringName,
@@ -49,6 +50,9 @@ func setup(
 	_update_transform()
 
 func _process(_delta: float) -> void:
+	_energy_time += _delta
+	if _effect_key == &"spirit_bomb":
+		queue_redraw()
 	if not is_instance_valid(_caster):
 		queue_free()
 		return
@@ -78,9 +82,11 @@ func _update_transform() -> void:
 
 	if _effect_key == &"spirit_bomb":
 		rotation = 0.0
+		z_as_relative = false
+		z_index = mini(_caster.z_index + 1, 4096)
 		global_position = (
 			_caster.global_position
-			+ Vector2(0.0, -22.0)
+			+ Vector2(0.0, -20.0 - 16.0 * sprite.scale.x)
 		)
 	elif _effect_key == &"blue_beam":
 		# During HU2's charge state the hands are pulled behind the body.
@@ -104,6 +110,16 @@ func _facing_from_direction(direction: Vector2) -> String:
 	if absf(direction.x) > absf(direction.y):
 		return "right" if direction.x >= 0.0 else "left"
 	return "down" if direction.y >= 0.0 else "up"
+
+func _draw() -> void:
+	if _effect_key != &"spirit_bomb":
+		return
+	var radius: float = 16.0 * sprite.scale.x
+	for index in range(10):
+		var progress: float = fposmod(_energy_time * 0.7 + index * 0.1, 1.0)
+		var angle: float = index * TAU / 10.0 + _energy_time * 0.15
+		var point := Vector2.from_angle(angle) * (radius + (1.0 - progress) * 26.0)
+		draw_rect(Rect2(point.round(), Vector2(2, 2)), Color(0.55, 0.9, 1.0, progress * 0.85))
 
 func _build_visual() -> void:
 	if _effect_key == &"blue_beam":

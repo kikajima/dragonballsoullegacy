@@ -60,14 +60,51 @@ func _run() -> void:
 			_check(first.health_component.current_health == 992, "Invulnerability must prevent repeated damage")
 			_check(second.health_component.current_health == 1000, "Invulnerable target must still shield second target")
 			for segment in beam._kame_segments:
-				var forward_scale: float = segment.scale.x if direction.x != 0 else segment.scale.y
-				_check(segment.position.x + 16.0 * forward_scale <= distance - 8.0 + 0.01, "Visual must not cross target front")
+				for frame in range(segment.sprite_frames.get_frame_count(&"effect")):
+					var texture := segment.sprite_frames.get_frame_texture(&"effect", frame)
+					var used := texture.get_image().get_used_rect()
+					for corner in [Vector2(used.position), Vector2(used.end), Vector2(used.position.x, used.end.y), Vector2(used.end.x, used.position.y)]:
+						var beam_point := beam.to_local(segment.to_global(corner - Vector2(16, 16)))
+						_check(beam_point.x <= distance - 8.0 + 0.01, "Visible pixels must not cross target front")
 			first.health_component.take_damage(1000)
 			beam._refresh_geometry()
-			_check(beam._resolved_length > contact_length, "Dead target must release beam")
-			beam.queue_free()
-			first.get_parent().queue_free()
+			_check(not beam._stopping, "Defeating a target must not stop a sustained beam")
+			_check(beam._resolved_length > contact_length and beam._resolved_length < distance + 64.0, "Beam must extend to the next live target")
+			beam._apply_damage_tick()
+			_check(second.health_component.current_health == 992, "Next target must receive damage after first target dies")
 			second.get_parent().queue_free()
 			await process_frame
-	print("Beam contact regression: %s (12 scenarios)" % ("PASS" if failures == 0 else "FAIL: %d" % failures))
+			beam._refresh_geometry()
+			_check(not beam._stopping and is_equal_approx(beam._resolved_length, beam._max_range), "Removing the final target must restore full beam range")
+			beam.queue_free()
+			first.get_parent().queue_free()
+			await process_frame
+	for direction in [Vector2.RIGHT, Vector2.LEFT, Vector2.UP, Vector2.DOWN]:
+		var origin := Vector2(400, 400)
+		var wall := StaticBody2D.new()
+		wall.position = origin + direction * 60.0 + direction.orthogonal() * 10.0
+		wall.rotation = direction.angle()
+		var collision := CollisionShape2D.new()
+		var rectangle := RectangleShape2D.new()
+		rectangle.size = Vector2(8, 12)
+		collision.shape = rectangle
+		wall.add_child(collision)
+		root.add_child(wall)
+		var target := _target(origin + direction * 100)
+		var beam := scene.instantiate() as SpecialAttackBeam
+		root.add_child(beam)
+		beam.set_physics_process(false)
+		beam.global_position = origin
+		beam.rotation = direction.angle()
+		await physics_frame
+		await physics_frame
+		beam.setup(data, direction, null, 0)
+		_check(beam._resolved_length < 60, "Beam edge must collide with wall even when center ray misses")
+		beam._apply_damage_tick()
+		_check(target.health_component.current_health == 1000, "Wall must protect target behind it")
+		wall.queue_free()
+		target.get_parent().queue_free()
+		beam.queue_free()
+		await process_frame
+	print("Beam contact regression: %s (16 scenarios)" % ("PASS" if failures == 0 else "FAIL: %d" % failures))
 	quit(0 if failures == 0 else 1)

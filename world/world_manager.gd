@@ -3,6 +3,7 @@ extends Node
 
 signal world_change_started(scene_path: String)
 signal world_changed(scene_path: String, world: Node)
+signal transition_finished
 
 @export var world_container_path: NodePath
 @export var player_container_path: NodePath
@@ -13,6 +14,10 @@ var initial_world_path: String = ""
 @onready var player_container: Node = get_node(player_container_path)
 
 var current_world_path: String = ""
+var _transition_in_progress: bool = false
+
+func is_transitioning() -> bool:
+	return _transition_in_progress
 
 func _ready() -> void:
 	if not initial_world_path.is_empty():
@@ -36,8 +41,19 @@ func load_world(
 		return false
 
 	world_change_started.emit(scene_path)
+	var player := get_player() as Player
+	if player != null:
+		player.special_attack_component.cancel_cast()
+		player.ki_blast_component.cancel_cast()
+		player.melee_combat_component.cancel_attack()
+	# Projectiles are spawned under Bootstrap, not the outgoing map.
+	for group in [&"combat_projectile", &"active_special_beam"]:
+		for effect in get_tree().get_nodes_in_group(group):
+			effect.process_mode = Node.PROCESS_MODE_DISABLED
+			effect.queue_free()
 
 	for child in world_container.get_children():
+		world_container.remove_child(child)
 		child.queue_free()
 
 	var world := packed_scene.instantiate()
@@ -45,7 +61,6 @@ func load_world(
 	current_world_path = scene_path
 
 	if use_spawn_position:
-		var player := get_tree().get_first_node_in_group("player") as Node2D
 		if player != null:
 			player.global_position = spawn_position
 
@@ -60,6 +75,13 @@ func load_world_with_transition(
 	spawn_position: Vector2 = Vector2.ZERO,
 	use_spawn_position: bool = false
 ) -> bool:
+	# A second fade would kill the first tween and strand its awaiting caller.
+	if _transition_in_progress:
+		return false
+	var player := get_player() as Player
+	if player != null and (player._respawning or player.health_component.is_dead()):
+		return false
+	_transition_in_progress = true
 	var transition := get_tree().get_first_node_in_group(
 		"screen_transition"
 	) as ScreenTransition
@@ -76,6 +98,8 @@ func load_world_with_transition(
 	if transition != null:
 		await transition.fade_in()
 
+	_transition_in_progress = false
+	transition_finished.emit()
 	return loaded
 
 func serialize_state() -> Dictionary:

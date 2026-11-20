@@ -99,6 +99,10 @@ func serialize_state() -> Dictionary:
 	}
 
 func load_state(data: Dictionary) -> void:
+	var previous_cooldowns := _cooldowns.keys()
+	_cooldowns.clear()
+	for key in previous_cooldowns:
+		cooldown_changed.emit(StringName(key), 0.0)
 	_unlocked.clear()
 
 	var unlocked_value: Variant = data.get("unlocked", [])

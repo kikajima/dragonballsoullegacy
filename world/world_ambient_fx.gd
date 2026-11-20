@@ -1,6 +1,9 @@
 class_name WorldAmbientFX
 extends Node
 
+const SURFACE_TEXTURE = preload("res://core/assets/dmi_surface_texture.gd")
+const EXISTING_SCENERY = preload("res://world/existing_asset_scenery.gd")
+
 const MODE_NONE: StringName = &""
 const MODE_KAME: StringName = &"kame"
 const MODE_WASTES: StringName = &"wastes"
@@ -10,7 +13,7 @@ const DEPTH_BASE: int = 1000
 # Slightly closer than the original project camera, but far less zoomed than
 # the previous GBA pass. This keeps combat readable without making the island
 # feel cramped.
-const GBA_CAMERA_ZOOM := Vector2(1.10, 1.10)
+const GBA_CAMERA_ZOOM := Vector2.ONE
 
 const GBA_KAME_MAP_PATH := (
 	"res://assets/vendor/dragon_ball_gba/dbzlog2/Backgrounds/"
@@ -93,19 +96,77 @@ func _setup_for_world(world: Node) -> void:
 	_world.add_child(_detail_root)
 
 	var world_name: String = String(world.name).to_lower()
-	if world_name.contains("kame"):
+	if world is KameIsland:
 		_mode = MODE_KAME
 		_build_kame_glints()
 		# Kame Island owns its authored foliage and flower placement. Do not
 		# layer fallback props over it, since that creates visual duplication.
 	elif world_name.contains("rocky") or world_name.contains("wastes"):
 		_mode = MODE_WASTES
+		_texture_surface("Ground", "MineCraft", &"Dirt")
+		for rock in ["RockA/Visual", "RockB/Visual", "RockC/Visual"]:
+			_texture_surface(rock, "MineCraft", &"Stone")
+			(_world.get_node(rock) as Polygon2D).modulate = Color(0.83, 0.72, 0.57)
+			_add_surface_relief(rock)
 		_build_waste_dust()
 	elif world_name.contains("west") or world_name.contains("city"):
 		_mode = MODE_CITY
+		_texture_surface("Ground", "CityTurfs", &"Tile")
+		_texture_surface("RoadHorizontal", "CityTurfs", &"Road")
+		_texture_surface("RoadVertical", "CityTurfs", &"Road")
+		_texture_surface("CityPark/Visual", "NewTurfs", &"Grass1")
 		_build_city_lights()
+		_add_surface_relief("CapsuleBuilding/Visual")
+		_add_surface_relief("CityPark/Visual")
 	else:
 		_mode = MODE_NONE
+		if world is CapsuleTrainingChamber:
+			_texture_surface("Floor", "ApartmentInts", &"BaseTile")
+			(_world.get_node("Floor") as Polygon2D).modulate = Color(0.48, 0.55, 0.65)
+			_texture_surface("TrainingFloor", "DbzTurfs", &"GrayTile")
+			_texture_surface("CenterPlatform/Visual", "ApartmentInts", &"BaseTile")
+	EXISTING_SCENERY.apply(_world)
+
+func _texture_surface(path: String, sheet_name: String, state: StringName) -> void:
+	SURFACE_TEXTURE.apply(_world.get_node_or_null(path) as Polygon2D, sheet_name, state)
+
+func _add_surface_relief(path: String) -> void:
+	var surface := _world.get_node_or_null(path) as Polygon2D
+	if surface == null or surface.polygon.size() < 3:
+		return
+	var shadow := Polygon2D.new()
+	shadow.name = "GroundShadow"
+	shadow.polygon = surface.polygon
+	shadow.position = Vector2(4, 6)
+	shadow.color = Color(0.09, 0.12, 0.17, 0.38)
+	shadow.show_behind_parent = true
+	surface.add_child(shadow)
+	var outline := Line2D.new()
+	outline.points = surface.polygon
+	outline.closed = true
+	outline.width = 2.0
+	outline.default_color = Color(0.16, 0.19, 0.22, 0.85)
+	surface.add_child(outline)
+	var rim := Line2D.new()
+	rim.points = PackedVector2Array([surface.polygon[0] + Vector2(2, 2), surface.polygon[1] + Vector2(-2, 2)])
+	rim.width = 2.0
+	rim.default_color = Color(0.96, 0.87, 0.64, 0.65)
+	surface.add_child(rim)
+
+func _ensure_actor_shadow(actor: Node2D) -> void:
+	if actor.has_node("GbaContactShadow"):
+		return
+	var shadow := Polygon2D.new()
+	shadow.name = "GbaContactShadow"
+	shadow.polygon = PackedVector2Array([
+		Vector2(-6, 9), Vector2(6, 9), Vector2(6, 10),
+		Vector2(9, 10), Vector2(9, 13), Vector2(6, 13),
+		Vector2(6, 14), Vector2(-6, 14), Vector2(-6, 13),
+		Vector2(-9, 13), Vector2(-9, 10), Vector2(-6, 10)])
+	shadow.color = Color(0.08, 0.12, 0.18, 0.3)
+	shadow.show_behind_parent = true
+	actor.add_child(shadow)
+	actor.move_child(shadow, 0)
 
 func _clear_fx() -> void:
 	_items.clear()
@@ -138,18 +199,21 @@ func _refresh_player_camera() -> void:
 
 func _update_depth_sorting() -> void:
 	if _player != null and is_instance_valid(_player):
+		_ensure_actor_shadow(_player)
 		_player.z_index = DEPTH_BASE + roundi(_player.global_position.y)
 
 	var enemies: Array[Node] = get_tree().get_nodes_in_group("enemy")
 	for enemy: Node in enemies:
 		var enemy_2d: Node2D = enemy as Node2D
 		if enemy_2d != null:
+			_ensure_actor_shadow(enemy_2d)
 			enemy_2d.z_index = DEPTH_BASE + roundi(enemy_2d.global_position.y)
 
 	var npcs: Array[Node] = get_tree().get_nodes_in_group("npc")
 	for npc: Node in npcs:
 		var npc_2d: Node2D = npc as Node2D
 		if npc_2d != null:
+			_ensure_actor_shadow(npc_2d)
 			npc_2d.z_index = DEPTH_BASE + roundi(npc_2d.global_position.y)
 
 	if _mode == MODE_KAME and _world != null:

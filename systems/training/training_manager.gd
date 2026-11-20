@@ -229,6 +229,9 @@ func serialize_state() -> Dictionary:
 	}
 
 func load_state(data: Dictionary) -> void:
+	# Session/anchor are not serialized; never resume a previous treadmill.
+	stop_training()
+	session_xp = 0
 	gravity_multiplier = maxf(
 		float(data.get("gravity_multiplier", 1.0)),
 		1.0

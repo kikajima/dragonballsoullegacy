@@ -4,6 +4,12 @@ extends Area2D
 const EFFECT_SHEET_PATH := (
 	"res://assets/sprites/effects/legacy/special_attack_sfx.png"
 )
+const HU2_EFFECT_PATH := "res://assets/sprites/effects/hu2/Effects.dmi"
+# Visually checked flight/impact pairs, not the GBA growth-stage strips.
+const HU2_PROJECTILE_STATES := {
+	&"big_bang": [&"BigBangAttackHead", &"BigBangAttackHit"],
+	&"burning_attack": [&"BurningAttHead", &"BurningAttHit"],
+}
 
 const EFFECT_RECTS := {
 	&"blue_orb": [
@@ -75,6 +81,8 @@ var _impacted: bool = false
 var _source_actor: Node
 var _clash_radius: float = 4.0
 var _effect_key: StringName = &"blue_orb"
+var _visual_time: float = 0.0
+var _flight_scale: float = 1.0
 
 var _is_arc: bool = false
 var _arc_elapsed: float = 0.0
@@ -147,6 +155,7 @@ func setup(
 		1.0
 	)
 	sprite.scale = Vector2.ONE * visual_scale
+	_flight_scale = visual_scale
 	rotation = _direction.angle()
 
 	var source_shape := (
@@ -180,6 +189,11 @@ func setup(
 	_build_visual(_effect_key)
 
 func _physics_process(delta: float) -> void:
+	if _effect_key == &"spirit_bomb":
+		_visual_time += delta
+		if not _impacted:
+			sprite.scale = Vector2.ONE * _flight_scale * (1.0 + sin(_visual_time * 7.0) * 0.025)
+		queue_redraw()
 	if _impacted:
 		_impact_time_left -= delta
 		if _impact_time_left <= 0.0:
@@ -463,6 +477,8 @@ func _configure_collision_filter() -> void:
 		collision_mask = 37
 
 func _build_visual(effect_key: StringName) -> void:
+	if _try_build_hu2_visual(effect_key):
+		return
 	var frames := SpriteFrames.new()
 	if frames.has_animation(&"default"):
 		frames.remove_animation(&"default")
@@ -494,6 +510,9 @@ func _build_visual(effect_key: StringName) -> void:
 	frames.set_animation_speed(&"fly", 10.0)
 
 	for rect_value in rects:
+		# These are growth stages, not a looping flight animation.
+		if effect_key in [&"spirit_bomb", &"blue_orb"] and rect_value != rects.back():
+			continue
 		var rect: Rect2i = rect_value as Rect2i
 		var atlas := AtlasTexture.new()
 		atlas.atlas = sheet
@@ -503,6 +522,42 @@ func _build_visual(effect_key: StringName) -> void:
 	sprite.sprite_frames = frames
 	sprite.visible = true
 	sprite.play(&"fly")
+
+func _try_build_hu2_visual(effect_key: StringName) -> bool:
+	if not HU2_PROJECTILE_STATES.has(effect_key):
+		return false
+	var sheet := DmiSpriteSheet.load_file(HU2_EFFECT_PATH)
+	var states: Array = HU2_PROJECTILE_STATES[effect_key]
+	if sheet == null or not sheet.has_state(states[0]) or not sheet.has_state(states[1]):
+		return false
+	var facing: StringName
+	if absf(_direction.x) >= absf(_direction.y):
+		facing = &"right" if _direction.x >= 0.0 else &"left"
+	else:
+		facing = &"down" if _direction.y >= 0.0 else &"up"
+	var frames := SpriteFrames.new()
+	frames.remove_animation(&"default")
+	for index in range(2):
+		var animation: StringName = &"fly" if index == 0 else &"impact"
+		var state: StringName = states[index]
+		frames.add_animation(animation)
+		frames.set_animation_loop(animation, index == 0)
+		var total_delay := 0.0
+		for frame in range(sheet.get_frame_count(state)):
+			var delay := sheet.get_frame_delay(state, frame)
+			frames.add_frame(animation, sheet.get_frame_texture(state, facing, frame), delay)
+			total_delay += delay
+		# Preserve the projectile's existing impact lifetime while showing all
+		# authored frames; DMI flight delays use BYOND's tenth-second units.
+		frames.set_animation_speed(animation, 10.0 if index == 0 else total_delay / maxf(impact_duration, 0.001))
+	sprite.sprite_frames = frames
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	# DMI frames already face the travel direction. Cancel the parent's
+	# visual rotation so up/left/down art is not rotated a second time.
+	sprite.rotation = -rotation
+	sprite.visible = true
+	sprite.play(&"fly")
+	return true
 
 func _cast_against_solids(
 	from_position: Vector2,
@@ -706,12 +761,32 @@ func _start_impact() -> void:
 		return
 
 	_impacted = true
+	if _effect_key == &"spirit_bomb":
+		impact_duration = 0.42
+		sprite.visible = false
 	_impact_time_left = impact_duration
 	collision_shape.set_deferred("disabled", true)
 	set_deferred("collision_layer", 0)
 	set_deferred("collision_mask", 0)
 
 	sprite.position = Vector2.ZERO
+	if sprite.sprite_frames.has_animation(&"impact"):
+		sprite.modulate.a = 1.0
+		sprite.play(&"impact")
+		return
 	sprite.stop()
 	sprite.modulate.a = 0.75
 	sprite.scale *= 1.18
+
+func _draw() -> void:
+	if _effect_key != &"spirit_bomb" or not _impacted:
+		return
+	var progress: float = clampf(1.0 - _impact_time_left / impact_duration, 0.0, 1.0)
+	var radius: float = lerpf(_clash_radius, _explosion_radius, sqrt(progress))
+	var fade: float = 1.0 - progress
+	draw_circle(Vector2.ZERO, radius * 0.7, Color(0.35, 0.8, 1.0, fade * 0.22))
+	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, Color(0.65, 0.94, 1.0, fade), 2.0)
+	draw_arc(Vector2.ZERO, radius * 0.78, 0.0, TAU, 40, Color(1.0, 1.0, 1.0, fade * 0.8), 1.0)
+	for index in range(12):
+		var point := Vector2.from_angle(index * TAU / 12.0) * radius
+		draw_rect(Rect2(point.round(), Vector2(2, 2)), Color(0.75, 0.96, 1.0, fade))

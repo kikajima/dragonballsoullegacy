@@ -3,16 +3,25 @@ extends Control
 
 @export var message_duration: float = 1.8
 
-@onready var label: LegacyBitmapText = $Panel/Label
+@onready var label: Label = $Panel/Label
 
 var _queue: Array[String] = []
 var _time_left: float = 0.0
 
 func _ready() -> void:
-	position = Vector2(160.0, 52.0)
-	size = Vector2(160.0, 20.0)
+	_layout_feed()
+	get_viewport().size_changed.connect(_layout_feed)
 	visible = false
 	call_deferred("_bind_sources")
+
+func _layout_feed() -> void:
+	var font := label.get_theme_font("font")
+	var font_size := label.get_theme_font_size("font_size")
+	var text_width := font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var width := clampf(ceilf(text_width) + 16, 80, 220)
+	var text_height := font.get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_CENTER, width - 12, font_size).y
+	size = Vector2(width, clampf(ceilf(text_height) + 6, 18, 40))
+	position = Vector2(floorf((get_viewport_rect().size.x - size.x) / 2), get_viewport_rect().size.y - size.y - 8)
 
 func _process(delta: float) -> void:
 	if not visible:
@@ -41,7 +50,8 @@ func _show_next() -> void:
 		visible = false
 		return
 
-	label.set_text(_queue.pop_front())
+	label.text = _queue.pop_front()
+	_layout_feed()
 	_time_left = message_duration
 	visible = true
 

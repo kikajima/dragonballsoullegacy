@@ -40,8 +40,7 @@ func _apply_to_world(world: Node) -> void:
 	if world == null or not world is Node2D:
 		return
 
-	var world_name: String = String(world.name).to_lower()
-	if not world_name.contains("kame"):
+	if not world is KameIsland:
 		return
 
 	if not ResourceLoader.exists(LOG2_ROSHI_MAP_PATH):

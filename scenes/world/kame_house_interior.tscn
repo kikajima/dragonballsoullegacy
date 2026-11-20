@@ -31,6 +31,7 @@ script = ExtResource("7_bounds")
 bounds = Rect2(32, 32, 480, 320)
 
 [node name="Background" type="Polygon2D" parent="."]
+z_index = -20
 polygon = PackedVector2Array(32, 32, 512, 32, 512, 352, 32, 352)
 color = Color(0.84, 0.67, 0.61, 1)
 

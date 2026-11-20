@@ -1,5 +1,7 @@
 # Comparação com as referências locais
 
+Atualização de 01/11/2026: a biblioteca GBA foi localizada no caminho externo informado pelo usuário e contém 270 PNGs legíveis. As observações históricas de ausência abaixo referem-se àquele checkout. O estudo atual, incluindo verificação do código HU2 no GitHub e limites reais do REA, está em [HU2_LOG_IMPLEMENTATION_STUDY.md](HU2_LOG_IMPLEMENTATION_STUDY.md).
+
 ## Fontes conferidas
 
 - `../HeroesUnited2-master/Code/Beams.dm` e a versão em `../HeroesUnited2Dev-master/Code/Beams.dm`.
