@@ -31,7 +31,7 @@ func fade_out(duration: float = -1.0) -> void:
 		"modulate:a",
 		1.0,
 		maxf(time, 0.0)
-	)
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	await _tween.finished
 	fade_out_finished.emit()
 
@@ -51,7 +51,7 @@ func fade_in(duration: float = -1.0) -> void:
 		"modulate:a",
 		0.0,
 		maxf(time, 0.0)
-	)
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	await _tween.finished
 	fade_in_finished.emit()
 

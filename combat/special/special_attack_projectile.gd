@@ -773,6 +773,19 @@ func _start_impact() -> void:
 	if sprite.sprite_frames.has_animation(&"impact"):
 		sprite.modulate.a = 1.0
 		sprite.play(&"impact")
+		var impact_tween := create_tween().set_parallel()
+		impact_tween.tween_property(
+			sprite,
+			"scale",
+			sprite.scale * 1.18,
+			impact_duration
+		)
+		impact_tween.tween_property(
+			sprite,
+			"modulate:a",
+			0.0,
+			impact_duration
+		)
 		return
 	sprite.stop()
 	sprite.modulate.a = 0.75
