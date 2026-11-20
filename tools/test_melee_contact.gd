@@ -19,6 +19,25 @@ func _run() -> void:
 
 	var player := get_first_node_in_group("player") as Player
 	player.set_physics_process(false)
+	_check(player.collision_mask == 1, "Player movement must not be blocked by enemy bodies")
+	var movement_target := load(
+		"res://actors/enemies/debug_goku_enemy.tscn"
+	).instantiate() as DebugGokuEnemy
+	game.add_child(movement_target)
+	movement_target.set_physics_process(false)
+	movement_target.position = Vector2(420, 360)
+	player.position = Vector2(420, 300)
+	player.velocity = Vector2.DOWN * 90.0
+	for _frame in 30:
+		player.move_and_slide()
+		await physics_frame
+	_check(
+		player.position.y > movement_target.position.y - 20.0,
+		"Player must reach enemy contact distance"
+	)
+	movement_target.queue_free()
+	player.velocity = Vector2.ZERO
+	await physics_frame
 	for enemy in get_nodes_in_group("enemy"):
 		enemy.queue_free()
 	await physics_frame
@@ -36,6 +55,7 @@ func _run() -> void:
 		).instantiate() as DebugGokuEnemy
 		game.add_child(target)
 		target.set_physics_process(false)
+		_check(target.collision_mask == 1, "Enemy body must collide with world only")
 		target.health_component.max_health = 10000
 		target.health_component.restore_full()
 		target.position = Vector2(420, 360)
