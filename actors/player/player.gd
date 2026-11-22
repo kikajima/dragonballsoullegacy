@@ -274,7 +274,7 @@ func _process_treadmill_training(
 	melee_combat_component.cancel_attack()
 	movement_component.stop(self)
 
-	global_position = training.get_treadmill_anchor()
+	move_and_collide(training.get_treadmill_anchor() - global_position)
 
 	if input_controller.is_interact_pressed():
 		training.stop_training()

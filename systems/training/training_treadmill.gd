@@ -11,7 +11,7 @@ func get_interaction_label() -> String:
 
 	return "Start Treadmill"
 
-func interact(_actor: Node) -> void:
+func interact(actor: Node) -> void:
 	var training := _get_training()
 	if training == null:
 		return
@@ -20,7 +20,10 @@ func interact(_actor: Node) -> void:
 		training.stop_training()
 		return
 
-	training.start_treadmill(global_position)
+	# Keep the user at the accessible control position outside the solid base.
+	if not actor is Node2D:
+		return
+	training.start_treadmill((actor as Node2D).global_position)
 	training.set_prompt("MOVE TO RUN")
 
 func _get_training() -> TrainingManager:

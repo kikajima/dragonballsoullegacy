@@ -19,7 +19,7 @@
 [ext_resource type="Script" path="res://components/status/status_effect_component.gd" id="17_status"]
 
 [sub_resource type="RectangleShape2D" id="BodyShape"]
-size = Vector2(18, 28)
+size = Vector2(10, 8)
 
 [sub_resource type="SpriteFrames" id="EnemyFrames"]
 
@@ -34,7 +34,7 @@ motion_mode = 1
 platform_floor_layers = 0
 platform_wall_layers = 0
 collision_layer = 4
-collision_mask = 3
+collision_mask = 7
 script = ExtResource("1_enemy")
 pickup_scene = ExtResource("10_pickup")
 min_zeni_drop = 8
@@ -51,7 +51,7 @@ polygon = PackedVector2Array(-7, -9, 7, -9, 7, 9, -7, 9)
 color = Color(0.75, 0.45, 0.2, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -6)
+position = Vector2(0, 8)
 shape = SubResource("BodyShape")
 
 [node name="Combat" type="Node2D" parent="."]

@@ -15,7 +15,7 @@
 [ext_resource type="Script" path="res://world/info_interactable.gd" id="12_info"]
 
 [sub_resource type="RectangleShape2D" id="HouseCollision"]
-size = Vector2(118, 78)
+size = Vector2(126, 150)
 
 [sub_resource type="RectangleShape2D" id="SeaHorizontal"]
 size = Vector2(960, 100)
@@ -75,7 +75,7 @@ texture = ExtResource("2_house")
 z_index = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="KameHouse"]
-position = Vector2(0, 54)
+position = Vector2(7, 55)
 shape = SubResource("HouseCollision")
 
 [node name="PalmTreeLeft" type="Sprite2D" parent="."]

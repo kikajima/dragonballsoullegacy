@@ -545,7 +545,7 @@ func _return_home() -> void:
 	ki_blast_component.cancel_cast()
 	var to_home: Vector2 = _spawn_position - global_position
 	if to_home.length() <= return_home_tolerance:
-		global_position = _spawn_position
+		move_and_collide(to_home)
 		_returning_home = false
 		_set_idle()
 		return
@@ -840,39 +840,45 @@ func _process_respawn_collision(delta: float) -> void:
 	# The fighter becomes hittable again after the short overlap grace even
 	# if a beam is currently crossing the spawn point. Sustained attacks
 	# must be able to damage a newly respawned target instead of freezing it.
-	_resolve_respawn_overlap()
+	if not _resolve_respawn_overlap():
+		return
 
 	_respawn_collision_pending = false
 	body_collision.set_deferred("disabled", false)
 	hurtbox.set_deferred("monitorable", true)
 
-func _resolve_respawn_overlap() -> void:
+func _resolve_respawn_overlap() -> bool:
+	# Test the actual body against scenery and every actor before making it
+	# solid. Moving away from the player alone can place it inside a wall/mob.
+	if _respawn_position_is_clear(global_position):
+		return true
 	var player := get_tree().get_first_node_in_group(
 		"player"
 	) as Node2D
+	var direction := Vector2.RIGHT
+	if player != null:
+		direction = (global_position - player.global_position).normalized()
+		if direction.is_zero_approx():
+			direction = _fallback_respawn_direction(player)
+	var origin := global_position
+	for ring in range(1, 5):
+		for step in range(16):
+			var candidate := origin + direction.rotated(TAU * step / 16.0) * maxf(respawn_separation_distance, 12.0) * ring
+			if _respawn_position_is_clear(candidate):
+				global_position = candidate
+				return true
+	# A crowded spawn retries next physics frame instead of enabling overlap.
+	return false
 
-	if player == null:
-		return
-
-	var offset: Vector2 = global_position - player.global_position
-	var distance: float = offset.length()
-	var required_distance: float = maxf(
-		respawn_separation_distance,
-		1.0
-	)
-
-	if distance >= required_distance:
-		return
-
-	var separation_direction: Vector2 = offset.normalized()
-
-	if separation_direction.is_zero_approx():
-		separation_direction = _fallback_respawn_direction(player)
-
-	global_position = (
-		player.global_position
-		+ separation_direction * required_distance
-	)
+func _respawn_position_is_clear(at: Vector2) -> bool:
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = body_collision.shape
+	query.transform = body_collision.global_transform
+	query.transform.origin += at - global_position
+	query.collision_mask = collision_mask
+	query.exclude = [get_rid()]
+	query.margin = 0.1
+	return get_world_2d().direct_space_state.intersect_shape(query, 1).is_empty()
 
 func _fallback_respawn_direction(player: Node2D) -> Vector2:
 	if player.has_method("get_facing"):

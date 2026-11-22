@@ -488,6 +488,7 @@ func _polish_layout() -> void:
 
 	# Sparring gets its own readable area to the right.
 	_set_node_position(&"TrainingFighter", Vector2(650, 382))
+	($TrainingFighter as DebugGokuEnemy)._spawn_position = $TrainingFighter.global_position
 	var ring: Line2D = get_node_or_null("TrainingRing") as Line2D
 	if ring != null:
 		ring.points = PackedVector2Array([

@@ -193,22 +193,22 @@ func _refresh_player_camera() -> void:
 
 func _update_depth_sorting() -> void:
 	if _player != null and is_instance_valid(_player):
-		_player.z_index = DEPTH_BASE + roundi(_player.global_position.y)
+		_apply_actor_depth(_player)
 
 	var enemies: Array[Node] = get_tree().get_nodes_in_group("enemy")
 	for enemy: Node in enemies:
 		var enemy_2d: Node2D = enemy as Node2D
 		if enemy_2d != null:
-			enemy_2d.z_index = DEPTH_BASE + roundi(enemy_2d.global_position.y)
+			_apply_actor_depth(enemy_2d)
 
 	var npcs: Array[Node] = get_tree().get_nodes_in_group("npc")
 	for npc: Node in npcs:
 		var npc_2d: Node2D = npc as Node2D
 		if npc_2d != null:
-			npc_2d.z_index = DEPTH_BASE + roundi(npc_2d.global_position.y)
+			_apply_actor_depth(npc_2d)
 
 	if _mode == MODE_KAME and _world != null:
-		_apply_prop_depth(&"KameHouse", 105.0)
+		_apply_prop_depth(&"KameHouse", 130.0)
 		_apply_prop_depth(&"PalmTreeLeft", 42.0)
 		_apply_prop_depth(&"PalmTreeRight", 42.0)
 		_apply_prop_depth(&"PalmTreeSouth", 42.0)
@@ -218,6 +218,19 @@ func _update_depth_sorting() -> void:
 		_apply_prop_depth(&"BeachChair", 14.0)
 		_apply_prop_depth(&"BeachRock", 12.0)
 		_apply_prop_depth(&"TravelCapsule", 24.0)
+
+func _apply_actor_depth(actor: Node2D) -> void:
+	# Actor origins sit above their feet. Sorting by the origin put the torso
+	# behind scenery even at physical contact with its south-facing edge.
+	var foot_y := actor.global_position.y
+	for path in ["CollisionShape2D", "BodyCollision"]:
+		var collision := actor.get_node_or_null(path) as CollisionShape2D
+		if collision != null and collision.shape != null:
+			var bounds: Rect2 = collision.global_transform * collision.shape.get_rect()
+			foot_y = bounds.end.y
+			break
+	actor.z_as_relative = false
+	actor.z_index = DEPTH_BASE + roundi(foot_y)
 
 func _apply_prop_depth(node_name: StringName, foot_offset: float) -> void:
 	if _world == null:
@@ -229,9 +242,8 @@ func _apply_prop_depth(node_name: StringName, foot_offset: float) -> void:
 	if node == null:
 		return
 
-	node.z_index = DEPTH_BASE + roundi(
-		node.global_position.y + foot_offset
-	)
+	node.z_as_relative = false
+	node.z_index = DEPTH_BASE + roundi(node.to_global(Vector2(0, foot_offset)).y)
 
 func _build_kame_foliage() -> void:
 	if _detail_root == null:

@@ -41,8 +41,10 @@ func _spawn_one() -> bool:
 	if enemy == null:
 		return false
 
+	enemy.position = (get_parent() as Node2D).to_local(_choose_spawn_position())
 	get_parent().add_child(enemy)
-	enemy.global_position = _choose_spawn_position()
+	if enemy is DebugGokuEnemy:
+		enemy._reset_after_defeat()
 	enemy.tree_exited.connect(_on_enemy_tree_exited)
 
 	_alive.append(enemy)

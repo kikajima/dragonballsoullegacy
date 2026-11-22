@@ -68,7 +68,7 @@ func _run() -> void:
 		).instantiate() as DebugGokuEnemy
 		game.add_child(target)
 		target.set_physics_process(false)
-		_check(target.collision_mask == 3, "Enemy body must collide with player and world")
+		_check(target.collision_mask == 7, "Enemy body must collide with player, world and other enemies")
 		target.health_component.max_health = 10000
 		target.health_component.restore_full()
 		target.position = Vector2(420, 360)

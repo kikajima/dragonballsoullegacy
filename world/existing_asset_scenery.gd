@@ -23,6 +23,7 @@ static func apply(world: Node2D) -> void:
 			if _gba_prop(world, "BeachChair", "beach_chair", 14, ["Seat", "Legs", "SeatStripe"]):
 				(world.get_node("BeachChair") as Node2D).rotation = 0.0
 	_mark_checkpoints(world)
+	preload("res://world/solid_scenery.gd").apply(world)
 
 static func _mark_checkpoints(world: Node2D) -> void:
 	# A floor marker from the HU2 tileset replaces the translucent placeholder.
@@ -80,8 +81,10 @@ static func _house(world: Node2D) -> void:
 		var shape := RectangleShape2D.new()
 		shape.size = Vector2(48, 40)
 		(world.get_node("Table/CollisionShape2D") as CollisionShape2D).shape = shape
-	_gba_prop(world, "TV", "tv", 17, ["Screen", "Glow"])
-	_gba_prop(world, "Fridge", "fridge", 30, ["Body", "Handle"])
+	if _gba_prop(world, "TV", "tv", 17, ["Screen", "Glow"]):
+		_footprint(world.get_node("TV"), Vector2(32, 12), Vector2(0, 11))
+	if _gba_prop(world, "Fridge", "fridge", 30, ["Body", "Handle"]):
+		_footprint(world.get_node("Fridge"), Vector2(28, 24), Vector2(0, 18))
 	if _gba_prop(world, "Sofa", "sofa", 24, ["Back", "Seat", "LeftArm", "RightArm"]):
 		_footprint(world.get_node("Sofa"), Vector2(30, 44), Vector2(0, 2))
 	if _gba_prop(world, "CoffeeTable", "coffee_table", 14, ["Visual"]):
@@ -99,7 +102,7 @@ static func _art_root(parent: Node2D, foot_y: float) -> Node2D:
 	art.name = "LibraryArt"
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	art.z_as_relative = false
-	art.z_index = 1000 + roundi(parent.global_position.y + foot_y)
+	art.z_index = 1000 + roundi(parent.to_global(Vector2(0, foot_y)).y)
 	parent.add_child(art)
 	return art
 
@@ -153,6 +156,12 @@ static func _city(world: Node2D) -> void:
 				state = "BL" if column == 0 else ("BR" if column == 6 else ("Door" if column == 3 else "BM"))
 			_tile(facade, "RectBuilding", state, Vector2(-112 + column * 32, -90 + row * 32))
 	_hide(building, ["Visual", "Roof"])
+	# Match the three facade rows; the elevated roof is not a ground obstacle.
+	var building_shape := RectangleShape2D.new()
+	building_shape.size = Vector2(224, 96)
+	var building_collision := building.get_node("CollisionShape2D") as CollisionShape2D
+	building_collision.shape = building_shape
+	building_collision.position = Vector2(0, 22)
 	var park := world.get_node("CityPark") as Node2D
 	var planting := _art_root(park, 35)
 	for column in range(5):
@@ -224,14 +233,16 @@ static func _wastes(world: Node2D) -> void:
 		land_material.shader = preload("res://assets/shaders/rock_slide_land.gdshader")
 		sprite.material = land_material
 		_hide(rock, ["Visual"])
-	# Low rubble is ground detail, not a new navigation obstacle.
+	# Every visible rock has a small ground footprint as well as its artwork.
 	var rubble := Node2D.new()
 	rubble.name = "LibraryRubble"
 	rubble.z_index = 1
 	world.add_child(rubble)
 	for at in [Vector2(255, 275), Vector2(565, 300), Vector2(660, 510), Vector2(910, 430), Vector2(1080, 610)]:
-		_tile(rubble, "Flowers", "rock6", at)
-		_tile(rubble, "Flowers", "rock8", at + Vector2(24, 16))
+		var large := _tile(rubble, "Flowers", "rock6", at)
+		var small := _tile(rubble, "Flowers", "rock8", at + Vector2(24, 16))
+		preload("res://world/solid_scenery.gd").set_footprint(large, Rect2(8, 16, 16, 12))
+		preload("res://world/solid_scenery.gd").set_footprint(small, Rect2(10, 20, 12, 8))
 
 static func _training(world: Node2D) -> void:
 	var walls := Node2D.new()

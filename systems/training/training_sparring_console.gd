@@ -65,8 +65,9 @@ func _spawn_partner() -> void:
 	partner.display_name = "Gravity Sparring Partner"
 	partner.enemy_rank = "Training %.0fx" % gravity
 
+	partner.position = (get_parent() as Node2D).to_local(global_position + spawn_offset)
 	get_parent().add_child(partner)
-	partner.global_position = global_position + spawn_offset
+	partner._reset_after_defeat()
 	_partner = partner
 
 	var health: HealthComponent = partner.get_node_or_null(
