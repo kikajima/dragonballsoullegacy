@@ -31,6 +31,7 @@ func save_game() -> bool:
 		"stats": _serialize_group_node("game_stats"),
 		"training": _serialize_group_node("training_manager"),
 		"world": _serialize_group_node("world_manager"),
+		"dragon_balls": _serialize_group_node("dragon_ball_manager"),
 	}
 
 	var file := FileAccess.open(save_path, FileAccess.WRITE)
@@ -121,6 +122,10 @@ func load_game() -> bool:
 	_load_group_node_state(
 		"training_manager",
 		data.get("training", {})
+	)
+	_load_group_node_state(
+		"dragon_ball_manager",
+		data.get("dragon_balls", {})
 	)
 
 	game_loaded.emit(save_path)
