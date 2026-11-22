@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scenes/world/kame_house_interior.gd" id="1_house"]
 [ext_resource type="Script" path="res://world/rest_and_save_spot.gd" id="2_rest"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://world/world_camera_bounds.gd" id="7_bounds"]
 [ext_resource type="PackedScene" path="res://actors/npcs/world_npc.tscn" id="8_npc"]
 [ext_resource type="Script" path="res://world/sword_rack.gd" id="9_sword_rack"]
+[ext_resource type="Script" path="res://world/item_stash.gd" id="10_item_stash"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(480, 18)
@@ -171,6 +172,20 @@ monitorable = true
 script = ExtResource("9_sword_rack")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SwordRack"]
+position = Vector2(0, 8)
+shape = SubResource("InteractShape")
+
+[node name="BagHook" type="Area2D" parent="."]
+position = Vector2(206, 60)
+collision_layer = 64
+collision_mask = 0
+monitoring = false
+monitorable = true
+script = ExtResource("10_item_stash")
+item_id = &"small_pouch"
+place_name = "Wall Hook"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BagHook"]
 position = Vector2(0, 8)
 shape = SubResource("InteractShape")
 

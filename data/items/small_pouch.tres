@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_data.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/equipment/bags/small_pouch_icon.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+item_id = &"small_pouch"
+display_name = "Small Pouch"
+description = "A leather pouch tied at the belt. Holds 8 items."
+max_stack = 1
+sell_value = 40
+equipment_slot = &"bag"
+bag_capacity = 8
+icon = ExtResource("2")

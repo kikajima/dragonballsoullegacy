@@ -33,8 +33,14 @@ func interact(actor: Node) -> void:
 			)
 		return
 
-	var added: int = STOCK_LIMIT - current
-	inventory.add_item(SENZU_ID, added)
+	var added: int = inventory.add_item(SENZU_ID, STOCK_LIMIT - current)
+	if added <= 0:
+		if dialogue != null:
+			dialogue.show_dialogue(
+				["Your bag is full. Make some room to take Senzu Beans."],
+				"Kame House Fridge"
+			)
+		return
 
 	if dialogue != null:
 		dialogue.show_dialogue(

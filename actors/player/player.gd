@@ -81,6 +81,8 @@ func _ready() -> void:
 		_on_transformation_ended
 	)
 	equipment_component.equipment_changed.connect(_on_equipment_changed)
+	equipment_component.equip_failed.connect(_on_equip_failed)
+	inventory_component.inventory_full.connect(_on_inventory_full)
 	flight_component.flight_changed.connect(_on_flight_changed)
 	flight_component.landing_blocked.connect(_notify.bind("Can't land here"))
 	power_aura.aura_changed.connect(_on_aura_changed)
@@ -790,8 +792,8 @@ func toggle_weapon() -> bool:
 		EquipmentComponent.SLOT_WEAPON
 	)
 	if equipped != &"":
-		equipment_component.unequip(EquipmentComponent.SLOT_WEAPON)
-		return false
+		# Fails (stays equipped) when the bag has no room for the weapon.
+		return not equipment_component.unequip(EquipmentComponent.SLOT_WEAPON)
 	var weapon := equipment_component.find_inventory_weapon()
 	if weapon == &"":
 		var feed := get_tree().get_first_node_in_group("notification_feed")
@@ -878,6 +880,12 @@ func _on_aura_changed(enabled: bool, color_id: StringName) -> void:
 		if enabled else "Aura off"
 	)
 
+func _on_equip_failed(_item_id: StringName, reason: String) -> void:
+	if reason == EquipmentComponent.REASON_BAG_FULL:
+		_notify("Bag full")
+
+func _on_inventory_full(item_id: StringName, _rejected: int) -> void:
+	_notify("Bag full: no room for %s" % ItemCatalog.get_display_name(item_id))
 
 func _notify(message: String) -> void:
 	var feed := get_tree().get_first_node_in_group("notification_feed")

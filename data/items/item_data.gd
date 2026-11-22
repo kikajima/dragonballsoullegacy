@@ -16,7 +16,13 @@ extends Resource
 # Attack style the item gives to the basic attack button (&"sword", ...).
 @export var weapon_style: StringName = &""
 @export var melee_damage_bonus: int = 0
+# Bags (equipment_slot "bag"): total bag spaces while this bag is worn. With
+# no bag the character carries InventoryComponent.BASE_CAPACITY spaces.
+@export_range(0, 99, 1) var bag_capacity: int = 0
 @export var icon: Texture2D
 
 func is_equipment() -> bool:
 	return equipment_slot != &""
+
+func is_bag() -> bool:
+	return equipment_slot == &"bag" and bag_capacity > 0

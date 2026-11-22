@@ -32,6 +32,10 @@ func buy(
 		transaction_failed.emit("Estoque insuficiente.")
 		return false
 
+	if not inventory.can_add(entry.item_id, amount):
+		transaction_failed.emit("Bolsa cheia.")
+		return false
+
 	var total_price: int = maxi(entry.buy_price, 0) * amount
 	if not wallet.spend(total_price):
 		transaction_failed.emit("Zeni insuficiente.")
@@ -66,7 +70,8 @@ func sell(
 		transaction_failed.emit("Item inválido.")
 		return false
 
-	if inventory.get_quantity(entry.item_id) < amount:
+	# Worn equipment cannot be sold.
+	if inventory.get_bag_quantity(entry.item_id) < amount:
 		transaction_failed.emit("Quantidade insuficiente.")
 		return false
 

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_data.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/equipment/bags/travel_bag_icon.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+item_id = &"travel_bag"
+display_name = "Travel Bag"
+description = "A sturdy shoulder bag for long trips. Holds 12 items."
+max_stack = 1
+sell_value = 120
+equipment_slot = &"bag"
+bag_capacity = 12
+icon = ExtResource("2")

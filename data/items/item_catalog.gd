@@ -6,6 +6,9 @@ extends RefCounted
 const ITEM_PATHS: Array[String] = [
 	"res://data/items/senzu_bean.tres",
 	"res://data/items/sword.tres",
+	"res://data/items/small_pouch.tres",
+	"res://data/items/travel_bag.tres",
+	"res://data/items/capsule_case.tres",
 ]
 
 static var _items: Dictionary = {}

@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://c0v3twgnaj5vx" path="res://world/world_manager.gd" id="7_world"]
 [ext_resource type="PackedScene" path="res://ui/dialogue/dialogue_box.tscn" id="8_dialogue"]
 [ext_resource type="PackedScene" path="res://ui/pause/pause_menu.tscn" id="9_pause"]
+[ext_resource type="Script" path="res://ui/inventory/inventory_menu.gd" id="40_inventory_menu"]
 [ext_resource type="PackedScene" path="res://ui/quest/quest_tracker.tscn" id="10_quest_tracker"]
 [ext_resource type="PackedScene" path="res://ui/notifications/notification_feed.tscn" id="11_notifications"]
 [ext_resource type="Script" uid="uid://cw8snjwbe5uu0" path="res://core/game_session.gd" id="12_session"]
@@ -129,6 +130,9 @@ anchors_preset = 0
 [node name="DialogueBox" parent="UIContainer" unique_id=1284652791 instance=ExtResource("8_dialogue")]
 
 [node name="PauseMenu" parent="UIContainer" unique_id=1481459394 instance=ExtResource("9_pause")]
+
+[node name="InventoryMenu" type="Control" parent="UIContainer"]
+script = ExtResource("40_inventory_menu")
 
 [node name="TransitionLayer" type="CanvasLayer" parent="." unique_id=277396951]
 layer = 100
