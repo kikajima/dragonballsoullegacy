@@ -294,7 +294,8 @@ func _case_study() -> void:
 	spot.interact(player)
 	_expect("study: starts a study session", player.is_studying(), "")
 	var before := stats.get_xp(CharacterStatsComponent.INTELLIGENCE)
-	await create_timer(0.5).timeout
+	# 0.8 s: about 3 XP, so a slow frame cannot drop it under 2.
+	await create_timer(0.8).timeout
 	_expect("study: trains Intelligence over time", stats.get_xp(CharacterStatsComponent.INTELLIGENCE) >= before + 2.0, "%.2f" % (stats.get_xp(CharacterStatsComponent.INTELLIGENCE) - before))
 	Input.action_press("move_down")
 	await physics_frame
