@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="PackedScene" path="res://actors/enemies/debug_goku_enemy.tscn" id="1_enemy"]
 [ext_resource type="PackedScene" path="res://world/checkpoint_area.tscn" id="3_checkpoint"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://actors/npcs/world_npc.tscn" id="7_npc"]
 [ext_resource type="Script" path="res://world/study_spot.gd" id="90_study"]
 [ext_resource type="Texture2D" path="res://assets/vendor/hu2/Icons/Images/CapsuleShip.png" id="91_ship"]
+[ext_resource type="Script" path="res://world/service_point.gd" id="92_service"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(1280, 20)
@@ -102,6 +103,7 @@ shape = SubResource("WallVertical")
 position = Vector2(500, 205)
 dmi_sprite_path = "res://assets/vendor/hu2/Icons/Characters/Yamcha.dmi"
 display_name = "Yamcha"
+enemy_id = &"yamcha_sparring"
 enemy_rank = "Sparring"
 difficulty_scale = 1.05
 reward_scale = 0.9
@@ -112,6 +114,7 @@ senzu_drop_chance = 0.0
 [node name="Bulma" parent="." instance=ExtResource("7_npc")]
 position = Vector2(350, 470)
 display_name = "Bulma"
+npc_id = &"bulma"
 dmi_path = "res://assets/vendor/hu2/Icons/Characters/SABulma.dmi"
 dialogue_text = "The road to Capsule Corp is open, but the wastes are not a sightseeing trip.|If your equipment is damaged, return to the city before pushing farther west.|The training capsule can prepare you for the next route."
 
@@ -168,3 +171,15 @@ action_label = "Attend class"
 kind = "board"
 xp_multiplier = 1.25
 footprint = Vector2(34, 8)
+
+[node name="MarketStall" type="StaticBody2D" parent="."]
+position = Vector2(560, 318)
+script = ExtResource("92_service")
+kind = "shop"
+shop_id = &"west_city"
+
+[node name="CapsuleWorkbench" type="StaticBody2D" parent="."]
+position = Vector2(1060, 300)
+script = ExtResource("92_service")
+kind = "workbench"
+base_size = Vector2(40, 12)
