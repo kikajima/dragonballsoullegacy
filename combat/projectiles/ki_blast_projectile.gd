@@ -25,6 +25,7 @@ var _lifetime_left: float
 var _impact_time_left: float = 0.0
 var _impacted: bool = false
 var _source_actor: Node
+var _level: int = ElevationLevel.GROUND
 
 func _ready() -> void:
 	_lifetime_left = lifetime
@@ -38,6 +39,9 @@ func setup(
 	source_actor: Node = null
 ) -> void:
 	_source_actor = source_actor
+	# The shot lives on its shooter's elevation level.
+	_level = ElevationLevel.of(source_actor) if source_actor != null else ElevationLevel.GROUND
+	ElevationLevel.tag(self, _level)
 	_configure_collision_filter()
 
 	if damage_override >= 0:
@@ -49,6 +53,9 @@ func setup(
 		_direction = direction.normalized()
 
 	rotation = _direction.angle()
+	# Drawn at the level's height; collision stays on the ground plane.
+	ElevationLevel.apply_visual_lift(self, _level)
+	ElevationLevel.apply_draw_order(self, _level)
 
 func _physics_process(delta: float) -> void:
 	if _impacted:
@@ -122,6 +129,10 @@ func _physics_process(delta: float) -> void:
 
 func _on_area_entered(area: Area2D) -> void:
 	if _impacted or area == null:
+		return
+
+	# Fighters, blockers and shots on another level are passed by.
+	if not ElevationLevel.same(self, area):
 		return
 
 	if (
@@ -306,6 +317,8 @@ func _cast_against_solids(
 	from_position: Vector2,
 	to_position: Vector2
 ) -> Dictionary:
+	if not ElevationLevel.blocks_scenery(_level):
+		return {}
 	var query := PhysicsRayQueryParameters2D.create(
 		from_position,
 		to_position
@@ -354,6 +367,9 @@ func _configure_collision_filter() -> void:
 		# World + Enemy/Hurtbox + Projectiles.
 		collision_mask = 37
 
+	if not ElevationLevel.blocks_scenery(_level):
+		collision_mask &= ~1
+
 func get_projectile_clash_radius() -> float:
 	return projectile_clash_radius
 
@@ -391,6 +407,9 @@ func receive_projectile_clash(
 	_start_impact_at(clash_position)
 
 func _is_friendly_projectile(other: Node) -> bool:
+	# Shots on different levels never clash.
+	if other != null and not ElevationLevel.same(self, other):
+		return true
 	if (
 		_source_actor == null
 		or other == null

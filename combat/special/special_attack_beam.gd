@@ -25,6 +25,7 @@ const KAME_BATTLE_STATE: StringName = &"KameBattle"
 	$HitArea/CollisionShape2D
 )
 
+var _level: int = ElevationLevel.GROUND
 var _source_actor: Node
 var _damage: int = 8
 var _stun_duration: float = 0.0
@@ -56,6 +57,10 @@ func setup(
 	charge_ratio: float = 0.0
 ) -> void:
 	_source_actor = source_actor
+	# The beam lives on its caster's elevation level.
+	_level = ElevationLevel.of(source_actor) if source_actor != null else ElevationLevel.GROUND
+	ElevationLevel.tag(self, _level)
+	ElevationLevel.apply_draw_order(self, _level)
 
 	var safe_charge: float = clampf(charge_ratio, 0.0, 1.0)
 	var damage_scale: float = lerpf(
@@ -151,6 +156,8 @@ func follow_caster(
 		+ _direction * _spawn_distance
 	)
 	rotation = _direction.angle()
+	# Drawn at the level's height; the hit area stays on the ground plane.
+	ElevationLevel.apply_visual_lift(self, _level)
 	_refresh_geometry()
 
 func stop_beam() -> void:
@@ -377,6 +384,9 @@ func _resolve_beam_length(max_range: float) -> float:
 	)
 
 func _resolve_environment_length(max_range: float) -> float:
+	# Scenery only stops beams on the ground level.
+	if not ElevationLevel.blocks_scenery(_level):
+		return max_range
 	# Sweep the beam's width: a center ray misses walls touching its edges.
 	var strip := RectangleShape2D.new()
 	strip.size = Vector2(0.1, _beam_width)
@@ -461,6 +471,10 @@ func _resolve_nearest_target_length(max_length: float) -> float:
 
 func _is_live_damage_receiver(receiver: Area2D) -> bool:
 	if not is_instance_valid(receiver) or not receiver.monitorable:
+		return false
+
+	# Fighters on another level are neither hit nor stop the beam.
+	if not ElevationLevel.same(self, receiver):
 		return false
 
 	# Invulnerability prevents damage, not physical contact. Using

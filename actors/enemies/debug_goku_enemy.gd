@@ -388,6 +388,13 @@ func _has_clear_line_to_target() -> bool:
 	if not is_instance_valid(_target):
 		return false
 
+	# Shots only travel on the shooter's own elevation level, where only
+	# the ground level has scenery in the way.
+	if not ElevationLevel.same(self, _target):
+		return false
+	if not ElevationLevel.blocks_scenery(ElevationLevel.of(self)):
+		return true
+
 	var query := PhysicsRayQueryParameters2D.create(
 		global_position,
 		_target.global_position

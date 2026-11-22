@@ -20,7 +20,9 @@ static func spawn(caster: Node2D, radius: float) -> SpecialAreaFlash:
 	if parent == null:
 		parent = caster.get_parent()
 	parent.add_child(flash)
-	flash.global_position = caster.global_position + Vector2(0, -10)
+	var level := ElevationLevel.of(caster)
+	flash.global_position = caster.global_position + Vector2(0, -10) + ElevationLevel.lift(level)
+	ElevationLevel.apply_draw_order(flash, level)
 	return flash
 
 func _process(delta: float) -> void:

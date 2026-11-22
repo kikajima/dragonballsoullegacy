@@ -78,6 +78,10 @@ func _try_apply_hit(target: Node) -> void:
 	if _hit_targets.has(receiver_id):
 		return
 
+	# Melee only connects on the same elevation level (ground, air, ...).
+	if not ElevationLevel.same(self, receiver):
+		return
+
 	var result: Variant = receiver.call(
 		"receive_hit",
 		damage,
@@ -90,3 +94,10 @@ func _try_apply_hit(target: Node) -> void:
 
 	_hit_targets[receiver_id] = true
 	hit_confirmed.emit(receiver, applied_damage)
+
+# Hitboxes/hurtboxes live under their CharacterBody2D actor.
+static func _actor_of(start: Node) -> Node:
+	var node: Node = start
+	while node != null and not node is CharacterBody2D:
+		node = node.get_parent()
+	return node

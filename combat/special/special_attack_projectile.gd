@@ -112,6 +112,7 @@ var _distance_travelled: float = 0.0
 var _impact_time_left: float = 0.0
 var _impacted: bool = false
 var _source_actor: Node
+var _level: int = ElevationLevel.GROUND
 var _clash_radius: float = 4.0
 var _effect_key: StringName = &"blue_orb"
 var _visual_time: float = 0.0
@@ -135,6 +136,9 @@ func setup(
 	charge_ratio: float = 0.0
 ) -> void:
 	_source_actor = source_actor
+	# The technique lives on its caster's elevation level.
+	_level = ElevationLevel.of(source_actor) if source_actor != null else ElevationLevel.GROUND
+	ElevationLevel.tag(self, _level)
 	_direction = (
 		Vector2.RIGHT
 		if direction.is_zero_approx()
@@ -220,6 +224,9 @@ func setup(
 
 	_configure_collision_filter()
 	_build_visual(_effect_key)
+	# Drawn at the level's height; collision stays on the ground plane.
+	sprite.position = ElevationLevel.lift(_level).rotated(-rotation)
+	ElevationLevel.apply_draw_order(self, _level)
 
 func _physics_process(delta: float) -> void:
 	if _effect_key == &"spirit_bomb":
@@ -253,7 +260,7 @@ func _process_arc(delta: float) -> void:
 	)
 	# Height is vertical on screen, independent of the projectile's heading.
 	sprite.position = (
-		Vector2(0, -sin(ratio * PI) * _arc_height)
+		Vector2(0, -sin(ratio * PI) * _arc_height) + ElevationLevel.lift(_level)
 	).rotated(-global_rotation)
 	# Point the comet along its on-screen path (ground travel + lift).
 	var screen_velocity: Vector2 = (
@@ -265,7 +272,7 @@ func _process_arc(delta: float) -> void:
 	queue_redraw()
 
 	if ratio >= 1.0:
-		sprite.position = Vector2.ZERO
+		sprite.position = ElevationLevel.lift(_level).rotated(-global_rotation)
 		_resolve_impact(global_position)
 
 func _process_straight(delta: float) -> void:
@@ -365,12 +372,17 @@ func _first_receiver_along(from_position: Vector2, to_position: Vector2) -> Area
 			if (
 				receiver != null
 				and receiver.has_method("receive_hit")
+				and ElevationLevel.same(self, receiver)
 			):
 				return receiver
 	return null
 
 func _on_area_entered(area: Area2D) -> void:
 	if _impacted or _is_arc or area == null:
+		return
+
+	# Fighters, blockers and shots on another level are passed by.
+	if not ElevationLevel.same(self, area):
 		return
 
 	if (
@@ -459,6 +471,7 @@ func _explode(center: Vector2) -> void:
 		if (
 			receiver == null
 			or not receiver.has_method("receive_hit")
+			or not ElevationLevel.same(self, receiver)
 		):
 			continue
 
@@ -495,6 +508,9 @@ func _apply_screen_stun() -> void:
 		if actor == null:
 			continue
 
+		if ElevationLevel.actor_level(actor) != _level:
+			continue
+
 		# Approximate the original "on-screen" stun using the playable
 		# 480x270 viewport footprint around the impact.
 		if global_position.distance_to(
@@ -516,6 +532,8 @@ func _damage_receiver(
 	receiver: Area2D,
 	damage_value: int
 ) -> int:
+	if not ElevationLevel.same(self, receiver):
+		return 0
 	return int(
 		receiver.call(
 			"receive_hit",
@@ -568,6 +586,8 @@ func _configure_collision_filter() -> void:
 		collision_mask = 35
 	else:
 		collision_mask = 37
+	if not ElevationLevel.blocks_scenery(_level):
+		collision_mask &= ~1
 
 func _build_visual(effect_key: StringName) -> void:
 	if _try_build_hu2_visual(effect_key):
@@ -676,6 +696,8 @@ func _cast_against_solids(
 	from_position: Vector2,
 	to_position: Vector2
 ) -> Dictionary:
+	if not ElevationLevel.blocks_scenery(_level):
+		return {}
 	var query := PhysicsRayQueryParameters2D.create(
 		from_position,
 		to_position
@@ -797,6 +819,9 @@ func _closest_point_on_segment(
 	return start + segment * ratio
 
 func _is_friendly_projectile(other: Node) -> bool:
+	# Techniques on different levels never clash.
+	if other != null and not ElevationLevel.same(self, other):
+		return true
 	if (
 		_source_actor == null
 		or other == null
@@ -882,7 +907,7 @@ func _start_impact() -> void:
 	set_deferred("collision_layer", 0)
 	set_deferred("collision_mask", 0)
 
-	sprite.position = Vector2.ZERO
+	sprite.position = ElevationLevel.lift(_level).rotated(-rotation)
 	queue_redraw()
 	if _has_legacy_impact():
 		_play_legacy_impact()
@@ -941,10 +966,11 @@ func _play_legacy_impact() -> void:
 func _draw() -> void:
 	if _is_arc and not _impacted:
 		# Ground shadow: shows where a lobbed attack will land.
-		var height := sprite.position.rotated(rotation).y
+		var level_lift := ElevationLevel.lift(_level)
+		var height := (sprite.position.rotated(rotation) - level_lift).y
 		var lift: float = clampf(-height / maxf(_arc_height, 1.0), 0.0, 1.0)
 		var radius: float = maxf(_clash_radius, 3.0) * lerpf(1.0, 0.6, lift)
-		draw_set_transform(Vector2.ZERO, -rotation, Vector2(1.0, 0.45))
+		draw_set_transform(level_lift.rotated(-rotation), -rotation, Vector2(1.0, 0.45))
 		draw_circle(Vector2.ZERO, radius, Color(0, 0, 0, lerpf(0.45, 0.25, lift)))
 		draw_set_transform(Vector2.ZERO)
 		return
@@ -953,6 +979,7 @@ func _draw() -> void:
 	var progress: float = clampf(1.0 - _impact_time_left / impact_duration, 0.0, 1.0)
 	var radius: float = lerpf(_clash_radius, _explosion_radius, sqrt(progress))
 	var fade: float = 1.0 - progress
+	draw_set_transform(ElevationLevel.lift(_level).rotated(-rotation))
 	draw_circle(Vector2.ZERO, radius * 0.7, Color(0.35, 0.8, 1.0, fade * 0.22))
 	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, Color(0.65, 0.94, 1.0, fade), 2.0)
 	draw_arc(Vector2.ZERO, radius * 0.78, 0.0, TAU, 40, Color(1.0, 1.0, 1.0, fade * 0.8), 1.0)

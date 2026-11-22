@@ -818,6 +818,9 @@ func _melee_receivers(
 		):
 			continue
 
+		# Strikes only reach fighters on the caster's level.
+		if not ElevationLevel.same(caster, receiver):
+			continue
 		var receiver_id: int = receiver.get_instance_id()
 		if hit_ids.has(receiver_id):
 			continue
@@ -921,6 +924,8 @@ func _perform_area_status(
 			) > data.area_radius
 		):
 			continue
+		if not ElevationLevel.same(caster, actor):
+			continue
 		if not _has_clear_path(caster, actor.global_position):
 			continue
 
@@ -935,6 +940,9 @@ func _perform_area_status(
 			)
 
 func _has_clear_path(caster: Node2D, target: Vector2) -> bool:
+	# Scenery only blocks on the ground level.
+	if not ElevationLevel.blocks_scenery(ElevationLevel.of(caster)):
+		return true
 	var query := PhysicsRayQueryParameters2D.create(caster.global_position, target, 1)
 	return caster.get_world_2d().direct_space_state.intersect_ray(query).is_empty()
 

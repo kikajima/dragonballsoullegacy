@@ -106,6 +106,12 @@ func _update_transform() -> void:
 			+ Vector2(0.0, -4.0)
 		)
 
+	# Charge glow sits at the caster's elevation level.
+	var level := ElevationLevel.of(_caster)
+	global_position += ElevationLevel.lift(level)
+	if level == ElevationLevel.AIR and _effect_key != &"spirit_bomb":
+		ElevationLevel.apply_draw_order(self, level)
+
 func _facing_from_direction(direction: Vector2) -> String:
 	if absf(direction.x) > absf(direction.y):
 		return "right" if direction.x >= 0.0 else "left"

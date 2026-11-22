@@ -19,7 +19,7 @@ const BOUNDS_MARGIN := 12.0
 const LANDING_SEARCH_STEP := 16.0
 const LANDING_SEARCH_RINGS := 40
 
-@export var cruise_altitude: float = 12.0
+@export var cruise_altitude: float = ElevationLevel.AIR_HEIGHT
 # Pixels per second while taking off / landing.
 @export var climb_speed: float = 70.0
 @export var hover_bob_amplitude: float = 1.5
