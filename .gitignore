@@ -13,6 +13,7 @@
 
 # Reproducible local QA captures, logs and disposable save slot.
 /audit-*.png
+/audit-*.png.import
 /audit-*.log
 /audit-save.json
 /audit-*-save.json
