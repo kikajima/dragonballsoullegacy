@@ -33,6 +33,13 @@
 [ext_resource type="Script" uid="uid://co1s3xyn02hs" path="res://core/combat/transformation_visual_system.gd" id="27_transform_fx"]
 [ext_resource type="PackedScene" path="res://ui/hud/resource_hud.tscn" id="28_resource_hud"]
 [ext_resource type="Script" uid="uid://vr6rnim87dgk" path="res://world/gba_reference_map_system.gd" id="30_gba_maps"]
+[ext_resource type="Script" path="res://systems/story/saga_director.gd" id="50_saga"]
+[ext_resource type="Script" path="res://systems/dragon_balls/dragon_ball_manager.gd" id="51_balls"]
+[ext_resource type="Script" path="res://ui/shop/shop_menu.gd" id="52_shop"]
+[ext_resource type="Script" path="res://ui/crafting/crafting_menu.gd" id="53_craft"]
+[ext_resource type="Script" path="res://ui/journal/journal_menu.gd" id="54_journal"]
+[ext_resource type="Script" path="res://ui/dragon_balls/shenron_wish_menu.gd" id="55_shenron"]
+[ext_resource type="Script" path="res://ui/hud/dragon_radar_hud.gd" id="56_radar"]
 
 [node name="Bootstrap" type="Node2D" unique_id=886314830]
 
@@ -56,6 +63,12 @@ script = ExtResource("22_training")
 
 [node name="GameSession" type="Node" parent="." unique_id=1335681787]
 script = ExtResource("12_session")
+
+[node name="SagaDirector" type="Node" parent="."]
+script = ExtResource("50_saga")
+
+[node name="DragonBallManager" type="Node" parent="."]
+script = ExtResource("51_balls")
 
 [node name="SystemDiagnostics" type="Node" parent="." unique_id=1519247545]
 script = ExtResource("13_diagnostics")
@@ -145,6 +158,21 @@ script = ExtResource("42_analyze_panel")
 
 [node name="StatusMenu" type="Control" parent="UIContainer"]
 script = ExtResource("41_status_menu")
+
+[node name="DragonRadarHUD" type="Control" parent="UIContainer"]
+script = ExtResource("56_radar")
+
+[node name="ShopMenu" type="Control" parent="UIContainer"]
+script = ExtResource("52_shop")
+
+[node name="CraftingMenu" type="Control" parent="UIContainer"]
+script = ExtResource("53_craft")
+
+[node name="JournalMenu" type="Control" parent="UIContainer"]
+script = ExtResource("54_journal")
+
+[node name="ShenronWishMenu" type="Control" parent="UIContainer"]
+script = ExtResource("55_shenron")
 
 [node name="TransitionLayer" type="CanvasLayer" parent="." unique_id=277396951]
 layer = 100

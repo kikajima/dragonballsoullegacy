@@ -29,6 +29,7 @@ Mapeamento atual do protótipo.
 | Meditar (treina Sabedoria) | M |
 | Tela de status | C |
 | Analisar alvo próximo | T |
+| Diário: missões, sagas, Esferas do Dragão | N |
 
 ## Combate atual
 

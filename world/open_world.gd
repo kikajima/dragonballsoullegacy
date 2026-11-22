@@ -79,6 +79,28 @@ func _ready() -> void:
 			node.get_parent().remove_child(node)
 			node.queue_free()
 	_build_terrain()
+	var wild := WildEncounterDirector.new()
+	wild.name = "WildEncounters"
+	add_child(wild)
+	var balls := DragonBallField.new()
+	balls.name = "DragonBalls"
+	add_child(balls)
+	_place_town_stalls()
+
+# Landmarks without a region of their own get a market stall.
+const TOWN_STALLS := [[&"ginger_town", Vector2(71, 51)]]
+
+func _place_town_stalls() -> void:
+	for entry in TOWN_STALLS:
+		var point: Vector2 = (entry[1] + Vector2(0.5, 0.5)) * TILE
+		if not is_landable_point(point):
+			point = nearest_land_point(point)
+		var stall := ServicePoint.new()
+		stall.name = "Stall_%s" % entry[0]
+		stall.kind = "shop"
+		stall.shop_id = entry[0]
+		stall.position = to_local(point)
+		add_child(stall)
 
 func get_regions() -> Array[Node2D]:
 	return _regions
