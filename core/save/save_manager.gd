@@ -140,6 +140,7 @@ func _serialize_player(player: Node) -> Dictionary:
 		"ki": {},
 		"experience": {},
 		"inventory": {},
+		"equipment": {},
 		"abilities": {},
 		"wallet": {},
 		"transformations": {},
@@ -186,6 +187,13 @@ func _serialize_player(player: Node) -> Dictionary:
 	) as InventoryComponent
 	if inventory != null:
 		result["inventory"] = inventory.serialize_state()
+
+	var equipment := player.get_node_or_null(
+		"Components/EquipmentComponent"
+	) as EquipmentComponent
+	if equipment != null:
+		result["equipment"] = equipment.serialize_state()
+
 
 	var abilities := player.get_node_or_null(
 		"Components/AbilityLoadoutComponent"
@@ -300,6 +308,18 @@ func _load_player(player: Node, data: Dictionary) -> void:
 	var inventory_value: Variant = data.get("inventory", {})
 	if inventory != null and inventory_value is Dictionary:
 		inventory.load_state(inventory_value as Dictionary)
+
+	# After the inventory: equipped items must still be carried.
+	var equipment := player.get_node_or_null(
+		"Components/EquipmentComponent"
+	) as EquipmentComponent
+	var equipment_value: Variant = data.get("equipment", {})
+	if equipment != null:
+		equipment.load_state(
+			equipment_value as Dictionary
+			if equipment_value is Dictionary
+			else {}
+		)
 
 	var abilities := player.get_node_or_null(
 		"Components/AbilityLoadoutComponent"

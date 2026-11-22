@@ -19,3 +19,5 @@ charge_damage_multiplier = 1.85
 melee_radius = 18.0
 melee_reach = 15.0
 dash_distance = 23.0
+required_weapon_style = &"sword"
+weapon_cast_state = &"special_sword_leap"

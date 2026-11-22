@@ -14,6 +14,10 @@ func run() -> void:
 	game.get_node("GameSession").autosave_on_quest_complete = false
 	await create_timer(0.2).timeout
 	var player := get_first_node_in_group("player") as Player
+	# Sword techniques (Cross Slash, Sword Blast) need the sword equipped.
+	player.inventory_component.add_item(&"sword", 1)
+	player.equipment_component.equip(&"sword")
+	player._equip_pose_left = 0.0
 	player.set_physics_process(false)
 	for enemy in get_nodes_in_group("enemy"):
 		enemy.queue_free()

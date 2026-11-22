@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_data.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/equipment/sword/sword_icon.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+item_id = &"sword"
+display_name = "Sword"
+description = "A straight blade carried on the back, like Future Trunks'. Equip it to slash instead of punching and to use sword techniques."
+max_stack = 1
+equipment_slot = &"weapon"
+weapon_style = &"sword"
+melee_damage_bonus = 6
+icon = ExtResource("2")

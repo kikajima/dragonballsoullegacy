@@ -31,6 +31,8 @@
 [ext_resource type="PackedScene" path="res://combat/special/special_attack_beam.tscn" id="29_special_beam"]
 [ext_resource type="PackedScene" path="res://combat/special/special_charge_preview.tscn" id="30_charge_preview"]
 [ext_resource type="Script" path="res://core/assets/dmi_effect_sprite_2d.gd" id="31_dmi_effect"]
+[ext_resource type="Script" path="res://components/equipment/equipment_component.gd" id="32_equipment"]
+[ext_resource type="Script" path="res://components/equipment/sword_sheath_visual.gd" id="33_sheath"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(10, 8)
@@ -82,6 +84,9 @@ position = Vector2(0, 10)
 rotation = 3.14159
 polygon = PackedVector2Array(-2, 2, 2, 2, 0, -2)
 color = Color(1, 1, 1, 1)
+
+[node name="SwordSheath" type="Node2D" parent="Visuals"]
+script = ExtResource("33_sheath")
 
 [node name="AnimationController" type="Node" parent="Visuals"]
 script = ExtResource("6_animation")
@@ -168,6 +173,10 @@ ki_blast_damage_per_level = 1
 
 [node name="InventoryComponent" type="Node" parent="Components"]
 script = ExtResource("19_inventory")
+
+[node name="EquipmentComponent" type="Node" parent="Components"]
+script = ExtResource("32_equipment")
+inventory_component_path = NodePath("../InventoryComponent")
 
 [node name="AbilityLoadoutComponent" type="Node" parent="Components"]
 script = ExtResource("20_abilities")

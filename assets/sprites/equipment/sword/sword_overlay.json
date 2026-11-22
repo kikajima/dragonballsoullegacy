@@ -1,0 +1,485 @@
+{
+ "cell": 48,
+ "origin": 8,
+ "animations": {
+  "sword_1": {
+   "down": [
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": 0,
+     "cell": 0,
+     "duration": 0.08
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": 0,
+     "cell": 2,
+     "duration": 0.1
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": 0,
+     "cell": 4,
+     "duration": 0.1
+    },
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 0,
+     "cell": 6,
+     "duration": 0.14
+    }
+   ],
+   "left": [
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": 0,
+     "cell": 8,
+     "duration": 0.08
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": 0,
+     "cell": 10,
+     "duration": 0.1
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": 0,
+     "cell": 12,
+     "duration": 0.1
+    },
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 0,
+     "cell": 14,
+     "duration": 0.14
+    }
+   ],
+   "right": [
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": 0,
+     "cell": 16,
+     "duration": 0.08
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": 0,
+     "cell": 18,
+     "duration": 0.1
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": 0,
+     "cell": 20,
+     "duration": 0.1
+    },
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 0,
+     "cell": 22,
+     "duration": 0.14
+    }
+   ],
+   "up": [
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": 0,
+     "cell": 24,
+     "duration": 0.08
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": 0,
+     "cell": 26,
+     "duration": 0.1
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": 0,
+     "cell": 28,
+     "duration": 0.1
+    },
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 0,
+     "cell": 30,
+     "duration": 0.14
+    }
+   ]
+  },
+  "sword_2": {
+   "down": [
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 0,
+     "cell": 32,
+     "duration": 0.08
+    },
+    {
+     "state": "Beam",
+     "frame": 0,
+     "dy": 0,
+     "cell": 34,
+     "duration": 0.12
+    },
+    {
+     "state": "Beam",
+     "frame": 0,
+     "dy": 0,
+     "cell": 36,
+     "duration": 0.1
+    },
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 0,
+     "cell": 38,
+     "duration": 0.12
+    }
+   ],
+   "left": [
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 0,
+     "cell": 40,
+     "duration": 0.08
+    },
+    {
+     "state": "Beam",
+     "frame": 0,
+     "dy": 0,
+     "cell": 42,
+     "duration": 0.12
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": 0,
+     "cell": 44,
+     "duration": 0.1
+    },
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 0,
+     "cell": 46,
+     "duration": 0.12
+    }
+   ],
+   "right": [
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 0,
+     "cell": 48,
+     "duration": 0.08
+    },
+    {
+     "state": "Beam",
+     "frame": 0,
+     "dy": 0,
+     "cell": 50,
+     "duration": 0.12
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": 0,
+     "cell": 52,
+     "duration": 0.1
+    },
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 0,
+     "cell": 54,
+     "duration": 0.12
+    }
+   ],
+   "up": [
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 0,
+     "cell": 56,
+     "duration": 0.08
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": 0,
+     "cell": 58,
+     "duration": 0.12
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": 0,
+     "cell": 60,
+     "duration": 0.1
+    },
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 0,
+     "cell": 62,
+     "duration": 0.12
+    }
+   ]
+  },
+  "sword_3": {
+   "down": [
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 1,
+     "cell": 64,
+     "duration": 0.08
+    },
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": -4,
+     "cell": 66,
+     "duration": 0.08
+    },
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": -6,
+     "cell": 68,
+     "duration": 0.08
+    },
+    {
+     "state": "Beam",
+     "frame": 0,
+     "dy": -2,
+     "cell": 70,
+     "duration": 0.12
+    },
+    {
+     "state": "Beam",
+     "frame": 0,
+     "dy": 0,
+     "cell": 72,
+     "duration": 0.18
+    }
+   ],
+   "left": [
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 1,
+     "cell": 74,
+     "duration": 0.08
+    },
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": -4,
+     "cell": 76,
+     "duration": 0.08
+    },
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": -6,
+     "cell": 78,
+     "duration": 0.08
+    },
+    {
+     "state": "Beam",
+     "frame": 0,
+     "dy": -2,
+     "cell": 80,
+     "duration": 0.12
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": 0,
+     "cell": 82,
+     "duration": 0.18
+    }
+   ],
+   "right": [
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 1,
+     "cell": 84,
+     "duration": 0.08
+    },
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": -4,
+     "cell": 86,
+     "duration": 0.08
+    },
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": -6,
+     "cell": 88,
+     "duration": 0.08
+    },
+    {
+     "state": "Beam",
+     "frame": 0,
+     "dy": -2,
+     "cell": 90,
+     "duration": 0.12
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": 0,
+     "cell": 92,
+     "duration": 0.18
+    }
+   ],
+   "up": [
+    {
+     "state": "Guard",
+     "frame": 0,
+     "dy": 1,
+     "cell": 94,
+     "duration": 0.08
+    },
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": -4,
+     "cell": 96,
+     "duration": 0.08
+    },
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": -6,
+     "cell": 98,
+     "duration": 0.08
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": -2,
+     "cell": 100,
+     "duration": 0.12
+    },
+    {
+     "state": "kiblast",
+     "frame": 0,
+     "dy": 0,
+     "cell": 102,
+     "duration": 0.18
+    }
+   ]
+  },
+  "sword_equip": {
+   "down": [
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": 0,
+     "cell": 104,
+     "duration": 0.12
+    },
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": 0,
+     "cell": 106,
+     "duration": 0.22
+    }
+   ],
+   "left": [
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": 0,
+     "cell": 108,
+     "duration": 0.12
+    },
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": 0,
+     "cell": 110,
+     "duration": 0.22
+    }
+   ],
+   "right": [
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": 0,
+     "cell": 112,
+     "duration": 0.12
+    },
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": 0,
+     "cell": 114,
+     "duration": 0.22
+    }
+   ],
+   "up": [
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": 0,
+     "cell": 116,
+     "duration": 0.12
+    },
+    {
+     "state": "Land",
+     "frame": 0,
+     "dy": 0,
+     "cell": 118,
+     "duration": 0.22
+    }
+   ]
+  }
+ },
+ "sheath": {
+  "sheath": {
+   "down": 120,
+   "left": 122,
+   "right": 124,
+   "up": 126,
+   "fly_right": 128,
+   "fly_left": 130
+  },
+  "sheath_empty": {
+   "down": 132,
+   "left": 134,
+   "right": 136,
+   "up": 138,
+   "fly_right": 140,
+   "fly_left": 142
+  }
+ },
+ "columns": 16
+}

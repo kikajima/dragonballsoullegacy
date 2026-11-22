@@ -6,6 +6,9 @@ signal hit_confirmed(target: Node, damage: int)
 @export var damage: int = 10
 @export var offset_distance: float = 12.0
 @export var debug_visible: bool = false
+# Extra size for wide weapon swings, expressed for a side (left/right) swing:
+# x = reach, y = arc height. Up/down facings swap the axes.
+var shape_scale: Vector2 = Vector2.ONE
 
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var debug_shape: Polygon2D = $DebugShape
@@ -19,6 +22,10 @@ func _ready() -> void:
 	set_active(false)
 
 func set_facing(facing: StringName) -> void:
+	var vertical := facing == &"up" or facing == &"down"
+	var applied := Vector2(shape_scale.y, shape_scale.x) if vertical else shape_scale
+	collision_shape.scale = applied
+	debug_shape.scale = applied
 	match facing:
 		&"up":
 			position = Vector2(0.0, -offset_distance)

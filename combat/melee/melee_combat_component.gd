@@ -7,6 +7,7 @@ signal attack_buffered
 
 const ATTACK_PUNCH: StringName = &"punch"
 const ATTACK_KICK: StringName = &"kick"
+const ATTACK_SWORD: StringName = &"sword"
 
 @export var attack_duration: float = 0.40
 @export var damage: int = 10
@@ -26,6 +27,20 @@ const ATTACK_KICK: StringName = &"kick"
 @export var punch_to_kick_chain_from: float = 0.34
 @export var kick_to_punch_chain_from: float = 0.40
 
+# Sword combo (Future Trunks, LoG II): 1 = horizontal sweep, 2 = thrust,
+# 3 = leap + vertical slash finisher. Timings follow the composed frames in
+# SwordAnimationLibrary (assets/sprites/equipment/sword/sword_overlay.json).
+@export var sword_durations: PackedFloat32Array = PackedFloat32Array([0.42, 0.42, 0.56])
+@export var sword_hitbox_from: PackedFloat32Array = PackedFloat32Array([0.08, 0.08, 0.24])
+@export var sword_hitbox_until: PackedFloat32Array = PackedFloat32Array([0.26, 0.24, 0.40])
+@export var sword_combo_chain_from: PackedFloat32Array = PackedFloat32Array([0.26, 0.26, 0.50])
+@export var sword_damage_scale: PackedFloat32Array = PackedFloat32Array([1.0, 1.0, 1.5])
+@export var sword_damage: int = 12
+@export var sword_offset_distance: float = 16.0
+# Hitbox scale for a side swing (x = reach, y = arc height). Up/down swaps it.
+@export var sword_hitbox_scale: Vector2 = Vector2(1.45, 2.0)
+@export var sword_finisher_hitbox_scale: Vector2 = Vector2(1.7, 1.7)
+
 @export var attack_hitbox_path: NodePath
 
 @onready var attack_hitbox: HitboxComponent = get_node(attack_hitbox_path) as HitboxComponent
@@ -38,6 +53,8 @@ var _attack_facing: StringName = &"down"
 
 var _punch_variant: int = 0
 var _kick_variant: int = 0
+var _sword_variant: int = 0
+var _weapon_damage_bonus: int = 0
 
 var _buffered_attack: bool = false
 var _buffer_time_left: float = 0.0
@@ -47,6 +64,9 @@ var _damage_multiplier: float = 1.0
 
 func set_damage_multiplier(value: float) -> void:
 	_damage_multiplier = maxf(value, 0.0)
+
+func set_weapon_damage_bonus(value: int) -> void:
+	_weapon_damage_bonus = maxi(value, 0)
 
 func start_attack(
 	facing: StringName,
@@ -119,6 +139,8 @@ func get_attack_kind() -> StringName:
 func get_attack_state() -> StringName:
 	if _current_kind == ATTACK_KICK:
 		return StringName("kick_%d" % _current_variant)
+	if _current_kind == ATTACK_SWORD:
+		return StringName("sword_%d" % _current_variant)
 
 	return StringName("attack_%d" % _current_variant)
 
@@ -146,6 +168,7 @@ func _consume_buffered_attack() -> void:
 
 func _finish_attack() -> void:
 	attack_hitbox.set_active(false)
+	attack_hitbox.shape_scale = Vector2.ONE
 	_attacking = false
 	_elapsed = 0.0
 	attack_finished.emit()
@@ -155,6 +178,13 @@ func _clear_buffer() -> void:
 	_buffer_time_left = 0.0
 
 func _next_variant(attack_kind: StringName) -> int:
+	if attack_kind == ATTACK_SWORD:
+		# A fresh sword string always opens with the sweep.
+		if not _attacking:
+			_sword_variant = 0
+		_sword_variant = _sword_variant % 3 + 1
+		return _sword_variant
+
 	if attack_kind == ATTACK_KICK:
 		_kick_variant = 2 if _kick_variant == 1 else 1
 		return _kick_variant
@@ -163,6 +193,23 @@ func _next_variant(attack_kind: StringName) -> int:
 	return _punch_variant
 
 func _configure_hitbox_for_current_attack() -> void:
+	attack_hitbox.shape_scale = Vector2.ONE
+	if _current_kind == ATTACK_SWORD:
+		var index := _sword_index()
+		attack_hitbox.damage = maxi(
+			roundi(
+				float(sword_damage + _weapon_damage_bonus)
+				* sword_damage_scale[index]
+				* _damage_multiplier
+			),
+			0
+		)
+		attack_hitbox.offset_distance = sword_offset_distance
+		attack_hitbox.shape_scale = (
+			sword_finisher_hitbox_scale if index == 2 else sword_hitbox_scale
+		)
+		return
+
 	if _current_kind == ATTACK_KICK:
 		attack_hitbox.damage = maxi(
 			roundi(float(kick_damage) * _damage_multiplier),
@@ -177,10 +224,17 @@ func _configure_hitbox_for_current_attack() -> void:
 	)
 	attack_hitbox.offset_distance = attack_offset_distance
 
+func _sword_index() -> int:
+	return clampi(_current_variant - 1, 0, 2)
+
 func _get_attack_duration() -> float:
+	if _current_kind == ATTACK_SWORD:
+		return sword_durations[_sword_index()]
 	return kick_duration if _current_kind == ATTACK_KICK else attack_duration
 
 func _get_hitbox_active_from() -> float:
+	if _current_kind == ATTACK_SWORD:
+		return sword_hitbox_from[_sword_index()]
 	return (
 		kick_hitbox_active_from
 		if _current_kind == ATTACK_KICK
@@ -188,6 +242,8 @@ func _get_hitbox_active_from() -> float:
 	)
 
 func _get_hitbox_active_until() -> float:
+	if _current_kind == ATTACK_SWORD:
+		return sword_hitbox_until[_sword_index()]
 	return (
 		kick_hitbox_active_until
 		if _current_kind == ATTACK_KICK
@@ -196,6 +252,9 @@ func _get_hitbox_active_until() -> float:
 
 func _get_combo_chain_from(next_kind: StringName) -> float:
 	var safe_next_kind := _sanitize_kind(next_kind)
+
+	if _current_kind == ATTACK_SWORD:
+		return sword_combo_chain_from[_sword_index()]
 
 	if _current_kind == ATTACK_PUNCH and safe_next_kind == ATTACK_KICK:
 		return punch_to_kick_chain_from
@@ -210,4 +269,6 @@ func _get_combo_chain_from(next_kind: StringName) -> float:
 	)
 
 func _sanitize_kind(attack_kind: StringName) -> StringName:
-	return ATTACK_KICK if attack_kind == ATTACK_KICK else ATTACK_PUNCH
+	if attack_kind == ATTACK_KICK or attack_kind == ATTACK_SWORD:
+		return attack_kind
+	return ATTACK_PUNCH

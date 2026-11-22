@@ -47,3 +47,6 @@ func is_special_attack_released() -> bool:
 
 func is_next_special_pressed() -> bool:
 	return Input.is_action_just_pressed("next_special")
+
+func is_toggle_weapon_pressed() -> bool:
+	return InputMap.has_action("toggle_weapon") and Input.is_action_just_pressed("toggle_weapon")

@@ -111,6 +111,12 @@ var flurry_bonus_hit_limit: int = 0
 # TransformationData; this keeps the special selector generic.
 @export var transformation_id: StringName = &""
 
+@export_group("Weapon")
+# Weapon style the caster must have equipped (&"sword"). Empty = none.
+@export var required_weapon_style: StringName = &""
+# Character state used instead of the cast pose (e.g. &"special_sword_leap").
+@export var weapon_cast_state: StringName = &""
+
 func is_charge_attack() -> bool:
 	return charge_duration > 0.0
 
@@ -132,7 +138,12 @@ func is_continuous() -> bool:
 func is_transformation() -> bool:
 	return attack_type == AttackType.TRANSFORMATION
 
+func requires_weapon() -> bool:
+	return required_weapon_style != &""
+
 func get_cast_state() -> StringName:
+	if weapon_cast_state != &"":
+		return weapon_cast_state
 	match cast_pose:
 		CastPose.BEAM:
 			return &"special_beam"

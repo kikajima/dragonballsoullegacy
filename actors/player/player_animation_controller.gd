@@ -167,6 +167,12 @@ func _animation_name_for_state(
 		)
 
 	match state:
+		&"special_sword_sweep":
+			return StringName("sword_1_%s" % facing)
+		&"special_sword_thrust":
+			return StringName("sword_2_%s" % facing)
+		&"special_sword_leap":
+			return StringName("sword_3_%s" % facing)
 		&"special_flurry_a":
 			return StringName("attack_1_%s" % facing)
 		&"special_flurry_b", &"special_spin":
@@ -602,6 +608,7 @@ func _try_build_dmi_sprite_frames() -> bool:
 
 	frame_size = dmi.frame_size
 	_add_spirit_charge_pose(frames)
+	SwordAnimationLibrary.add_animations(frames, dmi, DMI_ANIMATION_FPS)
 	sprite.sprite_frames = frames
 	return true
 
@@ -826,6 +833,7 @@ func _is_one_shot_state(state: StringName) -> bool:
 	return (
 		String(state).begins_with("attack_")
 		or String(state).begins_with("kick_")
+		or String(state).begins_with("sword_")
 		or state == &"hurt"
 		or String(state).begins_with("ki_blast_")
 		or String(state).begins_with("special_")

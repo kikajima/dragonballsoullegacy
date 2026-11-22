@@ -9,3 +9,14 @@ extends Resource
 @export var heal_amount: int = 0
 @export var ki_restore_amount: float = 0.0
 @export var sell_value: int = 0
+
+# Equipment. An item with an equipment slot can be worn through the
+# EquipmentComponent; it stays in the inventory while equipped.
+@export var equipment_slot: StringName = &""
+# Attack style the item gives to the basic attack button (&"sword", ...).
+@export var weapon_style: StringName = &""
+@export var melee_damage_bonus: int = 0
+@export var icon: Texture2D
+
+func is_equipment() -> bool:
+	return equipment_slot != &""

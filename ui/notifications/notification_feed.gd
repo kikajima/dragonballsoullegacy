@@ -11,6 +11,7 @@ var _time_left: float = 0.0
 var _show_tween: Tween
 
 func _ready() -> void:
+	add_to_group("notification_feed")
 	_style_panel()
 	_layout_feed()
 	get_viewport().size_changed.connect(_layout_feed)
@@ -94,6 +95,14 @@ func _bind_sources() -> void:
 		if inventory != null:
 			inventory.item_added.connect(_on_item_added)
 
+		var equipment := player.get_node_or_null(
+			"Components/EquipmentComponent"
+		) as EquipmentComponent
+		if equipment != null:
+			equipment.equipment_changed.connect(
+				_on_equipment_changed.bind(equipment)
+			)
+
 		var wallet := player.get_node_or_null(
 			"Components/WalletComponent"
 		) as WalletComponent
@@ -147,8 +156,23 @@ func _on_item_added(
 ) -> void:
 	push_message(
 		"+%d  %s"
-		% [amount, String(item_id).replace("_", " ").capitalize()]
+		% [amount, ItemCatalog.get_display_name(item_id)]
 	)
+
+var _last_weapon: StringName = &""
+
+func _on_equipment_changed(
+	slot: StringName,
+	item_id: StringName,
+	_equipment: EquipmentComponent
+) -> void:
+	if slot != EquipmentComponent.SLOT_WEAPON:
+		return
+	if item_id != &"":
+		push_message("Equipped %s" % ItemCatalog.get_display_name(item_id))
+	elif _last_weapon != &"":
+		push_message("Unequipped %s" % ItemCatalog.get_display_name(_last_weapon))
+	_last_weapon = item_id
 
 func _on_currency_gained(amount: int) -> void:
 	push_message("+%d Zeni" % amount)

@@ -7,6 +7,7 @@ const STATE_RUN: StringName = &"run"
 const STATE_HURT: StringName = &"hurt"
 const STATE_BLOCK: StringName = &"block"
 const STATE_CHARGE_KI: StringName = &"charge_ki"
+const STATE_SWORD_EQUIP: StringName = &"sword_equip"
 
 @export_range(1.0, 3.0, 0.05)
 var run_speed_scale: float = 1.333333
@@ -20,6 +21,8 @@ var kick_move_speed_scale: float = 0.70
 @export var hurt_duration: float = 0.24
 @export var ki_charge_per_second: float = 28.0
 @export var respawn_invulnerability_duration: float = 1.0
+# Short "draw the sword" pose played when a sword is equipped.
+@export var sword_equip_pose_duration: float = 0.34
 
 @onready var input_controller: PlayerInputController = $Controllers/PlayerInputController
 @onready var movement_component: MovementComponent = $Components/MovementComponent
@@ -33,6 +36,8 @@ var kick_move_speed_scale: float = 0.70
 @onready var ki_component: KiComponent = $Components/KiComponent
 @onready var experience_component: ExperienceComponent = $Components/ExperienceComponent
 @onready var inventory_component: InventoryComponent = $Components/InventoryComponent
+@onready var equipment_component: EquipmentComponent = $Components/EquipmentComponent
+@onready var sword_sheath: SwordSheathVisual = $Visuals/SwordSheath
 @onready var ability_loadout_component: AbilityLoadoutComponent = $Components/AbilityLoadoutComponent
 @onready var consumable_component: ConsumableComponent = $Components/ConsumableComponent
 @onready var combo_tracker_component: ComboTrackerComponent = $Components/ComboTrackerComponent
@@ -52,6 +57,7 @@ var _spawn_position: Vector2
 var _flash_tween: Tween
 var _respawning: bool = false
 var _ki_quest_second_accumulator: float = 0.0
+var _equip_pose_left: float = 0.0
 
 func _ready() -> void:
 	_spawn_position = global_position
@@ -68,7 +74,9 @@ func _ready() -> void:
 	transformation_component.transformation_ended.connect(
 		_on_transformation_ended
 	)
+	equipment_component.equipment_changed.connect(_on_equipment_changed)
 	_refresh_transformation_state()
+	_refresh_equipment_state()
 
 func _physics_process(delta: float) -> void:
 	if _respawning:
@@ -83,6 +91,10 @@ func _physics_process(delta: float) -> void:
 
 	if state_machine.is_state(STATE_HURT):
 		_process_hurt(delta)
+		return
+
+	if _equip_pose_left > 0.0:
+		_process_equip_pose(delta)
 		return
 
 	facing_component.update_from_direction(move_intent)
@@ -121,6 +133,11 @@ func _physics_process(delta: float) -> void:
 
 	if input_controller.is_quick_item_pressed():
 		use_inventory_item(&"senzu_bean")
+	if input_controller.is_toggle_weapon_pressed():
+		toggle_weapon()
+		if _equip_pose_left > 0.0:
+			_process_equip_pose(delta)
+			return
 
 	if input_controller.is_interact_pressed():
 		movement_component.stop(self)
@@ -172,7 +189,7 @@ func _physics_process(delta: float) -> void:
 	if input_controller.is_attack_pressed():
 		if melee_combat_component.start_attack(
 			facing_component.current_facing,
-			MeleeCombatComponent.ATTACK_PUNCH
+			_basic_attack_kind()
 		):
 			_update_active_melee(move_intent, delta)
 			return
@@ -207,7 +224,7 @@ func _process_melee(move_intent: Vector2, delta: float) -> void:
 	elif input_controller.is_attack_pressed():
 		melee_combat_component.buffer_attack(
 			facing_component.current_facing,
-			MeleeCombatComponent.ATTACK_PUNCH
+			_basic_attack_kind()
 		)
 
 	melee_combat_component.tick_attack(delta)
@@ -721,6 +738,68 @@ func _facing_vector(facing: StringName) -> Vector2:
 			return Vector2.RIGHT
 
 	return Vector2.DOWN
+
+# With a sword equipped the attack button slashes (Trunks' sword combo);
+# the kick button still kicks.
+func _basic_attack_kind() -> StringName:
+	if equipment_component.has_weapon_style(&"sword"):
+		return MeleeCombatComponent.ATTACK_SWORD
+	return MeleeCombatComponent.ATTACK_PUNCH
+
+func has_sword_equipped() -> bool:
+	return equipment_component.has_weapon_style(&"sword")
+
+# Quick equip/unequip of the first weapon carried. Returns true if a weapon
+# is equipped afterwards.
+func toggle_weapon() -> bool:
+	var equipped := equipment_component.get_equipped(
+		EquipmentComponent.SLOT_WEAPON
+	)
+	if equipped != &"":
+		equipment_component.unequip(EquipmentComponent.SLOT_WEAPON)
+		return false
+	var weapon := equipment_component.find_inventory_weapon()
+	if weapon == &"":
+		var feed := get_tree().get_first_node_in_group("notification_feed")
+		if feed != null and feed.has_method("push_message"):
+			feed.push_message("No weapon to equip")
+		return false
+	return equipment_component.equip(weapon)
+
+func _on_equipment_changed(slot: StringName, item_id: StringName) -> void:
+	_refresh_equipment_state()
+	if slot != EquipmentComponent.SLOT_WEAPON:
+		return
+	if item_id == &"":
+		# A sword string must not continue once the blade is put away.
+		if melee_combat_component.get_attack_kind() == MeleeCombatComponent.ATTACK_SWORD:
+			melee_combat_component.cancel_attack()
+		_equip_pose_left = 0.0
+		_flash(Color(0.75, 0.75, 0.8))
+		return
+	if has_sword_equipped() and is_inside_tree() and not _respawning:
+		_equip_pose_left = sword_equip_pose_duration
+		_flash(Color(1.0, 1.0, 0.85))
+
+func _refresh_equipment_state() -> void:
+	var weapon := equipment_component.get_weapon_data()
+	melee_combat_component.set_weapon_damage_bonus(
+		weapon.melee_damage_bonus if weapon != null else 0
+	)
+	sword_sheath.equipped = has_sword_equipped()
+
+func _process_equip_pose(delta: float) -> void:
+	_equip_pose_left -= delta
+	movement_component.stop(self)
+	state_machine.change_state(STATE_SWORD_EQUIP)
+	animation_controller.update_visual(
+		STATE_SWORD_EQUIP,
+		facing_component.current_facing,
+		delta
+	)
+	if _equip_pose_left <= 0.0:
+		_equip_pose_left = 0.0
+		state_machine.change_state(STATE_IDLE)
 
 func get_current_state() -> StringName:
 	return state_machine.current_state

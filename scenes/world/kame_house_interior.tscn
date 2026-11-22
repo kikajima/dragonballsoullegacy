@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://world/location_area.tscn" id="6_location"]
 [ext_resource type="Script" path="res://world/world_camera_bounds.gd" id="7_bounds"]
 [ext_resource type="PackedScene" path="res://actors/npcs/world_npc.tscn" id="8_npc"]
+[ext_resource type="Script" path="res://world/sword_rack.gd" id="9_sword_rack"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(480, 18)
@@ -159,6 +160,18 @@ polygon = PackedVector2Array(-2, -11, 2, -11, 2, 11, -2, 11)
 color = Color(0.3, 0.32, 0.34, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Fridge"]
+shape = SubResource("InteractShape")
+
+[node name="SwordRack" type="Area2D" parent="."]
+position = Vector2(350, 62)
+collision_layer = 64
+collision_mask = 0
+monitoring = false
+monitorable = true
+script = ExtResource("9_sword_rack")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SwordRack"]
+position = Vector2(0, 8)
 shape = SubResource("InteractShape")
 
 [node name="Sofa" type="StaticBody2D" parent="."]

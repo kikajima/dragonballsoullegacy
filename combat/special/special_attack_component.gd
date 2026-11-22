@@ -295,6 +295,8 @@ func get_cast_block_reason(data: SpecialAttackData) -> String:
 		return "SEM HABILIDADE"
 	if not unlock_all_for_prototype and not loadout_component.is_unlocked(data.ability_id):
 		return "NAO ADQUIRIDA"
+	if data.requires_weapon() and not _has_weapon_style(data.required_weapon_style):
+		return "REQUER ESPADA" if data.required_weapon_style == &"sword" else "REQUER ARMA"
 	if loadout_component.get_cooldown_left(data.ability_id) > 0.0:
 		return "EM RECARGA"
 	var required_ki := data.ki_cost
@@ -310,6 +312,10 @@ func get_cast_block_reason(data: SpecialAttackData) -> String:
 	if not ki_component.can_consume(required_ki):
 		return "KI INSUFICIENTE"
 	return ""
+
+func _has_weapon_style(style: StringName) -> bool:
+	var equipment := get_parent().get_node_or_null("EquipmentComponent") as EquipmentComponent
+	return equipment != null and equipment.has_weapon_style(style)
 
 func _can_continue_charging() -> bool:
 	return (
