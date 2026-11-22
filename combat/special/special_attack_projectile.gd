@@ -30,11 +30,10 @@ const EFFECT_RECTS := {
 		Rect2i(33, 89, 14, 14),
 		Rect2i(54, 88, 20, 16),
 	],
+	# Horizontal comet pair; the arc rotates it along its trajectory.
 	&"masenko": [
-		Rect2i(8, 122, 46, 16),
-		Rect2i(56, 122, 30, 16),
-		Rect2i(88, 136, 16, 16),
-		Rect2i(107, 131, 26, 26),
+		Rect2i(24, 122, 31, 12),
+		Rect2i(56, 122, 30, 12),
 	],
 	&"big_bang": [
 		Rect2i(9, 201, 6, 6),
@@ -49,10 +48,11 @@ const EFFECT_RECTS := {
 		Rect2i(37, 232, 21, 28),
 		Rect2i(69, 234, 22, 26),
 	],
+	# Crescent wave growing from one to three arcs, then held.
 	&"sword_blast": [
-		Rect2i(8, 272, 32, 32),
-		Rect2i(42, 274, 12, 12),
-		Rect2i(64, 280, 16, 16),
+		Rect2i(8, 272, 4, 16),
+		Rect2i(16, 274, 8, 26),
+		Rect2i(26, 272, 11, 32),
 	],
 	&"spirit_bomb": [
 		Rect2i(9, 321, 6, 6),
@@ -62,6 +62,39 @@ const EFFECT_RECTS := {
 		Rect2i(80, 312, 32, 32),
 	],
 }
+
+# LoG II impact sequences from the same sheet. Flight frames never mix with
+# these: an impact plays once, where the projectile stopped.
+const EFFECT_IMPACT_RECTS := {
+	&"blue_orb": [
+		Rect2i(80, 32, 16, 16),
+		Rect2i(96, 32, 16, 16),
+	],
+	&"masenko": [
+		Rect2i(88, 136, 16, 16),
+		Rect2i(107, 131, 26, 25),
+		Rect2i(140, 130, 25, 28),
+	],
+	&"big_bang": [
+		Rect2i(160, 200, 16, 16),
+		Rect2i(179, 195, 26, 26),
+		Rect2i(208, 192, 32, 32),
+	],
+	&"burning_attack": [
+		Rect2i(98, 232, 27, 30),
+		Rect2i(128, 232, 32, 32),
+	],
+	&"sword_blast": [
+		Rect2i(40, 272, 16, 16),
+		Rect2i(61, 277, 22, 22),
+		Rect2i(91, 275, 26, 26),
+		Rect2i(121, 273, 31, 31),
+	],
+}
+# Flight animations that play once and hold their last frame.
+const NON_LOOPING_FLIGHT := [&"sword_blast"]
+const EXPLOSION_IMPACT_DURATION := 0.36
+const DIRECT_IMPACT_DURATION := 0.22
 
 @export var impact_duration: float = 0.16
 
@@ -218,7 +251,18 @@ func _process_arc(delta: float) -> void:
 		_arc_end,
 		ratio
 	)
-	sprite.position.y = -sin(ratio * PI) * _arc_height
+	# Height is vertical on screen, independent of the projectile's heading.
+	sprite.position = (
+		Vector2(0, -sin(ratio * PI) * _arc_height)
+	).rotated(-global_rotation)
+	# Point the comet along its on-screen path (ground travel + lift).
+	var screen_velocity: Vector2 = (
+		(_arc_end - _arc_start) / _arc_duration
+		+ Vector2(0, -cos(ratio * PI) * PI * _arc_height / _arc_duration)
+	)
+	if not screen_velocity.is_zero_approx():
+		sprite.rotation = screen_velocity.angle() - global_rotation
+	queue_redraw()
 
 	if ratio >= 1.0:
 		sprite.position = Vector2.ZERO
@@ -275,6 +319,55 @@ func _process_straight(delta: float) -> void:
 
 	if _distance_travelled >= _max_distance:
 		_resolve_impact(global_position)
+
+# Projectiles appear at a muzzle offset in front of the caster. Sweep the gap
+# between the caster and that muzzle so a wall right in front of the caster
+# stops the shot and a point-blank target is still struck.
+func sweep_launch(from_position: Vector2, to_position: Vector2) -> void:
+	if _impacted or _is_arc:
+		return
+
+	var limit: Vector2 = to_position
+	var solid_hit: Dictionary = _cast_against_solids(from_position, to_position)
+	if not solid_hit.is_empty():
+		limit = solid_hit.get("position", to_position) as Vector2
+
+	var receiver := _first_receiver_along(from_position, limit)
+	if receiver != null:
+		global_position = _closest_point_on_segment(
+			receiver.global_position,
+			from_position,
+			limit
+		)
+		_on_area_entered(receiver)
+		return
+
+	if not solid_hit.is_empty():
+		_resolve_impact(limit)
+
+func _first_receiver_along(from_position: Vector2, to_position: Vector2) -> Area2D:
+	var shape := CircleShape2D.new()
+	shape.radius = maxf(_clash_radius, 1.0)
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = shape
+	query.collision_mask = _target_collision_mask()
+	query.collide_with_areas = true
+	query.collide_with_bodies = false
+
+	var length: float = from_position.distance_to(to_position)
+	var steps: int = maxi(ceili(length / maxf(shape.radius, 2.0)), 1)
+	var space := get_world_2d().direct_space_state
+	for step in range(steps + 1):
+		var point: Vector2 = from_position.lerp(to_position, float(step) / float(steps))
+		query.transform = Transform2D(0.0, point)
+		for result in space.intersect_shape(query, 8):
+			var receiver := result.get("collider", null) as Area2D
+			if (
+				receiver != null
+				and receiver.has_method("receive_hit")
+			):
+				return receiver
+	return null
 
 func _on_area_entered(area: Area2D) -> void:
 	if _impacted or _is_arc or area == null:
@@ -506,8 +599,8 @@ func _build_visual(effect_key: StringName) -> void:
 		return
 
 	frames.add_animation(&"fly")
-	frames.set_animation_loop(&"fly", true)
-	frames.set_animation_speed(&"fly", 10.0)
+	frames.set_animation_loop(&"fly", not effect_key in NON_LOOPING_FLIGHT)
+	frames.set_animation_speed(&"fly", 10.0 if not effect_key in NON_LOOPING_FLIGHT else 20.0)
 
 	for rect_value in rects:
 		# These are growth stages, not a looping flight animation.
@@ -519,9 +612,25 @@ func _build_visual(effect_key: StringName) -> void:
 		atlas.region = Rect2(rect)
 		frames.add_frame(&"fly", atlas)
 
+	_add_legacy_impact(frames, sheet, effect_key)
 	sprite.sprite_frames = frames
 	sprite.visible = true
 	sprite.play(&"fly")
+
+func _add_legacy_impact(frames: SpriteFrames, sheet: Texture2D, effect_key: StringName) -> bool:
+	var rects: Array = EFFECT_IMPACT_RECTS.get(effect_key, [])
+	if sheet == null or rects.is_empty():
+		return false
+	if frames.has_animation(&"impact"):
+		frames.remove_animation(&"impact")
+	frames.add_animation(&"impact")
+	frames.set_animation_loop(&"impact", false)
+	for rect_value in rects:
+		var atlas := AtlasTexture.new()
+		atlas.atlas = sheet
+		atlas.region = Rect2(rect_value as Rect2i)
+		frames.add_frame(&"impact", atlas)
+	return true
 
 func _try_build_hu2_visual(effect_key: StringName) -> bool:
 	if not HU2_PROJECTILE_STATES.has(effect_key):
@@ -550,6 +659,10 @@ func _try_build_hu2_visual(effect_key: StringName) -> bool:
 		# Preserve the projectile's existing impact lifetime while showing all
 		# authored frames; DMI flight delays use BYOND's tenth-second units.
 		frames.set_animation_speed(animation, 10.0 if index == 0 else total_delay / maxf(impact_duration, 0.001))
+	# HU2 "*Hit" is a beam head squashed against an obstacle, not an
+	# explosion; prefer the LoG II impact sequence for thrown projectiles.
+	if ResourceLoader.exists(EFFECT_SHEET_PATH):
+		_add_legacy_impact(frames, load(EFFECT_SHEET_PATH) as Texture2D, effect_key)
 	sprite.sprite_frames = frames
 	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	# DMI frames already face the travel direction. Cancel the parent's
@@ -770,6 +883,10 @@ func _start_impact() -> void:
 	set_deferred("collision_mask", 0)
 
 	sprite.position = Vector2.ZERO
+	queue_redraw()
+	if _has_legacy_impact():
+		_play_legacy_impact()
+		return
 	if sprite.sprite_frames.has_animation(&"impact"):
 		sprite.modulate.a = 1.0
 		sprite.play(&"impact")
@@ -791,7 +908,46 @@ func _start_impact() -> void:
 	sprite.modulate.a = 0.75
 	sprite.scale *= 1.18
 
+func _has_legacy_impact() -> bool:
+	return (
+		EFFECT_IMPACT_RECTS.has(_effect_key)
+		and sprite.sprite_frames != null
+		and sprite.sprite_frames.has_animation(&"impact")
+	)
+
+func _play_legacy_impact() -> void:
+	var explosive: bool = _explosion_radius > 0.0
+	impact_duration = EXPLOSION_IMPACT_DURATION if explosive else DIRECT_IMPACT_DURATION
+	_impact_time_left = impact_duration
+	var frames := sprite.sprite_frames
+	var count: int = frames.get_frame_count(&"impact")
+	# Play every frame once across the impact, holding the last for a beat.
+	frames.set_animation_speed(&"impact", float(count) / (impact_duration * 0.75))
+	# Explosions are drawn upright; directional sparks follow the heading.
+	if explosive or _is_arc:
+		sprite.rotation = -rotation
+	var impact_scale: float = _flight_scale
+	if explosive:
+		var last := frames.get_frame_texture(&"impact", count - 1)
+		var span: float = maxf(float(maxi(last.get_width(), last.get_height())), 1.0)
+		impact_scale = clampf(_explosion_radius * 2.0 / span, 1.0, 4.0)
+	sprite.scale = Vector2.ONE * impact_scale
+	sprite.modulate.a = 1.0
+	sprite.play(&"impact")
+	var fade := create_tween()
+	fade.tween_interval(impact_duration * 0.6)
+	fade.tween_property(sprite, "modulate:a", 0.0, impact_duration * 0.4)
+
 func _draw() -> void:
+	if _is_arc and not _impacted:
+		# Ground shadow: shows where a lobbed attack will land.
+		var height := sprite.position.rotated(rotation).y
+		var lift: float = clampf(-height / maxf(_arc_height, 1.0), 0.0, 1.0)
+		var radius: float = maxf(_clash_radius, 3.0) * lerpf(1.0, 0.6, lift)
+		draw_set_transform(Vector2.ZERO, -rotation, Vector2(1.0, 0.45))
+		draw_circle(Vector2.ZERO, radius, Color(0, 0, 0, lerpf(0.45, 0.25, lift)))
+		draw_set_transform(Vector2.ZERO)
+		return
 	if _effect_key != &"spirit_bomb" or not _impacted:
 		return
 	var progress: float = clampf(1.0 - _impact_time_left / impact_duration, 0.0, 1.0)

@@ -24,6 +24,7 @@ signal transformation_ended(transformation_id: StringName)
 var _unlocked: Dictionary = {}
 var _definitions: Dictionary = {}
 var active_transformation: StringName = &""
+var _regeneration_credit: float = 0.0
 
 func _ready() -> void:
 	if transformations.is_empty():
@@ -48,12 +49,22 @@ func _process(delta: float) -> void:
 		end_transformation()
 		return
 
-	if definition.ki_drain_per_second <= 0.0:
-		return
-
-	var drain: float = definition.ki_drain_per_second * delta
-	if not ki_component.consume(drain):
+	var drain: float = maxf(definition.ki_drain_per_second, 0.0) * delta
+	if drain > 0.0 and ki_component.consume_up_to(drain) < drain:
 		end_transformation()
+		return
+	if ki_component.current_ki <= 0.0 and definition.ki_drain_per_second > 0.0:
+		end_transformation()
+		return
+	var health := get_parent().get_node_or_null("HealthComponent") as HealthComponent
+	if health == null or health.is_dead() or health.current_health >= health.max_health:
+		_regeneration_credit = 0.0
+		return
+	_regeneration_credit += maxf(definition.health_regeneration_per_second, 0.0) * delta
+	var amount := floori(_regeneration_credit)
+	if amount > 0:
+		health.heal(amount)
+		_regeneration_credit -= amount
 
 func register_transformation(
 	definition: TransformationData
@@ -99,6 +110,7 @@ func start_transformation(
 		end_transformation()
 
 	active_transformation = transformation_id
+	_regeneration_credit = 0.0
 	transformation_started.emit(transformation_id)
 	return true
 
@@ -108,6 +120,7 @@ func end_transformation() -> void:
 
 	var previous := active_transformation
 	active_transformation = &""
+	_regeneration_credit = 0.0
 	transformation_ended.emit(previous)
 
 func get_definition(
@@ -139,6 +152,7 @@ func serialize_state() -> Dictionary:
 	}
 
 func load_state(data: Dictionary) -> void:
+	_regeneration_credit = 0.0
 	_unlocked.clear()
 
 	var unlocked_value: Variant = data.get("unlocked", [])

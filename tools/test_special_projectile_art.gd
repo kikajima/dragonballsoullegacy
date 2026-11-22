@@ -42,15 +42,23 @@ func run() -> void:
 			projectile.setup(data, directions[facing], caster)
 			var frames := projectile.sprite.sprite_frames
 			check(frames.get_frame_count(&"fly") == 2, ability + " needs its 2 authored flight frames")
-			check(frames.get_frame_count(&"impact") == 2, ability + " needs its 2 authored impact frames")
+			# Impacts use the Legacy of Goku II explosion strip (HU2 "*Hit" is a
+			# squashed beam head, not an explosion); see docs/SPECIAL_ATTACKS.md.
+			var impact_rects: Array = SpecialAttackProjectile.EFFECT_IMPACT_RECTS[data.effect_key]
+			check(frames.get_frame_count(&"impact") == impact_rects.size(), ability + " needs its authored LoG II impact frames")
 			check(is_zero_approx(projectile.sprite.global_rotation), "Directional DMI art rotated twice: " + String(facing))
 			for index in range(2):
 				var actual := frames.get_frame_texture(&"fly", index).get_image().get_data()
 				var expected := sheet.get_frame_texture(states[0], facing, index).get_image().get_data()
 				check(actual == expected, "Flight pixels differ from HU2: " + ability + String(facing))
-				actual = frames.get_frame_texture(&"impact", index).get_image().get_data()
-				expected = sheet.get_frame_texture(states[1], facing, index).get_image().get_data()
-				check(actual == expected, "Impact pixels differ from HU2: " + ability + String(facing))
+			var legacy := (load(SpecialAttackProjectile.EFFECT_SHEET_PATH) as Texture2D).get_image()
+			for index in range(impact_rects.size()):
+				var impact := frames.get_frame_texture(&"impact", index) as AtlasTexture
+				check(
+					impact != null and Rect2i(impact.region) == impact_rects[index]
+					and impact.get_image().get_data() == legacy.get_region(impact_rects[index]).get_data(),
+					"Impact pixels differ from LoG II: " + ability + String(facing)
+				)
 			check(projectile._speed == data.projectile_speed and projectile._max_distance == data.projectile_range, "Flight mechanics changed")
 			visual_frames.append({"ability": ability, "direction": facing, "frames": frames})
 			projectile._on_area_entered(target.hurtbox)

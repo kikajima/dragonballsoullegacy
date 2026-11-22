@@ -40,6 +40,7 @@ signal charge_changed(ability_id: StringName, ratio: float)
 @export var transformation_component_path: NodePath
 @export var experience_component_path: NodePath
 @export var spawn_distance: float = 20.0
+const LUNGE_SPEED := 260.0
 
 # Prototype convenience only. Character creation can disable this and grant
 # skills through progression/loadout data without changing combat code.
@@ -77,6 +78,11 @@ var _flurry_hits_left: int = 0
 var _flurry_bonus_hits_added: int = 0
 var _flurry_tick_left: float = 0.0
 var _damage_multiplier: float = 1.0
+var _lunge_active: bool = false
+var _flurry_hits_done: int = 0
+var _spin_time: float = 0.0
+var _lunge_distance_left: float = 0.0
+var _lunge_damage_scale: float = 1.0
 
 func set_damage_multiplier(value: float) -> void:
 	_damage_multiplier = maxf(value, 0.0)
@@ -244,6 +250,10 @@ func tick_cast(
 		return
 
 	_lock_left = maxf(_lock_left - delta, 0.0)
+	_spin_time += delta
+	if _lunge_active:
+		_tick_lunge(caster, delta)
+		return
 	if _lock_left <= 0.0:
 		_finish_cast(true)
 
@@ -308,8 +318,24 @@ func _can_continue_charging() -> bool:
 		or ki_component.current_ki > _active_data.ki_cost + 0.001
 	)
 
+const SPIN_ORDER: Array[StringName] = [&"right", &"down", &"left", &"up"]
+const SPIN_STEP_SECONDS := 0.06
+
 func get_cast_facing() -> StringName:
+	# A radial strike turns through all four facings once it lands.
+	if _is_spinning():
+		var start: int = maxi(SPIN_ORDER.find(_cast_facing), 0)
+		var step: int = int(_spin_time / SPIN_STEP_SECONDS)
+		return SPIN_ORDER[(start + step) % SPIN_ORDER.size()]
 	return _cast_facing
+
+func _is_spinning() -> bool:
+	return (
+		_casting
+		and _fired
+		and _active_data != null
+		and _active_data.melee_is_radial
+	)
 
 func get_cast_state() -> StringName:
 	if _active_data == null:
@@ -326,6 +352,23 @@ func get_cast_state() -> StringName:
 		and not _fired
 	):
 		return &"special_beam_charge"
+
+	# Charged strikes hold a wind-up pose until released.
+	if (
+		_active_data.attack_type
+			== SpecialAttackData.AttackType.CHARGED_MELEE
+		and not _fired
+	):
+		return StringName(String(_active_data.get_cast_state()) + "_windup")
+
+	if (
+		_active_data.attack_type == SpecialAttackData.AttackType.FLURRY
+		and _fired
+	):
+		return &"special_flurry_a" if _flurry_hits_done % 2 == 1 else &"special_flurry_b"
+
+	if _is_spinning():
+		return &"special_spin"
 
 	return _active_data.get_cast_state()
 
@@ -485,6 +528,7 @@ func _tick_flurry(
 			damage_scale,
 			not is_final
 		)
+		_flurry_hits_done += 1
 		_flurry_hits_left -= 1
 		_flurry_tick_left += maxf(
 			_active_data.flurry_hit_interval,
@@ -534,30 +578,10 @@ func _fire_once(
 				charge_ratio
 			)
 		SpecialAttackData.AttackType.MELEE:
-			_dash_caster(
-				caster,
-				_active_data.dash_distance,
-				1.0
-			)
-			_perform_melee_hit(
-				caster,
-				_active_data,
-				1.0
-			)
+			_start_lunge(_active_data.dash_distance, 1.0)
 		SpecialAttackData.AttackType.CHARGED_MELEE:
-			var charge_scale: float = lerpf(
-				0.75,
-				1.0,
-				charge_ratio
-			)
-			_dash_caster(
-				caster,
-				_active_data.dash_distance,
-				charge_scale
-			)
-			_perform_melee_hit(
-				caster,
-				_active_data,
+			_start_lunge(
+				_active_data.dash_distance * lerpf(0.75, 1.0, charge_ratio),
 				lerpf(
 					1.0,
 					_active_data.charge_damage_multiplier,
@@ -570,10 +594,14 @@ func _fire_once(
 				_active_data
 			)
 		SpecialAttackData.AttackType.SWORD_WAVE:
+			# The slash must not grant hit recovery that would swallow the
+			# wave released in the same instant; both confirm independently.
 			_perform_melee_hit(
 				caster,
 				_active_data,
-				1.0
+				1.0,
+				false,
+				true
 			)
 			_spawn_projectile(
 				caster,
@@ -671,6 +699,10 @@ func _spawn_projectile(
 		caster,
 		charge_ratio
 	)
+	# Do not let the muzzle offset skip thin walls or point-blank victims.
+	# Spirit Bomb keeps its existing overhead launch; arc attacks land later.
+	if data.effect_key != &"spirit_bomb" and data.attack_type != SpecialAttackData.AttackType.ARC_GRENADE:
+		projectile.sweep_launch(caster.global_position, projectile.global_position)
 	return projectile
 
 func _spawn_spread(
@@ -741,17 +773,15 @@ func _beam_spawn_distance(data: SpecialAttackData) -> float:
 	# HU2 places the first 32px Kame tile directly adjacent to the 32px
 	# character tile: caster edge at 16px, KameStart centered another 16px
 	# ahead. Starting the beam visual at 16px recreates that seam.
-	if data != null and data.effect_key == &"blue_beam":
+	if data != null and data.effect_key in [&"blue_beam", &"special_beam"]:
 		return 16.0
 
 	return spawn_distance
 
-func _perform_melee_hit(
+func _melee_receivers(
 	caster: Node2D,
-	data: SpecialAttackData,
-	damage_scale: float,
-	suppress_knockback: bool = false
-) -> void:
+	data: SpecialAttackData
+) -> Array[Area2D]:
 	var shape := CircleShape2D.new()
 	shape.radius = maxf(data.melee_radius, 1.0)
 
@@ -772,13 +802,10 @@ func _perform_melee_hit(
 		.intersect_shape(query, 32)
 	)
 
+	var receivers: Array[Area2D] = []
 	var hit_ids: Dictionary = {}
 	for result in results:
-		var collider_value: Variant = result.get(
-			"collider",
-			null
-		)
-		var receiver := collider_value as Area2D
+		var receiver := result.get("collider", null) as Area2D
 		if (
 			receiver == null
 			or not receiver.has_method("receive_hit")
@@ -789,7 +816,19 @@ func _perform_melee_hit(
 		if hit_ids.has(receiver_id):
 			continue
 		hit_ids[receiver_id] = true
+		if not _has_clear_path(caster, receiver.global_position):
+			continue
+		receivers.append(receiver)
+	return receivers
 
+func _perform_melee_hit(
+	caster: Node2D,
+	data: SpecialAttackData,
+	damage_scale: float,
+	suppress_knockback: bool = false,
+	skip_hit_recovery: bool = false
+) -> void:
+	for receiver in _melee_receivers(caster, data):
 		var resolved_damage: int = maxi(
 			roundi(
 				float(data.damage)
@@ -804,6 +843,12 @@ func _perform_melee_hit(
 				receiver
 			)
 
+		# Combo pulses supply their own cadence. Do not let ordinary hit
+		# recovery discard intermediate hits; existing invulnerability remains.
+		var hurtbox := receiver as HurtboxComponent
+		var recovery := hurtbox.invulnerability_duration if hurtbox != null else 0.0
+		if (suppress_knockback or skip_hit_recovery) and hurtbox != null:
+			hurtbox.invulnerability_duration = 0.0
 		var applied: int = int(
 			receiver.call(
 				"receive_hit",
@@ -811,6 +856,8 @@ func _perform_melee_hit(
 				caster.global_position
 			)
 		)
+		if hurtbox != null:
+			hurtbox.invulnerability_duration = recovery
 
 		if suppressed_knockback != null:
 			suppressed_knockback.clear_start_suppression()
@@ -847,6 +894,8 @@ func _perform_area_status(
 	caster: Node2D,
 	data: SpecialAttackData
 ) -> void:
+	SpecialAreaFlash.spawn(caster, data.area_radius)
+
 	var target_group: StringName = (
 		&"player"
 		if caster.is_in_group("enemy")
@@ -866,6 +915,8 @@ func _perform_area_status(
 			) > data.area_radius
 		):
 			continue
+		if not _has_clear_path(caster, actor.global_position):
+			continue
 
 		var status := actor.get_node_or_null(
 			"Components/StatusEffectComponent"
@@ -877,28 +928,38 @@ func _perform_area_status(
 				1.0
 			)
 
-func _dash_caster(
-	caster: Node2D,
-	distance: float,
-	scale_value: float
-) -> void:
-	if distance <= 0.0:
-		return
+func _has_clear_path(caster: Node2D, target: Vector2) -> bool:
+	var query := PhysicsRayQueryParameters2D.create(caster.global_position, target, 1)
+	return caster.get_world_2d().direct_space_state.intersect_ray(query).is_empty()
 
-	var body := caster as CharacterBody2D
-	if body == null:
-		caster.global_position += (
-			_cast_direction
-			* distance
-			* scale_value
-		)
-		return
+# Melee specials travel their dash distance over a few frames, then strike.
+# Contact with a target (or with scenery/bodies) ends the lunge early so the
+# blow lands at the moment of contact instead of after a one-frame teleport.
+func _start_lunge(distance: float, damage_scale: float) -> void:
+	_lunge_active = true
+	_lunge_distance_left = maxf(distance, 0.0)
+	_lunge_damage_scale = damage_scale
 
-	body.move_and_collide(
-		_cast_direction
-		* distance
-		* scale_value
-	)
+func _tick_lunge(caster: Node2D, delta: float) -> void:
+	if not _melee_receivers(caster, _active_data).is_empty():
+		_lunge_distance_left = 0.0
+
+	if _lunge_distance_left > 0.0:
+		var step: float = minf(LUNGE_SPEED * delta, _lunge_distance_left)
+		_lunge_distance_left -= step
+		var body := caster as CharacterBody2D
+		if body == null:
+			caster.global_position += _cast_direction * step
+		elif body.move_and_collide(_cast_direction * step) != null:
+			_lunge_distance_left = 0.0
+		if (
+			_lunge_distance_left > 0.0
+			and _melee_receivers(caster, _active_data).is_empty()
+		):
+			return
+
+	_lunge_active = false
+	_perform_melee_hit(caster, _active_data, _lunge_damage_scale)
 
 func _apply_status_to_receiver(
 	receiver: Area2D,
@@ -1014,6 +1075,10 @@ func _finish_cast(start_cooldown: bool) -> void:
 	_flurry_hits_left = 0
 	_flurry_bonus_hits_added = 0
 	_flurry_tick_left = 0.0
+	_lunge_active = false
+	_lunge_distance_left = 0.0
+	_flurry_hits_done = 0
+	_spin_time = 0.0
 	_active_data = null
 
 	if finished_id != &"":

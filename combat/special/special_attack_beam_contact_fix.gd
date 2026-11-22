@@ -173,11 +173,11 @@ func _refresh_kamehameha_visual(length: float) -> void:
 		&"left": cardinal = Vector2.LEFT
 		&"up": cardinal = Vector2.UP
 		&"down": cardinal = Vector2.DOWN
-	var terminal: StringName = KAME_HEAD_STATE
+	var terminal: StringName = _tile_state("Head")
 	if _beam_battle_visual:
-		terminal = KAME_BATTLE_STATE
+		terminal = _tile_state("Battle")
 	elif _beam_impacting:
-		terminal = KAME_HIT_STATE
+		terminal = _tile_state("Hit")
 	var bounds := _state_bounds(terminal, facing)
 	var terminal_span: float = bounds.size.x if cardinal.x != 0 else bounds.size.y
 	var terminal_length: float = minf(end, terminal_span)
@@ -191,11 +191,11 @@ func _refresh_kamehameha_visual(length: float) -> void:
 	pieces.append(Vector2(body_end, end))
 	_ensure_kame_segment_count(pieces.size())
 	for index in range(pieces.size()):
-		var state: StringName = KAME_MID_STATE
+		var state: StringName = _tile_state("Mid")
 		if index == pieces.size() - 1:
 			state = terminal
 		elif index == 0:
-			state = KAME_START_STATE
+			state = _tile_state("Start")
 		var segment := _kame_segments[index]
 		bounds = _state_bounds(state, facing)
 		var axis_start: float

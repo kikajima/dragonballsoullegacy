@@ -9,6 +9,7 @@ display_name = "Super Namek"
 minimum_level = 1
 ki_activation_cost = 16.0
 ki_drain_per_second = 4.5
+health_regeneration_per_second = 2.0
 damage_multiplier = 1.4
 movement_multiplier = 1.12
 aura_color = Color(0.44, 1.0, 0.36, 0.34)

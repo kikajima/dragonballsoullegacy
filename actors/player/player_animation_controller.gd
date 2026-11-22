@@ -159,7 +159,18 @@ func _animation_name_for_state(
 			return charge_name
 		return &"charge_ki"
 
+	# Charged strikes hold the first (wind-up) frame of their strike.
+	if String(state).ends_with("_windup"):
+		return _animation_name_for_state(
+			StringName(String(state).trim_suffix("_windup")),
+			facing
+		)
+
 	match state:
+		&"special_flurry_a":
+			return StringName("attack_1_%s" % facing)
+		&"special_flurry_b", &"special_spin":
+			return StringName("attack_2_%s" % facing)
 		&"special_spirit_charge":
 			var spirit_name := StringName("special_spirit_charge_%s" % facing)
 			return spirit_name if _has_animation(spirit_name) else StringName("special_projectile_%s" % facing)
@@ -168,16 +179,45 @@ func _animation_name_for_state(
 		&"special_kick":
 			return StringName("kick_1_%s" % facing)
 		&"special_pose":
-			return StringName("idle_%s" % facing)
+			# No dedicated pose exists; face the camera like a flash pose.
+			var pose_name := &"charge_ki_down"
+			return pose_name if _has_animation(pose_name) else StringName("idle_%s" % facing)
 
 	return StringName("%s_%s" % [state, facing])
+
+# Strike states that should open on their impact frame rather than the
+# neutral frame 0, because each hit/turn only lasts a few frames.
+const STRIKE_START_FRAMES := {
+	&"special_flurry_a": 1,
+	&"special_flurry_b": 1,
+	&"special_spin": 2,
+}
+
+var _shown_state: StringName = &""
 
 func _show_sprite_animation(animation_name: StringName, state: StringName) -> void:
 	visuals.position = Vector2.ZERO
 	placeholder.visible = false
 	sprite.visible = true
+	var previous_state := _shown_state
+	_shown_state = state
+
+	if String(state).ends_with("_windup"):
+		if sprite.animation != animation_name:
+			sprite.play(animation_name)
+		sprite.frame = 0
+		sprite.pause()
+		return
 
 	if sprite.animation != animation_name:
+		sprite.play(animation_name)
+		if STRIKE_START_FRAMES.has(state):
+			sprite.frame = mini(
+				STRIKE_START_FRAMES[state],
+				sprite.sprite_frames.get_frame_count(animation_name) - 1
+			)
+	elif String(previous_state).ends_with("_windup"):
+		# Released charge: the strike plays from its wind-up frame.
 		sprite.play(animation_name)
 	elif not _is_one_shot_state(state) and not sprite.is_playing():
 		sprite.play(animation_name)

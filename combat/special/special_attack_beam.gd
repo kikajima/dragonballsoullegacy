@@ -37,6 +37,9 @@ var _direction: Vector2 = Vector2.RIGHT
 var _spawn_distance: float = 20.0
 var _stopping: bool = false
 var _effect_key: StringName = &""
+# HU2 Effects.dmi state prefix for tiled beams (Start/Mid/Head/Hit/Battle).
+# Empty means the legacy Line2D strip is used.
+var _tile_prefix: String = ""
 var _resolved_length: float = 0.0
 var _beam_impacting: bool = false
 var _impact_visual_length: float = 0.0
@@ -99,6 +102,7 @@ func setup(
 		hit_area.collision_mask = 4
 
 	_effect_key = data.effect_key
+	_tile_prefix = _tile_prefix_for(_effect_key)
 	if _effect_key == &"blue_beam":
 		# The head/impact art occupies a 16px corridor, not just the 8px core.
 		_beam_width = maxf(_beam_width, 16.0)
@@ -176,7 +180,7 @@ func _refresh_geometry() -> void:
 	)
 	_resolved_length = length
 
-	if _effect_key != &"blue_beam":
+	if _tile_prefix.is_empty():
 		beam_line.width = _beam_width
 		beam_line.points = PackedVector2Array([
 			Vector2.ZERO,
@@ -502,13 +506,24 @@ func affects_global_point(
 
 func set_beam_battle_visual(active: bool) -> void:
 	_beam_battle_visual = active
-	if _effect_key == &"blue_beam":
+	if not _tile_prefix.is_empty():
 		_refresh_kamehameha_visual(_resolved_length)
+
+static func _tile_prefix_for(effect_key: StringName) -> String:
+	match effect_key:
+		&"blue_beam":
+			return "Kame"
+		&"special_beam":
+			return "sbc"
+	return ""
+
+func _tile_state(suffix: String) -> StringName:
+	return StringName(_tile_prefix + suffix)
 
 func _configure_beam_visual(
 	effect_key: StringName
 ) -> void:
-	if effect_key == &"blue_beam":
+	if not _tile_prefix_for(effect_key).is_empty():
 		beam_line.visible = false
 		beam_core.visible = false
 		dmi_visuals.visible = true
