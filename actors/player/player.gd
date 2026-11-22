@@ -742,6 +742,11 @@ func _reset_after_defeat() -> void:
 	knockback_component.stop(self)
 	guard_component.set_guarding(false)
 	charge_aura.visible = false
+	# Defeat shuts the gravity room down, like leaving through a portal does;
+	# otherwise the player would come back still crushed by it.
+	var training := get_tree().get_first_node_in_group("training_manager") as TrainingManager
+	if training != null:
+		training.reset_training_environment()
 	var respawn_position := _spawn_position
 	var checkpoint_manager := get_tree().get_first_node_in_group(
 		"checkpoint_manager"

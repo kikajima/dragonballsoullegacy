@@ -166,6 +166,12 @@ func _case_vigor() -> void:
 	await process_frame
 	await process_frame
 	_expect("vigor: normal gravity, no overload", not training.is_overloaded() and is_equal_approx(training.get_movement_multiplier(), 1.0), "")
+	# Dying under gravity must not bring the player back still crushed.
+	training.set_gravity(500.0)
+	player._reset_after_defeat()
+	await process_frame
+	await process_frame
+	_expect("vigor: defeat switches the gravity off", is_equal_approx(training.gravity_multiplier, 1.0) and not training.is_overloaded(), TrainingManager.format_gravity(training.gravity_multiplier))
 	player.health_component.restore_full()
 
 func _case_wisdom() -> void:
