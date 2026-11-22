@@ -427,6 +427,8 @@ func _try_build_dmi_sprite_frames() -> bool:
 		true
 	) or built_any
 
+	built_any = _add_flight_animations(frames, dmi) or built_any
+
 	var attack_1_state := _find_dmi_state(dmi, [&"punch1"])
 	built_any = _add_dmi_directional_animation(
 		frames,
@@ -645,6 +647,35 @@ func _find_dmi_state(dmi, candidates: Array) -> StringName:
 		if dmi.has_state(state_name):
 			return state_name
 	return DMI_STATE_MISSING
+
+# HU2 "fly" (3 frames, rewind): cruising ping-pongs 0-1-2-1 and fast flight
+# plays it twice as fast; hovering holds the upright standing frame.
+func _add_flight_animations(frames: SpriteFrames, dmi) -> bool:
+	var fly_state := _find_dmi_state(dmi, [&"fly", &"Fly"])
+	if fly_state == DMI_STATE_MISSING:
+		return false
+	var built := _add_dmi_directional_animation(frames, dmi, fly_state, &"fly", true)
+	_add_dmi_directional_animation(frames, dmi, fly_state, &"fly_fast", true)
+	# Hovering in place stays upright (standing frame), as in the anime.
+	var stand_state := _find_dmi_state(dmi, [&"", &"movement", &"walk"])
+	if stand_state == DMI_STATE_MISSING:
+		stand_state = fly_state
+	_add_dmi_directional_animation(frames, dmi, stand_state, &"fly_hover", true, true)
+	for facing in DIRECTION_ROWS:
+		for kind in ["fly", "fly_fast"]:
+			var animation_name := StringName("%s_%s" % [kind, facing])
+			if not frames.has_animation(animation_name):
+				continue
+			var count := frames.get_frame_count(animation_name)
+			for index in range(count - 2, 0, -1):
+				frames.add_frame(
+					animation_name,
+					frames.get_frame_texture(animation_name, index),
+					frames.get_frame_duration(animation_name, index)
+				)
+			if kind == "fly_fast":
+				frames.set_animation_speed(animation_name, DMI_ANIMATION_FPS * 2.0)
+	return built
 
 func _add_dmi_directional_animation(
 	frames: SpriteFrames,

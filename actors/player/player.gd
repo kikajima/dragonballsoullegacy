@@ -8,6 +8,10 @@ const STATE_HURT: StringName = &"hurt"
 const STATE_BLOCK: StringName = &"block"
 const STATE_CHARGE_KI: StringName = &"charge_ki"
 const STATE_SWORD_EQUIP: StringName = &"sword_equip"
+# Flight: hovering in place, cruising (like walking) and fast (like running).
+const STATE_FLY_HOVER: StringName = &"fly_hover"
+const STATE_FLY: StringName = &"fly"
+const STATE_FLY_FAST: StringName = &"fly_fast"
 
 @export_range(1.0, 3.0, 0.05)
 var run_speed_scale: float = 1.333333
@@ -38,6 +42,8 @@ var kick_move_speed_scale: float = 0.70
 @onready var inventory_component: InventoryComponent = $Components/InventoryComponent
 @onready var equipment_component: EquipmentComponent = $Components/EquipmentComponent
 @onready var sword_sheath: SwordSheathVisual = $Visuals/SwordSheath
+@onready var flight_component: FlightComponent = $Components/FlightComponent
+@onready var power_aura: PowerAuraComponent = $Visuals/PowerAura
 @onready var ability_loadout_component: AbilityLoadoutComponent = $Components/AbilityLoadoutComponent
 @onready var consumable_component: ConsumableComponent = $Components/ConsumableComponent
 @onready var combo_tracker_component: ComboTrackerComponent = $Components/ComboTrackerComponent
@@ -75,6 +81,9 @@ func _ready() -> void:
 		_on_transformation_ended
 	)
 	equipment_component.equipment_changed.connect(_on_equipment_changed)
+	flight_component.flight_changed.connect(_on_flight_changed)
+	flight_component.landing_blocked.connect(_notify.bind("Can't land here"))
+	power_aura.aura_changed.connect(_on_aura_changed)
 	_refresh_transformation_state()
 	_refresh_equipment_state()
 
@@ -84,6 +93,9 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var move_intent := input_controller.get_move_intent()
+
+	if input_controller.is_toggle_aura_pressed():
+		power_aura.toggle()
 
 	if status_effect_component.has_status(&"stun"):
 		_process_stunned(delta)
@@ -101,6 +113,8 @@ func _physics_process(delta: float) -> void:
 
 	var training := _get_training_manager()
 	if training != null and training.is_treadmill_active():
+		if flight_component.is_flying:
+			flight_component.land_immediately()
 		_process_treadmill_training(training, move_intent, delta)
 		return
 
@@ -133,6 +147,10 @@ func _physics_process(delta: float) -> void:
 
 	if input_controller.is_quick_item_pressed():
 		use_inventory_item(&"senzu_bean")
+
+	if input_controller.is_toggle_flight_pressed():
+		toggle_flight()
+
 	if input_controller.is_toggle_weapon_pressed():
 		toggle_weapon()
 		if _equip_pose_left > 0.0:
@@ -200,6 +218,8 @@ func _physics_process(delta: float) -> void:
 		move_intent,
 		_get_locomotion_speed_scale()
 	)
+	if state_machine.is_state(STATE_FLY_FAST):
+		_drain_fast_flight_ki(delta)
 	animation_controller.update_visual(
 		state_machine.current_state,
 		facing_component.current_facing,
@@ -272,6 +292,10 @@ func _get_locomotion_speed_scale() -> float:
 	var base_scale: float = 1.0
 	if state_machine.is_state(STATE_RUN):
 		base_scale = run_speed_scale
+	elif state_machine.is_state(STATE_FLY):
+		base_scale = flight_component.fly_speed_scale
+	elif state_machine.is_state(STATE_FLY_FAST):
+		base_scale = flight_component.fast_fly_speed_scale
 
 	return (
 		base_scale
@@ -651,6 +675,7 @@ func reset_runtime_after_load() -> void:
 	_hurt_time_left = 0.0
 	_ki_quest_second_accumulator = 0.0
 	charge_aura.visible = false
+	flight_component.land_immediately()
 	if _flash_tween != null and _flash_tween.is_valid():
 		_flash_tween.kill()
 	$Visuals.modulate = Color.WHITE
@@ -672,6 +697,7 @@ func _reset_after_defeat() -> void:
 	ki_blast_component.cancel_cast()
 	special_attack_component.cancel_cast()
 	transformation_component.end_transformation()
+	flight_component.land_immediately()
 	knockback_component.stop(self)
 	guard_component.set_guarding(false)
 	charge_aura.visible = false
@@ -709,6 +735,14 @@ func _flash(color: Color) -> void:
 	_flash_tween.tween_property($Visuals, "modulate", Color.WHITE, 0.10)
 
 func _update_movement_state(move_intent: Vector2) -> void:
+	if flight_component.is_flying:
+		if move_intent.is_zero_approx():
+			state_machine.change_state(STATE_FLY_HOVER)
+		elif input_controller.is_run_pressed() and _can_fly_fast():
+			state_machine.change_state(STATE_FLY_FAST)
+		else:
+			state_machine.change_state(STATE_FLY)
+		return
 	if move_intent.is_zero_approx():
 		state_machine.change_state(STATE_IDLE)
 	elif input_controller.is_run_pressed():
@@ -809,3 +843,43 @@ func use_inventory_item(item_id: StringName) -> bool:
 
 func get_facing() -> StringName:
 	return facing_component.current_facing
+
+func is_flying() -> bool:
+	return flight_component.is_flying
+
+# Take off / land (V). Returns true while flying.
+func toggle_flight() -> bool:
+	var flying := flight_component.toggle()
+	_update_movement_state(input_controller.get_move_intent())
+	return flying
+
+# Fast flight burns ki; with an empty tank the player keeps cruising.
+func _can_fly_fast() -> bool:
+	return (
+		flight_component.fast_fly_ki_per_second <= 0.0
+		or ki_component.current_ki > 0.5
+	)
+
+func _drain_fast_flight_ki(delta: float) -> void:
+	var cost := flight_component.fast_fly_ki_per_second * delta
+	if cost <= 0.0:
+		return
+	if ki_component.consume_up_to(cost) < cost - 0.0001:
+		_notify("Out of ki")
+
+func _on_flight_changed(flying: bool) -> void:
+	_notify("Flying" if flying else "Landed")
+
+func _on_aura_changed(enabled: bool, color_id: StringName) -> void:
+	if not is_inside_tree():
+		return
+	_notify(
+		"Aura: %s" % PowerAuraComponent.get_color_name(color_id)
+		if enabled else "Aura off"
+	)
+
+
+func _notify(message: String) -> void:
+	var feed := get_tree().get_first_node_in_group("notification_feed")
+	if feed != null and feed.has_method("push_message"):
+		feed.push_message(message)

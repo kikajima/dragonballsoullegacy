@@ -50,3 +50,9 @@ func is_next_special_pressed() -> bool:
 
 func is_toggle_weapon_pressed() -> bool:
 	return InputMap.has_action("toggle_weapon") and Input.is_action_just_pressed("toggle_weapon")
+
+func is_toggle_flight_pressed() -> bool:
+	return InputMap.has_action("toggle_flight") and Input.is_action_just_pressed("toggle_flight")
+
+func is_toggle_aura_pressed() -> bool:
+	return InputMap.has_action("toggle_aura") and Input.is_action_just_pressed("toggle_aura")

@@ -17,8 +17,15 @@ extends Control
 @onready var quest_title_label: Label = $Panel/Quest/Title
 @onready var quest_objective_label: Label = $Panel/Quest/Objective
 
+var aura_toggle_button: Button
+var aura_color_button: Button
+var _aura_swatch: ColorRect
+
 func _ready() -> void:
 	visible = false
+	# Above world-anchored HUD bits such as the interaction prompt (z 100).
+	z_index = 120
+	_build_aura_row()
 	resume_button.pressed.connect(_resume)
 	save_button.pressed.connect(_save)
 	load_button.pressed.connect(_load)
@@ -51,6 +58,7 @@ func _pause() -> void:
 	visible = true
 	status_label.text = ""
 	_refresh_status()
+	_refresh_aura()
 	get_tree().paused = true
 	resume_button.grab_focus()
 
@@ -183,3 +191,90 @@ func _refresh_quest() -> void:
 		progress,
 		target,
 	]
+
+# --- Aura options -----------------------------------------------------------
+
+func _build_aura_row() -> void:
+	var panel := $Panel as Control
+	var line := ColorRect.new()
+	line.name = "AuraDivider"
+	line.color = Color(0.4, 0.48, 0.62, 0.65)
+	line.position = Vector2(10, 172)
+	line.size = Vector2(310, 1)
+	panel.add_child(line)
+
+	var header := Label.new()
+	header.name = "AuraHeader"
+	header.text = "AURA"
+	header.add_theme_font_size_override("font_size", 7)
+	header.position = Vector2(13, 184)
+	panel.add_child(header)
+
+	aura_toggle_button = Button.new()
+	aura_toggle_button.name = "AuraToggleButton"
+	aura_toggle_button.add_theme_font_size_override("font_size", 7)
+	aura_toggle_button.position = Vector2(55, 180)
+	aura_toggle_button.size = Vector2(70, 21)
+	aura_toggle_button.pressed.connect(_toggle_aura)
+	panel.add_child(aura_toggle_button)
+
+	aura_color_button = Button.new()
+	aura_color_button.name = "AuraColorButton"
+	aura_color_button.add_theme_font_size_override("font_size", 7)
+	aura_color_button.position = Vector2(135, 180)
+	aura_color_button.size = Vector2(110, 21)
+	aura_color_button.pressed.connect(cycle_aura_color.bind(1))
+	aura_color_button.gui_input.connect(_on_color_button_input)
+	panel.add_child(aura_color_button)
+
+	_aura_swatch = ColorRect.new()
+	_aura_swatch.name = "AuraSwatch"
+	_aura_swatch.position = Vector2(255, 184)
+	_aura_swatch.size = Vector2(13, 13)
+	panel.add_child(_aura_swatch)
+
+	var hint := Label.new()
+	hint.name = "AuraHint"
+	hint.text = "< >  color"
+	hint.add_theme_font_size_override("font_size", 6)
+	hint.modulate = Color(0.7, 0.75, 0.85)
+	hint.position = Vector2(275, 186)
+	panel.add_child(hint)
+
+func _get_power_aura() -> PowerAuraComponent:
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null:
+		return null
+	return player.get_node_or_null("Visuals/PowerAura") as PowerAuraComponent
+
+func _toggle_aura() -> void:
+	var aura := _get_power_aura()
+	if aura != null:
+		aura.toggle()
+	_refresh_aura()
+
+func cycle_aura_color(step: int) -> void:
+	var aura := _get_power_aura()
+	if aura != null:
+		aura.cycle_color(step)
+	_refresh_aura()
+
+func _on_color_button_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_left") or event.is_action_pressed("move_left"):
+		cycle_aura_color(-1)
+		aura_color_button.accept_event()
+	elif event.is_action_pressed("ui_right") or event.is_action_pressed("move_right"):
+		cycle_aura_color(1)
+		aura_color_button.accept_event()
+
+func _refresh_aura() -> void:
+	if aura_toggle_button == null:
+		return
+	var aura := _get_power_aura()
+	if aura == null:
+		aura_toggle_button.text = "Aura: --"
+		aura_color_button.text = "--"
+		return
+	aura_toggle_button.text = "Aura: ON" if aura.enabled else "Aura: OFF"
+	aura_color_button.text = "<  %s  >" % PowerAuraComponent.get_color_name(aura.color_id)
+	_aura_swatch.color = PowerAuraComponent.get_swatch_color(aura.color_id)

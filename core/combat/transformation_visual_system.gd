@@ -35,6 +35,12 @@ func _process(delta: float) -> void:
 	if _legacy_aura != null:
 		_legacy_aura.visible = false
 
+	# The player's own aura (G) replaces the transformation flame while on.
+	if _player.power_aura != null and _player.power_aura.enabled:
+		if _aura_fx != null:
+			_aura_fx.visible = false
+		return
+
 	if _aura_fx != null:
 		_aura_fx.visible = true
 		var pulse: float = 1.0 + sin(_time * 7.0) * 0.035

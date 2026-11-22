@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://actors/enemies/debug_goku_enemy.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://components/health/health_component.gd" id="2_health"]
@@ -17,6 +17,7 @@
 [ext_resource type="Script" path="res://combat/ki/ki_blast_component.gd" id="15_ki_blast"]
 [ext_resource type="PackedScene" path="res://combat/projectiles/ki_blast_projectile.tscn" id="16_projectile"]
 [ext_resource type="Script" path="res://components/status/status_effect_component.gd" id="17_status"]
+[ext_resource type="Script" path="res://components/flight/flight_component.gd" id="18_flight"]
 
 [sub_resource type="RectangleShape2D" id="BodyShape"]
 size = Vector2(10, 8)
@@ -86,6 +87,12 @@ move_speed = 68.0
 
 [node name="KnockbackComponent" type="Node" parent="Components"]
 script = ExtResource("4_knockback")
+
+[node name="FlightComponent" type="Node" parent="Components"]
+script = ExtResource("18_flight")
+fly_speed_scale = 1.0
+fast_fly_speed_scale = 1.0
+fast_fly_ki_per_second = 0.0
 
 [node name="StateMachine" type="Node" parent="Components"]
 script = ExtResource("5_state")

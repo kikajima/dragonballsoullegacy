@@ -4,6 +4,7 @@ extends Node
 @export var bounds: Rect2 = Rect2(0, 0, 640, 360)
 
 func _ready() -> void:
+	add_to_group("world_bounds")
 	call_deferred("_apply_bounds")
 
 func _apply_bounds() -> void:

@@ -26,6 +26,8 @@ const ISLAND_CENTER := Vector2(480.0, 278.0)
 @onready var shore_foam_inner: Line2D = $Terrain/ShoreFoamInner
 @onready var sea_collision: StaticBody2D = $SeaCollision
 
+var _land_outlines: Array[PackedVector2Array] = []
+
 var _ambient_time: float = 0.0
 var _land_silhouette: Polygon2D
 var _grass_base: Polygon2D
@@ -366,13 +368,29 @@ func _build_shore_collision() -> void:
 		Vector2(626, 411), Vector2(774, 411),
 		Vector2(774, 441), Vector2(626, 441),
 	])
-	for outline in Geometry2D.merge_polygons(_coast_points(), dock_outline):
+	_land_outlines = Geometry2D.merge_polygons(_coast_points(), dock_outline)
+	for outline in _land_outlines:
 		var border := CollisionPolygon2D.new()
 		border.build_mode = CollisionPolygon2D.BUILD_SEGMENTS
 		border.polygon = outline
 		sea_collision.add_child(border)
 	var dock_blocker := get_node("Dock/CollisionShape2D") as CollisionShape2D
 	dock_blocker.disabled = true
+
+# Flight: the coast is only an outline, so landing must check that the spot
+# is on the island (or the dock) and not out at sea.
+func is_landable_point(point: Vector2) -> bool:
+	if _land_outlines.is_empty():
+		return true
+	var local := sea_collision.to_local(point)
+	var inside := false
+	for outline in _land_outlines:
+		if not Geometry2D.is_point_in_polygon(local, outline):
+			continue
+		if Geometry2D.is_polygon_clockwise(outline) and _land_outlines.size() > 1:
+			return false # hole
+		inside = true
+	return inside
 
 func _touches_island(column: int, row: int) -> bool:
 	for offset_y in range(-1, 2):

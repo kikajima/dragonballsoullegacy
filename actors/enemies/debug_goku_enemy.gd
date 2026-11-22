@@ -121,6 +121,11 @@ var initial_facing: String = "left"
 @onready var experience_reward_component: ExperienceRewardComponent = $Components/ExperienceRewardComponent
 @onready var hurtbox: HurtboxComponent = $Hurtbox
 @onready var body_collision: CollisionShape2D = $CollisionShape2D
+@onready var flight_component: FlightComponent = $Components/FlightComponent
+
+# Enemies follow the player into the air (and back down) after this delay.
+@export var flight_reaction_time: float = 0.35
+var _flight_decision_left: float = 0.0
 
 var _hurt_time_left: float = 0.0
 var _attack_cooldown_left: float = 0.0
@@ -196,6 +201,8 @@ func _physics_process(delta: float) -> void:
 		guard_component.set_guarding(false)
 		_set_idle()
 		return
+
+	_update_flight(delta)
 
 	if ki_blast_component.is_casting():
 		_process_ranged_attack(delta)
@@ -618,6 +625,8 @@ func _on_died() -> void:
 		return
 
 	_defeated = true
+	# A defeated flyer drops to the ground.
+	flight_component.land_immediately()
 	guard_component.set_guarding(false)
 	ai_component.clear_defense()
 	ki_blast_component.cancel_cast()
@@ -905,6 +914,8 @@ func _reset_after_defeat() -> void:
 	melee_combat_component.cancel_attack()
 	knockback_component.stop(self)
 
+	flight_component.land_immediately()
+	_flight_decision_left = 0.0
 	global_position = _spawn_position
 	_engaged = false
 	_returning_home = false
@@ -1070,6 +1081,17 @@ func _try_build_dmi_sprite_frames() -> bool:
 	built_any = _add_dmi_animation(
 		frames, dmi, run_state, &"run", true
 	) or built_any
+
+	var fly_state := _find_dmi_state(dmi, [&"fly", &"Fly"])
+	if fly_state != DMI_STATE_MISSING:
+		_add_dmi_animation(frames, dmi, fly_state, &"fly", true)
+		_add_dmi_animation(frames, dmi, fly_state, &"fly_fast", true)
+		_add_dmi_animation(
+			frames, dmi,
+			movement_state if movement_state != DMI_STATE_MISSING else fly_state,
+			&"fly_hover", true, true
+		)
+		_finish_flight_animations(frames)
 
 	built_any = _add_dmi_animation(
 		frames,
@@ -1240,6 +1262,10 @@ func _play_current_animation() -> void:
 	var animation_name := StringName(
 		"%s_%s" % [state_machine.current_state, facing]
 	)
+	if flight_component.is_flying:
+		var flight_animation := _flight_animation_for_state(state_machine.current_state)
+		if flight_animation != &"":
+			animation_name = StringName("%s_%s" % [flight_animation, facing])
 
 	if (
 		state_machine.is_state(STATE_RUN)
@@ -1309,3 +1335,54 @@ func _atlas_frame(sheet: Texture2D, column: int, row: int) -> AtlasTexture:
 		Vector2(frame_size.x, frame_size.y)
 	)
 	return frame
+
+# --- Flight -----------------------------------------------------------------
+
+# Engaged enemies take off shortly after the player does and land again when
+# the player lands (as soon as they are over free ground).
+func _update_flight(delta: float) -> void:
+	var want_flight := (
+		_engaged
+		and not _returning_home
+		and FlightComponent.is_actor_airborne(_target)
+	)
+	if want_flight == flight_component.is_flying:
+		_flight_decision_left = flight_reaction_time
+		return
+	_flight_decision_left -= delta
+	if _flight_decision_left > 0.0:
+		return
+	if want_flight:
+		flight_component.take_off()
+	else:
+		flight_component.land()
+
+func is_flying() -> bool:
+	return flight_component.is_flying
+
+func _flight_animation_for_state(state: StringName) -> StringName:
+	match state:
+		STATE_IDLE:
+			return &"fly_hover"
+		STATE_WALK:
+			return &"fly"
+		STATE_RUN:
+			return &"fly_fast"
+	return &""
+
+# HU2 "fly" ping-pongs 0-1-2-1; fast flight plays it twice as fast.
+func _finish_flight_animations(frames: SpriteFrames) -> void:
+	for facing in DIRECTION_ROWS:
+		for kind in ["fly", "fly_fast"]:
+			var animation_name := StringName("%s_%s" % [kind, facing])
+			if not frames.has_animation(animation_name):
+				continue
+			var count := frames.get_frame_count(animation_name)
+			for index in range(count - 2, 0, -1):
+				frames.add_frame(
+					animation_name,
+					frames.get_frame_texture(animation_name, index),
+					frames.get_frame_duration(animation_name, index)
+				)
+			if kind == "fly_fast":
+				frames.set_animation_speed(animation_name, DMI_ANIMATION_FPS * 2.0)

@@ -10,6 +10,7 @@ const MODE_WASTES: StringName = &"wastes"
 const MODE_CITY: StringName = &"city"
 
 const DEPTH_BASE: int = 1000
+const AIRBORNE_DEPTH_BONUS: int = 1000
 # Slightly closer than the original project camera, but far less zoomed than
 # the previous GBA pass. This keeps combat readable without making the island
 # feel cramped.
@@ -231,6 +232,10 @@ func _apply_actor_depth(actor: Node2D) -> void:
 			break
 	actor.z_as_relative = false
 	actor.z_index = DEPTH_BASE + roundi(foot_y)
+	# Flyers are drawn above every ground actor and piece of scenery.
+	var flight := actor.get_node_or_null("Components/FlightComponent") as FlightComponent
+	if flight != null and flight.is_airborne():
+		actor.z_index += AIRBORNE_DEPTH_BONUS
 
 func _apply_prop_depth(node_name: StringName, foot_offset: float) -> void:
 	if _world == null:

@@ -141,6 +141,7 @@ func _serialize_player(player: Node) -> Dictionary:
 		"experience": {},
 		"inventory": {},
 		"equipment": {},
+		"aura": {},
 		"abilities": {},
 		"wallet": {},
 		"transformations": {},
@@ -194,6 +195,9 @@ func _serialize_player(player: Node) -> Dictionary:
 	if equipment != null:
 		result["equipment"] = equipment.serialize_state()
 
+	var aura := player.get_node_or_null("Visuals/PowerAura") as PowerAuraComponent
+	if aura != null:
+		result["aura"] = aura.serialize_state()
 
 	var abilities := player.get_node_or_null(
 		"Components/AbilityLoadoutComponent"
@@ -320,6 +324,11 @@ func _load_player(player: Node, data: Dictionary) -> void:
 			if equipment_value is Dictionary
 			else {}
 		)
+
+	var aura := player.get_node_or_null("Visuals/PowerAura") as PowerAuraComponent
+	var aura_value: Variant = data.get("aura", {})
+	if aura != null:
+		aura.load_state(aura_value as Dictionary if aura_value is Dictionary else {})
 
 	var abilities := player.get_node_or_null(
 		"Components/AbilityLoadoutComponent"
