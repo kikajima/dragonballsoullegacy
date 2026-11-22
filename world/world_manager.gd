@@ -102,6 +102,63 @@ func load_world_with_transition(
 	transition_finished.emit()
 	return loaded
 
+# Travel to another spot of the current world (e.g. the capsule ship between
+# Kame Island and West City) with the usual fade, without reloading it.
+func travel_within_world(spawn_position: Vector2) -> bool:
+	if _transition_in_progress:
+		return false
+	var player := get_player() as Player
+	if player != null and (player._respawning or player.health_component.is_dead()):
+		return false
+	_transition_in_progress = true
+	var transition := get_tree().get_first_node_in_group(
+		"screen_transition"
+	) as ScreenTransition
+	if transition != null:
+		await transition.fade_out()
+	if player != null:
+		player.special_attack_component.cancel_cast()
+		player.ki_blast_component.cancel_cast()
+		player.melee_combat_component.cancel_attack()
+		player.flight_component.land_immediately()
+		player.global_position = spawn_position
+		var camera := player.get_node_or_null("Camera2D") as Camera2D
+		if camera != null:
+			camera.reset_smoothing()
+	if transition != null:
+		await transition.fade_in()
+	_transition_in_progress = false
+	transition_finished.emit()
+	return true
+
+func is_in_sky() -> bool:
+	return current_world_path == SkyWorld.SCENE_PATH
+
+# Flying high over Earth: the sky shows the whole planet (SkyWorld).
+func ascend_to_sky() -> bool:
+	var player := get_player() as Player
+	if player == null or not player.is_flying() or current_world_path != OpenWorld.SCENE_PATH:
+		return false
+	var training := get_tree().get_first_node_in_group("training_manager") as TrainingManager
+	if training != null:
+		training.reset_training_environment()
+	return await load_world_with_transition(
+		SkyWorld.SCENE_PATH, SkyWorld.to_sky(player.global_position), true
+	)
+
+# Coming down from the sky lands right below, on Earth.
+func descend_to_earth() -> bool:
+	var player := get_player() as Player
+	if player == null or not is_in_sky():
+		return false
+	var ground := SkyWorld.to_ground(player.global_position)
+	var loaded: bool = await load_world_with_transition(OpenWorld.SCENE_PATH, ground, true)
+	if loaded and player.is_flying():
+		var flight := player.flight_component
+		player.global_position = flight.find_landing_spot(ground)
+		flight.land()
+	return loaded
+
 func serialize_state() -> Dictionary:
 	return {
 		"current_world_path": current_world_path,

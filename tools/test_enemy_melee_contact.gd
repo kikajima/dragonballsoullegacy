@@ -1,5 +1,8 @@
 extends SceneTree
 
+# The test arena is Kame Island, wherever it sits in the open world.
+const ISLAND := Vector2(5504, 2752)
+
 var failures := 0
 
 func check(ok: bool, message: String) -> void:
@@ -39,7 +42,7 @@ func run() -> void:
 			enemy.vertical_attack_range >= 32.0,
 			"Enemy attack range must reach vertical body contact"
 		)
-		enemy.position = Vector2(420, 360)
+		enemy.position = ISLAND + Vector2(420, 360)
 		player.position = enemy.position + directions[label][0]
 		player.health_component.restore_full()
 		await physics_frame
@@ -61,9 +64,9 @@ func run() -> void:
 		await create_timer(0.5).timeout
 
 	var ai_cases := {
-		"south": Vector2(420, 420),
-		"west": Vector2(360, 360),
-		"east": Vector2(480, 360),
+		"south": ISLAND + Vector2(420, 420),
+		"west": ISLAND + Vector2(360, 360),
+		"east": ISLAND + Vector2(480, 360),
 	}
 	for label in ai_cases:
 		var ai_enemy := load(
@@ -73,7 +76,7 @@ func run() -> void:
 		ai_enemy.position = ai_cases[label]
 		ai_enemy.ai_component.profile.ranged_attack_chance = 0.0
 		ai_enemy.attack_cooldown = 0.2
-		player.position = Vector2(420, 360)
+		player.position = ISLAND + Vector2(420, 360)
 		player.health_component.restore_full()
 		for _frame in 120:
 			await physics_frame

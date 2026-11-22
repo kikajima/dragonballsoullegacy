@@ -1,5 +1,8 @@
 extends SceneTree
 
+# The test arena is Kame Island, wherever it sits in the open world.
+const ISLAND := Vector2(5504, 2752)
+
 var failures := 0
 
 func _initialize() -> void:
@@ -27,7 +30,7 @@ func run() -> void:
 		var data := special.abilities[index]
 		if data.is_transformation():
 			continue
-		player.position = Vector2(420, 360)
+		player.position = ISLAND + Vector2(420, 360)
 		var target := load("res://actors/enemies/debug_goku_enemy.tscn").instantiate() as DebugGokuEnemy
 		game.add_child(target)
 		target.set_physics_process(false)

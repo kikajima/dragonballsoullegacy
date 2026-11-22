@@ -231,9 +231,12 @@ func _case_enemy_flight() -> void:
 
 # A spot with free walkable ground from -120 to +140 px horizontally.
 func _find_open_area() -> Vector2:
+	# The search area is Kame Island; in the open world it sits at an offset.
+	var island := world.get_node_or_null("KameIsland") as Node2D
+	var offset := island.position if island != null else Vector2.ZERO
 	for y in range(160, 460, 20):
 		for x in range(200, 760, 20):
-			var p := Vector2(x, y)
+			var p := offset + Vector2(x, y)
 			var ok := true
 			for dx in range(-120, 150, 10):
 				for dy in [-24, 0, 24]:
@@ -244,7 +247,7 @@ func _find_open_area() -> Vector2:
 					break
 			if ok:
 				return p
-	return Vector2(480, 300)
+	return offset + Vector2(480, 300)
 
 func _make_wall(at: Vector2, size: Vector2) -> StaticBody2D:
 	var body := StaticBody2D.new()

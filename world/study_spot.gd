@@ -39,8 +39,7 @@ func _ready() -> void:
 	solid.position = Vector2(0, -footprint.y * 0.5)
 	body.add_child(solid)
 	add_child(body)
-	z_as_relative = false
-	z_index = 1000 + roundi(global_position.y)
+	WorldDepth.place(self, global_position.y)
 
 func get_interaction_label() -> String:
 	return "%s: %s" % [action_label, place_name]

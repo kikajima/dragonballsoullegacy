@@ -310,8 +310,8 @@ z_index = 2
 
 [node name="WestCityBoat" parent="." instance=ExtResource("8_portal")]
 position = Vector2(790, 444)
-target_scene = "res://scenes/world/west_city_outskirts.tscn"
-target_spawn = Vector2(240, 185)
+target_scene = "res://scenes/world/earth.tscn"
+target_spawn = Vector2(1864, 2702)
 interaction_label = "Fly to West City"
 
 [node name="Visual" parent="WestCityBoat"]

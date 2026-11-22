@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://world/sky_world.gd" id="1_sky"]
+[ext_resource type="Script" path="res://world/world_camera_bounds.gd" id="2_bounds"]
+
+[node name="Sky" type="Node2D"]
+script = ExtResource("1_sky")
+
+[node name="CameraBounds" type="Node" parent="."]
+script = ExtResource("2_bounds")
+bounds = Rect2(0, 0, 1248, 864)

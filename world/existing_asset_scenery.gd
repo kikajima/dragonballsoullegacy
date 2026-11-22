@@ -101,8 +101,7 @@ static func _art_root(parent: Node2D, foot_y: float) -> Node2D:
 	var art := Node2D.new()
 	art.name = "LibraryArt"
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	art.z_as_relative = false
-	art.z_index = 1000 + roundi(parent.to_global(Vector2(0, foot_y)).y)
+	WorldDepth.place(art, parent.to_global(Vector2(0, foot_y)).y)
 	parent.add_child(art)
 	return art
 
@@ -260,5 +259,4 @@ static func _training(world: Node2D) -> void:
 	# The existing DMI punching-bag artwork was covered by primitive extras.
 	_hide(world, ["PunchingBag/Visual", "PunchingBag/Stand"])
 	var bag := world.get_node("PunchingBag") as Node2D
-	bag.z_as_relative = false
-	bag.z_index = 1000 + roundi(bag.global_position.y + 12)
+	WorldDepth.place(bag, bag.global_position.y + 12)

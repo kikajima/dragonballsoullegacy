@@ -147,7 +147,7 @@ func can_land_at(point: Vector2) -> bool:
 	return body.get_world_2d().direct_space_state.intersect_shape(query, 1).is_empty()
 
 # Nearest free walkable spot around `point` (rings of 8 probes).
-func find_landing_spot(point: Vector2) -> Vector2:
+func find_landing_spot(point: Vector2, near_coast: bool = false) -> Vector2:
 	if can_land_at(point):
 		return point
 	for ring in range(1, LANDING_SEARCH_RINGS + 1):
@@ -157,6 +157,12 @@ func find_landing_spot(point: Vector2) -> Vector2:
 			var candidate := point + Vector2.RIGHT.rotated(TAU * i / probes) * radius
 			if can_land_at(candidate):
 				return candidate
+	# Far out at sea in the open world: search around the closest coast.
+	var world := _get_world_root()
+	if not near_coast and world != null and world.has_method("nearest_land_point"):
+		var shore: Vector2 = world.nearest_land_point(point)
+		if shore != point and not near_coast:
+			return find_landing_spot(shore, true)
 	return point
 
 func get_world_bounds() -> Rect2:

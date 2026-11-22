@@ -112,8 +112,8 @@ location_name = "CAPSULE CORP TRAINING CHAMBER"
 
 [node name="Exit" parent="." instance=ExtResource("5_portal")]
 position = Vector2(65, 445)
-target_scene = "res://scenes/world/west_city_outskirts.tscn"
-target_spawn = Vector2(910, 340)
+target_scene = "res://scenes/world/earth.tscn"
+target_spawn = Vector2(2574, 2452)
 interaction_label = "Exit Training Capsule"
 
 [node name="CapsuleLabStudy" type="Area2D" parent="."]

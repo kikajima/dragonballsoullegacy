@@ -23,6 +23,7 @@ Mapeamento atual do protótipo.
 | Equipar / guardar espada | F |
 | Inventário | Tab |
 | Voar / pousar | V |
+| Subir ao céu / descer (voando sobre a Terra) | U |
 | Voo rápido | Segurar Espaço voando |
 | Aura liga / desliga | G |
 | Meditar (treina Sabedoria) | M |

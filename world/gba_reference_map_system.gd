@@ -37,9 +37,13 @@ func _on_world_changed(
 	_apply_to_world(world)
 
 func _apply_to_world(world: Node) -> void:
-	if world == null or not world is Node2D:
+	if world == null:
 		return
+	# In the open world the island is one region among others.
+	for region in OpenWorld.regions_of(world):
+		_apply_to_region(region)
 
+func _apply_to_region(world: Node2D) -> void:
 	if not world is KameIsland:
 		return
 

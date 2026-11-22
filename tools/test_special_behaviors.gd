@@ -1,5 +1,8 @@
 extends SceneTree
 
+# The test arena is Kame Island, wherever it sits in the open world.
+const ISLAND := Vector2(5504, 2752)
+
 # Behavioral regression for every special except Kamehameha / Spirit Bomb
 # (those have dedicated tests). Each case checks the rule the technique was
 # designed around, not merely "some damage happened".
@@ -32,6 +35,10 @@ func run() -> void:
 	# Sword techniques (Cross Slash, Sword Blast) need the sword equipped.
 	player.inventory_component.add_item(&"sword", 1)
 	player.equipment_component.equip(&"sword")
+	# Base damage is checked exactly: keep Wisdom/Strength from levelling up
+	# while the casts train them (stat effects: test_character_stats.gd).
+	for property in ["xp_special_per_ki", "xp_ki_blast", "xp_melee_hit", "xp_meditation_per_second"]:
+		player.character_stats.set(property, 0.0)
 	player._equip_pose_left = 0.0
 	player.set_physics_process(false)
 	special = player.special_attack_component
@@ -288,7 +295,7 @@ func _reset() -> void:
 	if forms.active_transformation != &"":
 		forms.end_transformation()
 	special.set_damage_multiplier(1.0)
-	player.global_position = Vector2(420, 360)
+	player.global_position = ISLAND + Vector2(420, 360)
 	await physics_frame
 	await physics_frame
 

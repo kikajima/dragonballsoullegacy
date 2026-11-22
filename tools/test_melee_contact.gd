@@ -1,5 +1,8 @@
 extends SceneTree
 
+# The test arena is Kame Island, wherever it sits in the open world.
+const ISLAND := Vector2(5504, 2752)
+
 var failures: int = 0
 
 func _initialize() -> void:
@@ -29,8 +32,8 @@ func _run() -> void:
 	).instantiate() as DebugGokuEnemy
 	game.add_child(movement_target)
 	movement_target.set_physics_process(false)
-	movement_target.position = Vector2(420, 360)
-	player.position = Vector2(420, 300)
+	movement_target.position = ISLAND + Vector2(420, 360)
+	player.position = ISLAND + Vector2(420, 300)
 	player.velocity = Vector2.DOWN * 90.0
 	for _frame in 30:
 		player.move_and_slide()
@@ -71,7 +74,7 @@ func _run() -> void:
 		_check(target.collision_mask == 7, "Enemy body must collide with player, world and other enemies")
 		target.health_component.max_health = 10000
 		target.health_component.restore_full()
-		target.position = Vector2(420, 360)
+		target.position = ISLAND + Vector2(420, 360)
 		player.position = target.position + directions[label][0]
 		player.melee_combat_component.cancel_attack()
 		player.facing_component.update_from_direction(

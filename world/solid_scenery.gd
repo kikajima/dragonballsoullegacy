@@ -30,6 +30,11 @@ static func apply(world: Node2D) -> void:
 				["PunchingBag", Rect2(-9, 0, 18, 12)],
 				["Treadmill", Rect2(-31, -12, 62, 24)]]:
 				set_footprint(world.get_node(entry[0]), entry[1])
+		"WestCityOutskirts":
+			var ship := world.get_node_or_null("TravelCapsule") as Node2D
+			if ship != null:
+				set_footprint(ship, Rect2(-56, -20, 112, 96))
+				WorldDepth.place(ship, ship.to_global(Vector2(0, 76)).y)
 		"RockyWastes":
 			# RockSlide art is 192 pixels wide, wider than the old placeholders.
 			for entry in [["RockA", 40.0], ["RockC", 28.0]]:

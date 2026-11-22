@@ -6,7 +6,7 @@ signal game_loaded(path: String)
 signal save_failed(reason: String)
 signal load_failed(reason: String)
 
-const SAVE_VERSION: int = 5
+const SAVE_VERSION: int = 7
 
 @export var save_path: String = "user://save_slot_01.json"
 
@@ -70,6 +70,11 @@ func load_game() -> bool:
 		)
 		return false
 
+	if version < 6:
+		upgrade_to_open_world(data)
+	elif version == 6:
+		upgrade_open_world_layout(data)
+
 	var player := get_tree().get_first_node_in_group("player")
 	if player == null:
 		load_failed.emit("Player not found.")
@@ -120,6 +125,53 @@ func load_game() -> bool:
 
 	game_loaded.emit(save_path)
 	return true
+
+# Version 6 joined Kame Island, West City and the Rocky Wastes into one open
+# world (OpenWorld). Older saves stored the map and positions in that map's
+# own coordinates; move them to where that map now sits on Earth.
+static func upgrade_to_open_world(data: Dictionary) -> void:
+	var world_value: Variant = data.get("world", {})
+	if world_value is Dictionary:
+		var world_data := world_value as Dictionary
+		var path := str(world_data.get("current_world_path", ""))
+		if OpenWorld.LEGACY_OFFSETS.has(path):
+			world_data["current_world_path"] = OpenWorld.SCENE_PATH
+			var player_value: Variant = data.get("player", {})
+			if player_value is Dictionary and (player_value as Dictionary).get("position") is Dictionary:
+				var position_data := (player_value as Dictionary)["position"] as Dictionary
+				var moved := OpenWorld.from_legacy(path, Vector2(
+					float(position_data.get("x", 0.0)), float(position_data.get("y", 0.0))
+				))
+				position_data["x"] = moved.x
+				position_data["y"] = moved.y
+	var checkpoint_value: Variant = data.get("checkpoint", {})
+	if checkpoint_value is Dictionary:
+		var checkpoint := checkpoint_value as Dictionary
+		var path := str(checkpoint.get("world_path", ""))
+		if OpenWorld.LEGACY_OFFSETS.has(path):
+			var moved := OpenWorld.from_legacy(path, Vector2(
+				float(checkpoint.get("position_x", 0.0)), float(checkpoint.get("position_y", 0.0))
+			))
+			checkpoint["world_path"] = OpenWorld.SCENE_PATH
+			checkpoint["position_x"] = moved.x
+			checkpoint["position_y"] = moved.y
+
+# Version 7 rebuilt Earth from a full planet layout; the regions moved.
+static func upgrade_open_world_layout(data: Dictionary) -> void:
+	var world_value: Variant = data.get("world", {})
+	if world_value is Dictionary and str((world_value as Dictionary).get("current_world_path", "")) == OpenWorld.SCENE_PATH:
+		var player_value: Variant = data.get("player", {})
+		if player_value is Dictionary and (player_value as Dictionary).get("position") is Dictionary:
+			var position_data := (player_value as Dictionary)["position"] as Dictionary
+			var moved := OpenWorld.from_v6(Vector2(float(position_data.get("x", 0.0)), float(position_data.get("y", 0.0))))
+			position_data["x"] = moved.x
+			position_data["y"] = moved.y
+	var checkpoint_value: Variant = data.get("checkpoint", {})
+	if checkpoint_value is Dictionary and str((checkpoint_value as Dictionary).get("world_path", "")) == OpenWorld.SCENE_PATH:
+		var checkpoint := checkpoint_value as Dictionary
+		var moved := OpenWorld.from_v6(Vector2(float(checkpoint.get("position_x", 0.0)), float(checkpoint.get("position_y", 0.0))))
+		checkpoint["position_x"] = moved.x
+		checkpoint["position_y"] = moved.y
 
 func delete_save() -> bool:
 	if not has_save():

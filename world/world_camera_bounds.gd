@@ -8,6 +8,9 @@ func _ready() -> void:
 	call_deferred("_apply_bounds")
 
 func _apply_bounds() -> void:
+	# A region's own bounds are dropped when it joins the open world.
+	if not is_inside_tree() or not is_in_group("world_bounds"):
+		return
 	var player := get_tree().get_first_node_in_group("player")
 	if player == null:
 		return

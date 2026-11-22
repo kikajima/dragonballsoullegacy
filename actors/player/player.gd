@@ -135,6 +135,12 @@ func _physics_process(delta: float) -> void:
 
 	facing_component.update_from_direction(move_intent)
 
+	if input_controller.is_sky_travel_pressed():
+		travel_sky()
+	if _get_world_manager_node() != null and _get_world_manager_node().is_in_sky():
+		_process_sky(move_intent, delta)
+		return
+
 	var training := _get_training_manager()
 	if training != null and training.is_treadmill_active():
 		if flight_component.is_flying:
@@ -892,6 +898,39 @@ func get_facing() -> StringName:
 
 func is_flying() -> bool:
 	return flight_component.is_flying
+
+func _get_world_manager_node() -> WorldManager:
+	return get_tree().get_first_node_in_group("world_manager") as WorldManager
+
+# U: go up to the sky (while flying over Earth) or come back down.
+func travel_sky() -> void:
+	var world := _get_world_manager_node()
+	if world == null or world.is_transitioning():
+		return
+	if world.is_in_sky():
+		world.descend_to_earth()
+	elif world.current_world_path != OpenWorld.SCENE_PATH:
+		_notify("Can't fly that high from here")
+	elif not is_flying():
+		_notify("Take off first (V)")
+	else:
+		world.ascend_to_sky()
+
+# In the sky only flying matters: no fights, no ki cost, V comes back down.
+func _process_sky(move_intent: Vector2, delta: float) -> void:
+	guard_component.set_guarding(false)
+	charge_aura.visible = false
+	if not flight_component.is_flying:
+		flight_component.take_off()
+	if input_controller.is_toggle_flight_pressed():
+		travel_sky()
+	_update_movement_state(move_intent)
+	movement_component.move(self, move_intent, _get_locomotion_speed_scale())
+	animation_controller.update_visual(
+		state_machine.current_state,
+		facing_component.current_facing,
+		delta
+	)
 
 # Take off / land (V). Returns true while flying.
 func toggle_flight() -> bool:

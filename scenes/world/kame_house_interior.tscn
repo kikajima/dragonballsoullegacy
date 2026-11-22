@@ -236,6 +236,6 @@ location_name = "KAME HOUSE"
 
 [node name="Exit" parent="." instance=ExtResource("5_portal")]
 position = Vector2(272, 326)
-target_scene = "res://scenes/world/kame_island.tscn"
-target_spawn = Vector2(482, 374)
+target_scene = "res://scenes/world/earth.tscn"
+target_spawn = Vector2(5986, 3126)
 interaction_label = "Go Outside"

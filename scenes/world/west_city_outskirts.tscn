@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="PackedScene" path="res://actors/enemies/debug_goku_enemy.tscn" id="1_enemy"]
 [ext_resource type="PackedScene" path="res://world/checkpoint_area.tscn" id="3_checkpoint"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://world/world_camera_bounds.gd" id="6_bounds"]
 [ext_resource type="PackedScene" path="res://actors/npcs/world_npc.tscn" id="7_npc"]
 [ext_resource type="Script" path="res://world/study_spot.gd" id="90_study"]
+[ext_resource type="Texture2D" path="res://assets/vendor/hu2/Icons/Images/CapsuleShip.png" id="91_ship"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(1280, 20)
@@ -140,11 +141,17 @@ target_scene = "res://scenes/world/rocky_wastes.tscn"
 target_spawn = Vector2(130, 585)
 interaction_label = "Travel to Rocky Wastes"
 
+[node name="TravelCapsule" type="Sprite2D" parent="."]
+position = Vector2(70, 560)
+scale = Vector2(0.58, 0.58)
+texture = ExtResource("91_ship")
+flip_h = true
+
 [node name="KameIslandRoute" parent="." instance=ExtResource("5_portal")]
 position = Vector2(125, 590)
-target_scene = "res://scenes/world/kame_island.tscn"
-target_spawn = Vector2(700, 390)
-interaction_label = "Travel to Kame House"
+target_scene = "res://scenes/world/earth.tscn"
+target_spawn = Vector2(6204, 3142)
+interaction_label = "Fly to Kame Island"
 
 [node name="LibraryStudy" type="Area2D" parent="."]
 position = Vector2(352, 206)

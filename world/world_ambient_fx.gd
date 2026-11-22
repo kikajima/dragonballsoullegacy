@@ -39,6 +39,11 @@ var _detail_root: Node2D
 var _mode: StringName = MODE_NONE
 var _items: Array[Node2D] = []
 var _base_positions: Array[Vector2] = []
+# Mode of each item: the open world mixes regions (island glints, city
+# lights, wastes dust) at the same time.
+var _item_modes: Array[StringName] = []
+var _roots: Array[Node2D] = []
+var _kame_region: Node2D
 var _time: float = 0.0
 
 func _ready() -> void:
@@ -50,13 +55,17 @@ func _process(delta: float) -> void:
 	_refresh_player_camera()
 	_update_depth_sorting()
 
-	match _mode:
-		MODE_KAME:
-			_animate_kame()
-		MODE_WASTES:
-			_animate_wastes(delta)
-		MODE_CITY:
-			_animate_city()
+	for index in range(_items.size()):
+		var item: Node2D = _items[index]
+		if item == null or not is_instance_valid(item):
+			continue
+		match _item_modes[index]:
+			MODE_KAME:
+				_animate_kame(item, index)
+			MODE_WASTES:
+				_animate_wastes(item, index, delta)
+			MODE_CITY:
+				_animate_city(item, index)
 
 func _bind_world() -> void:
 	_world_manager = get_tree().get_first_node_in_group(
@@ -82,10 +91,15 @@ func _on_world_changed(
 
 func _setup_for_world(world: Node) -> void:
 	_clear_fx()
-	if world == null or not world is Node2D:
+	if world == null:
 		return
+	for region in OpenWorld.regions_of(world):
+		_setup_region(region)
+	_world = null
 
-	_world = world as Node2D
+func _setup_region(world: Node2D) -> void:
+	_world = world
+	var first_item := _items.size()
 
 	_fx_root = Node2D.new()
 	_fx_root.name = "AmbientFX"
@@ -95,10 +109,13 @@ func _setup_for_world(world: Node) -> void:
 	_detail_root = Node2D.new()
 	_detail_root.name = "GbaVisualDetails"
 	_world.add_child(_detail_root)
+	_roots.append(_fx_root)
+	_roots.append(_detail_root)
 
 	var world_name: String = String(world.name).to_lower()
 	if world is KameIsland:
 		_mode = MODE_KAME
+		_kame_region = world
 		_build_kame_glints()
 		# Kame Island owns its authored foliage and flower placement. Do not
 		# layer fallback props over it, since that creates visual duplication.
@@ -130,6 +147,8 @@ func _setup_for_world(world: Node) -> void:
 			(_world.get_node("Floor") as Polygon2D).modulate = Color(0.48, 0.55, 0.65)
 			_texture_surface("TrainingFloor", "DbzTurfs", &"GrayTile")
 			_texture_surface("CenterPlatform/Visual", "ApartmentInts", &"BaseTile")
+	for index in range(first_item, _items.size()):
+		_item_modes.append(_mode)
 	EXISTING_SCENERY.apply(_world)
 
 func _texture_surface(path: String, sheet_name: String, state: StringName) -> void:
@@ -166,15 +185,16 @@ func _add_surface_relief(path: String) -> void:
 func _clear_fx() -> void:
 	_items.clear()
 	_base_positions.clear()
+	_item_modes.clear()
 	_mode = MODE_NONE
 	_world = null
+	_kame_region = null
 
-	if _fx_root != null and is_instance_valid(_fx_root):
-		_fx_root.queue_free()
+	for root in _roots:
+		if root != null and is_instance_valid(root):
+			root.queue_free()
+	_roots.clear()
 	_fx_root = null
-
-	if _detail_root != null and is_instance_valid(_detail_root):
-		_detail_root.queue_free()
 	_detail_root = null
 
 func _refresh_player_camera() -> void:
@@ -194,6 +214,7 @@ func _refresh_player_camera() -> void:
 
 func _update_depth_sorting() -> void:
 	if _player != null and is_instance_valid(_player):
+		WorldDepth.follow(get_tree(), _player.global_position.y)
 		_apply_actor_depth(_player)
 
 	var enemies: Array[Node] = get_tree().get_nodes_in_group("enemy")
@@ -208,7 +229,7 @@ func _update_depth_sorting() -> void:
 		if npc_2d != null:
 			_apply_actor_depth(npc_2d)
 
-	if _mode == MODE_KAME and _world != null:
+	if _kame_region != null and is_instance_valid(_kame_region):
 		_apply_prop_depth(&"KameHouse", 130.0)
 		_apply_prop_depth(&"PalmTreeLeft", 42.0)
 		_apply_prop_depth(&"PalmTreeRight", 42.0)
@@ -231,24 +252,24 @@ func _apply_actor_depth(actor: Node2D) -> void:
 			foot_y = bounds.end.y
 			break
 	actor.z_as_relative = false
-	actor.z_index = DEPTH_BASE + roundi(foot_y)
+	actor.z_index = WorldDepth.z_for(foot_y)
 	# Flyers are drawn above every ground actor and piece of scenery.
 	var flight := actor.get_node_or_null("Components/FlightComponent") as FlightComponent
 	if flight != null and flight.is_airborne():
 		actor.z_index += AIRBORNE_DEPTH_BONUS
 
 func _apply_prop_depth(node_name: StringName, foot_offset: float) -> void:
-	if _world == null:
+	if _kame_region == null:
 		return
 
-	var node: Node2D = _world.get_node_or_null(
+	var node: Node2D = _kame_region.get_node_or_null(
 		NodePath(String(node_name))
 	) as Node2D
 	if node == null:
 		return
 
 	node.z_as_relative = false
-	node.z_index = DEPTH_BASE + roundi(node.to_global(Vector2(0, foot_offset)).y)
+	node.z_index = WorldDepth.z_for(node.to_global(Vector2(0, foot_offset)).y)
 
 func _build_kame_foliage() -> void:
 	if _detail_root == null:
@@ -272,7 +293,7 @@ func _build_kame_foliage() -> void:
 		var scale_value: float = scales[index]
 		palm.scale = Vector2(scale_value, scale_value)
 		palm.flip_h = index % 2 == 1
-		palm.z_index = DEPTH_BASE + roundi(palm.position.y + 38.0)
+		palm.z_index = WorldDepth.z_for(palm.position.y + 38.0)
 		_detail_root.add_child(palm)
 
 func _build_kame_flower_density() -> void:
@@ -378,43 +399,30 @@ func _build_city_lights() -> void:
 		_items.append(light)
 		_base_positions.append(positions[index])
 
-func _animate_kame() -> void:
-	for index in range(_items.size()):
-		var item: Node2D = _items[index]
-		if item == null or not is_instance_valid(item):
-			continue
-		var phase: float = _time * 1.8 + float(index) * 0.67
-		item.position = _base_positions[index] + Vector2(
-			sin(phase) * 1.5,
-			cos(phase * 0.8) * 1.0
-		)
-		item.modulate = Color(
-			1.0, 1.0, 1.0,
-			0.28 + (sin(phase * 1.4) + 1.0) * 0.24
-		)
+func _animate_kame(item: Node2D, index: int) -> void:
+	var phase: float = _time * 1.8 + float(index) * 0.67
+	item.position = _base_positions[index] + Vector2(
+		sin(phase) * 1.5,
+		cos(phase * 0.8) * 1.0
+	)
+	item.modulate = Color(
+		1.0, 1.0, 1.0,
+		0.28 + (sin(phase * 1.4) + 1.0) * 0.24
+	)
 
-func _animate_wastes(delta: float) -> void:
-	for index in range(_items.size()):
-		var item: Node2D = _items[index]
-		if item == null or not is_instance_valid(item):
-			continue
+func _animate_wastes(item: Node2D, index: int, delta: float) -> void:
+	var speed: float = 8.0 + float(index % 5) * 3.0
+	item.position.x += speed * delta
+	item.position.y = (
+		_base_positions[index].y
+		+ sin(_time * 0.9 + float(index)) * 4.0
+	)
+	if item.position.x > 1260.0:
+		item.position.x = 20.0
 
-		var speed: float = 8.0 + float(index % 5) * 3.0
-		item.position.x += speed * delta
-		item.position.y = (
-			_base_positions[index].y
-			+ sin(_time * 0.9 + float(index)) * 4.0
-		)
-		if item.position.x > 1260.0:
-			item.position.x = 20.0
-
-func _animate_city() -> void:
-	for index in range(_items.size()):
-		var item: Node2D = _items[index]
-		if item == null or not is_instance_valid(item):
-			continue
-		var pulse: float = (
-			0.35
-			+ (sin(_time * 2.2 + float(index) * 0.8) + 1.0) * 0.22
-		)
-		item.modulate = Color(1.0, 1.0, 1.0, pulse)
+func _animate_city(item: Node2D, index: int) -> void:
+	var pulse: float = (
+		0.35
+		+ (sin(_time * 2.2 + float(index) * 0.8) + 1.0) * 0.22
+	)
+	item.modulate = Color(1.0, 1.0, 1.0, pulse)
