@@ -96,6 +96,12 @@ var senzu_drop_chance: float = 0.10
 @export var is_training_partner: bool = false
 @export var display_name: String = "Training Fighter"
 @export var enemy_rank: String = "Common"
+# Quest objectives count defeats as "defeat:<enemy_id>".
+@export var enemy_id: StringName = &""
+# Spawned by the world (WildEncounterDirector): also counts as "defeat:wild".
+@export var is_wild: bool = false
+# Extra drops: [[item_id, chance, min, max], ...] (EnemyCatalog).
+@export var loot: Array = []
 
 @export_range(0.25, 5.0, 0.05)
 var difficulty_scale: float = 1.0
@@ -656,6 +662,11 @@ func _on_died() -> void:
 				&"defeat_training_dummy",
 				1
 			)
+			if enemy_id != &"":
+				quest_manager.advance_objective(StringName("defeat:%s" % enemy_id), 1)
+			quest_manager.advance_objective(&"defeat:any", 1)
+			if is_wild:
+				quest_manager.advance_objective(&"defeat:wild", 1)
 
 		_drop_loot()
 
@@ -733,6 +744,22 @@ func _spawn_loot_deferred(drop_position: Vector2) -> void:
 			loot_parent.add_child(item_drop)
 			item_drop.global_position = drop_position + Vector2(6.0, 0.0)
 			item_drop.configure_item(&"senzu_bean", 1)
+
+	var offset := 0
+	for entry in loot:
+		if not entry is Array or (entry as Array).size() < 4:
+			continue
+		if randf() > float(entry[1]):
+			continue
+		var material_drop := pickup_scene.instantiate() as PickupActor
+		if material_drop == null:
+			continue
+		loot_parent.add_child(material_drop)
+		offset += 1
+		material_drop.global_position = drop_position + Vector2(-6.0 + 8.0 * offset, 8.0)
+		material_drop.configure_item(
+			StringName(entry[0]), randi_range(int(entry[2]), maxi(int(entry[2]), int(entry[3])))
+		)
 
 func get_display_name() -> String:
 	return display_name
