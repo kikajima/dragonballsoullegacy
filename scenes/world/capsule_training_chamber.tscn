@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="PackedScene" path="res://systems/training/training_gravity_console.tscn" id="1_gravity"]
 [ext_resource type="PackedScene" path="res://systems/training/training_punching_bag.tscn" id="2_bag"]
@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://systems/training/capsule_training_chamber.gd" id="9_chamber"]
 [ext_resource type="Script" path="res://world/world_camera_bounds.gd" id="10_bounds"]
 [ext_resource type="PackedScene" path="res://actors/npcs/world_npc.tscn" id="11_npc"]
+[ext_resource type="Script" path="res://world/study_spot.gd" id="90_study"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(820, 18)
@@ -114,3 +115,11 @@ position = Vector2(65, 445)
 target_scene = "res://scenes/world/west_city_outskirts.tscn"
 target_spawn = Vector2(910, 340)
 interaction_label = "Exit Training Capsule"
+
+[node name="CapsuleLabStudy" type="Area2D" parent="."]
+position = Vector2(560, 448)
+script = ExtResource("90_study")
+place_name = "Capsule Corp Lab"
+action_label = "Run experiments"
+kind = "lab"
+xp_multiplier = 1.5

@@ -42,6 +42,7 @@ func _process(delta: float) -> void:
 			_finish_dash()
 			return
 		_dash_left = maxf(_dash_left - delta, 0.0)
+		_check_dash_dodges()
 		_afterimage_left -= delta
 		if _afterimage_left <= 0.0:
 			_afterimage_left += afterimage_interval
@@ -109,6 +110,9 @@ func _try_start_dash() -> void:
 		_hurtbox.grant_invulnerability(dash_invulnerability)
 
 	_spawn_afterimage()
+	var stats := _player.get_stats() if _player.has_method("get_stats") else null
+	if stats != null:
+		stats.add_xp(CharacterStatsComponent.AGILITY, stats.xp_dash)
 
 	var feedback: CombatFeedbackManager = (
 		get_tree().get_first_node_in_group("combat_feedback")
@@ -133,6 +137,33 @@ func _can_dash() -> bool:
 		return false
 	var state := _player.get_current_state()
 	return state == &"idle" or state == &"walk" or state == &"run"
+
+# Radius (px) in which an enemy shot counts as dodged during a dash.
+const DASH_DODGE_RADIUS := 26.0
+
+# An enemy ki shot passing through the player while dashing is a manual
+# dodge: big Agility XP, once per shot.
+func _check_dash_dodges() -> int:
+	if _player == null or not _player.has_method("get_stats"):
+		return 0
+	var dodged := 0
+	for node in get_tree().get_nodes_in_group("combat_projectile"):
+		var shot := node as Node2D
+		if shot == null or shot.has_meta(&"dash_dodged"):
+			continue
+		var source: Variant = shot.get("_source_actor")
+		if source == null or source == _player or not (source is Node and (source as Node).is_in_group("enemy")):
+			continue
+		if shot.global_position.distance_to(_player.global_position) > DASH_DODGE_RADIUS:
+			continue
+		shot.set_meta(&"dash_dodged", true)
+		dodged += 1
+		var stats: CharacterStatsComponent = _player.get_stats()
+		stats.add_xp(CharacterStatsComponent.AGILITY, stats.xp_dash_dodge)
+		var feedback := get_tree().get_first_node_in_group("combat_feedback") as CombatFeedbackManager
+		if feedback != null:
+			feedback.spawn_floating_text("DODGE!", _player.global_position + Vector2(0, -26), Color(0.6, 0.95, 1.0))
+	return dodged
 
 func _finish_dash() -> void:
 	_dash_left = 0.0

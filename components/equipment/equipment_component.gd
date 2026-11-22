@@ -167,8 +167,9 @@ func load_state(data: Dictionary) -> void:
 func _bag_fits(after: Dictionary) -> bool:
 	if inventory == null:
 		return true
-	var over_after := inventory.get_used_slots_with(_worn_of(after)) - _capacity_for(after)
-	var over_now := inventory.get_used_slots_with(_worn_of(_slots)) - _capacity_for(_slots)
+	var bonus := inventory.get_bonus_capacity()
+	var over_after := inventory.get_used_slots_with(_worn_of(after)) - _capacity_for(after) - bonus
+	var over_now := inventory.get_used_slots_with(_worn_of(_slots)) - _capacity_for(_slots) - bonus
 	return over_after <= 0 or over_after <= over_now
 
 func _worn_of(slots: Dictionary) -> Dictionary:

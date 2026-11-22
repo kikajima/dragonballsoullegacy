@@ -20,7 +20,20 @@ const MODE_SPARRING: StringName = &"sparring"
 const TRAINING_QUEST_ID: StringName = &"capsule_training_circuit"
 const TRAINING_OBJECTIVE_ID: StringName = &"try_training_station"
 
-const GRAVITY_LEVELS: Array[float] = [1.0, 2.0, 5.0, 10.0]
+# Up to 10,000x. How much of it the body takes depends on Vigor
+# (CharacterStatsComponent.gravity_tolerance): under the tolerance the
+# player is slowed less the stronger they are; above it they are crushed
+# (very slow, losing HP every second).
+const GRAVITY_LEVELS: Array[float] = [
+	1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0, 500.0,
+	1000.0, 2000.0, 5000.0, 10000.0,
+]
+const MAX_GRAVITY := 10000.0
+# Share of max HP lost per second for each "tolerance" of overload.
+const OVERLOAD_DRAIN_PER_SECOND := 0.03
+const OVERLOAD_DRAIN_CAP := 0.25
+
+signal overload_changed(overloaded: bool)
 
 var active_mode: StringName = MODE_NONE
 var gravity_multiplier: float = 1.0
@@ -35,12 +48,85 @@ var modes_tried: Dictionary = {}
 var _player: Node
 var _treadmill_anchor: Vector2 = Vector2.ZERO
 var _treadmill_reward_left: float = 1.0
+var _overload_damage_credit: float = 0.0
+var _overloaded: bool = false
 
 func _ready() -> void:
 	call_deferred("_bind_player")
 
 func _bind_player() -> void:
 	_player = get_tree().get_first_node_in_group("player")
+
+# Time under gravity trains Vigor; past the tolerance it hurts.
+func _process(delta: float) -> void:
+	if gravity_multiplier <= 1.0 or get_tree().paused:
+		_set_overloaded(false)
+		return
+	if _player == null or not is_instance_valid(_player):
+		_bind_player()
+	var stats := _get_stats()
+	if stats == null:
+		return
+	var health := _player.get_node_or_null("Components/HealthComponent") as HealthComponent
+	if health == null or health.is_dead():
+		return
+	var load := get_gravity_load()
+	stats.add_xp(
+		CharacterStatsComponent.VIGOR,
+		stats.xp_gravity_per_second * (1.0 + 3.0 * minf(load, 1.5)) * delta
+	)
+	_set_overloaded(load > 1.0)
+	if load <= 1.0:
+		_overload_damage_credit = 0.0
+		return
+	var ratio := minf(OVERLOAD_DRAIN_PER_SECOND * (load - 1.0), OVERLOAD_DRAIN_CAP)
+	_overload_damage_credit += float(health.max_health) * ratio * delta
+	var damage := floori(_overload_damage_credit)
+	if damage > 0:
+		_overload_damage_credit -= damage
+		health.take_damage(damage)
+
+func _set_overloaded(value: bool) -> void:
+	if value == _overloaded:
+		return
+	_overloaded = value
+	overload_changed.emit(value)
+
+func is_overloaded() -> bool:
+	return _overloaded
+
+# Current gravity / what the player's body supports (1.0 = at the limit).
+func get_gravity_load() -> float:
+	if gravity_multiplier <= 1.0:
+		return 0.0
+	var stats := _get_stats()
+	var tolerance := stats.gravity_tolerance() if stats != null else 2.0
+	return gravity_multiplier / maxf(tolerance, 1.0)
+
+# "10,000x" style label for a gravity value.
+static func format_gravity(value: float) -> String:
+	var digits := str(roundi(value))
+	var grouped := ""
+	while digits.length() > 3:
+		grouped = "," + digits.substr(digits.length() - 3) + grouped
+		digits = digits.substr(0, digits.length() - 3)
+	return digits + grouped + "x"
+
+func get_body_limit() -> float:
+	var stats := _get_stats()
+	return stats.gravity_tolerance() if stats != null else 2.0
+
+func _get_stats() -> CharacterStatsComponent:
+	if _player == null or not is_instance_valid(_player):
+		return null
+	return _player.get_node_or_null("Components/CharacterStats") as CharacterStatsComponent
+
+# Training XP grows with gravity, logarithmically past 10x so 10,000x stays
+# rewarding without being absurd (10x -> 10, 100x -> 20, 10,000x -> 40).
+func get_gravity_xp_factor() -> float:
+	if gravity_multiplier <= 10.0:
+		return maxf(gravity_multiplier, 1.0)
+	return 10.0 * (1.0 + log(gravity_multiplier / 10.0) / log(10.0))
 
 func start_training(mode: StringName) -> bool:
 	if mode == MODE_NONE:
@@ -129,7 +215,7 @@ func register_success(base_xp: int = 2) -> int:
 	var reward: int = maxi(
 		roundi(
 			float(maxi(base_xp, 1))
-			* gravity_multiplier
+			* get_gravity_xp_factor()
 			* combo_multiplier
 		),
 		1
@@ -144,7 +230,7 @@ func register_passive_progress(base_xp: int = 1) -> int:
 	var reward: int = maxi(
 		roundi(
 			float(maxi(base_xp, 1))
-			* sqrt(gravity_multiplier)
+			* sqrt(get_gravity_xp_factor())
 		),
 		1
 	)
@@ -193,7 +279,7 @@ func tick_treadmill(
 	treadmill_distance += (
 		safe_strength
 		* speed_factor
-		* gravity_multiplier
+		* get_gravity_xp_factor()
 		* delta
 	)
 
@@ -208,15 +294,15 @@ func tick_treadmill(
 	_treadmill_reward_left += 1.0
 	register_passive_progress(2 if running else 1)
 
+# Within the tolerance the slowdown eases as the body adapts (x1.0 far below
+# the limit, x0.55 at it); overloaded, the player can barely move.
 func get_movement_multiplier() -> float:
 	if gravity_multiplier <= 1.0:
 		return 1.0
-
-	return clampf(
-		1.0 / sqrt(gravity_multiplier),
-		0.34,
-		1.0
-	)
+	var load := get_gravity_load()
+	if load <= 1.0:
+		return lerpf(1.0, 0.55, sqrt(load))
+	return clampf(0.55 / load, 0.12, 0.55)
 
 func serialize_state() -> Dictionary:
 	return {
@@ -232,9 +318,10 @@ func load_state(data: Dictionary) -> void:
 	# Session/anchor are not serialized; never resume a previous treadmill.
 	stop_training()
 	session_xp = 0
-	gravity_multiplier = maxf(
+	gravity_multiplier = clampf(
 		float(data.get("gravity_multiplier", 1.0)),
-		1.0
+		1.0,
+		MAX_GRAVITY
 	)
 	best_combo = maxi(int(data.get("best_combo", 0)), 0)
 	total_training_xp = maxi(

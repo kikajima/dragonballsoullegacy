@@ -167,6 +167,13 @@ func _animation_name_for_state(
 		)
 
 	match state:
+		&"meditate":
+			# HU2 has no seated pose: the crouched landing frame, facing the
+			# camera, reads as kneeling in meditation.
+			var meditate_name := &"land_down"
+			return meditate_name if _has_animation(meditate_name) else &"idle_down"
+		&"study":
+			return StringName("idle_%s" % facing)
 		&"special_sword_sweep":
 			return StringName("sword_1_%s" % facing)
 		&"special_sword_thrust":

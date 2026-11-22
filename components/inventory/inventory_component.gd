@@ -3,7 +3,7 @@ extends Node
 
 # Carried items. Items that are not worn live in the bag, which has a limited
 # number of spaces: BASE_CAPACITY without a bag, or the worn bag's
-# bag_capacity. Each stack (up to the item's max_stack) takes one space.
+# bag_capacity, plus the Strength bonus (set_bonus_capacity). Each stack (up to the item's max_stack) takes one space.
 # Worn items stay in the item count but take no bag space; the
 # EquipmentComponent reports them through set_worn().
 
@@ -20,6 +20,7 @@ const DEFAULT_MAX_STACK := 99
 var _items: Dictionary = {}
 var _worn: Dictionary = {} # item key -> count worn (outside the bag)
 var _capacity: int = BASE_CAPACITY
+var _bonus_capacity: int = 0
 
 # Adds up to `amount`, as much as fits in the bag. Returns the amount added.
 func add_item(item_id: StringName, amount: int = 1) -> int:
@@ -97,15 +98,31 @@ func get_bag_stacks() -> Array[Dictionary]:
 			left -= stack_size
 	return stacks
 
+# Total spaces: bag (or base) + Strength bonus.
 func get_capacity() -> int:
+	return _capacity + _bonus_capacity
+
+# Spaces from the bag alone (BASE_CAPACITY without a bag).
+func get_bag_capacity() -> int:
 	return _capacity
+
+func get_bonus_capacity() -> int:
+	return _bonus_capacity
+
+func set_bonus_capacity(value: int) -> void:
+	value = maxi(value, 0)
+	if value == _bonus_capacity:
+		return
+	_bonus_capacity = value
+	capacity_changed.emit(get_capacity())
+	inventory_changed.emit()
 
 func set_capacity(value: int) -> void:
 	value = maxi(value, 0)
 	if value == _capacity:
 		return
 	_capacity = value
-	capacity_changed.emit(_capacity)
+	capacity_changed.emit(get_capacity())
 	inventory_changed.emit()
 
 func get_used_slots() -> int:
@@ -120,7 +137,7 @@ func get_used_slots_with(worn: Dictionary) -> int:
 	return used
 
 func get_free_slots() -> int:
-	return maxi(_capacity - get_used_slots(), 0)
+	return maxi(get_capacity() - get_used_slots(), 0)
 
 func is_full() -> bool:
 	return get_free_slots() <= 0
@@ -130,7 +147,7 @@ func get_room_for(item_id: StringName) -> int:
 	var stack_size := max_stack_of(item_id)
 	var in_bag := get_bag_quantity(item_id)
 	var others := get_used_slots() - slots_for(item_id, in_bag)
-	return maxi((_capacity - others) * stack_size - in_bag, 0)
+	return maxi((get_capacity() - others) * stack_size - in_bag, 0)
 
 func can_add(item_id: StringName, amount: int = 1) -> bool:
 	return amount <= get_room_for(item_id)

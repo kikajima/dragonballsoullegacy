@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="PackedScene" path="res://actors/enemies/debug_goku_enemy.tscn" id="1_enemy"]
 [ext_resource type="PackedScene" path="res://world/checkpoint_area.tscn" id="3_checkpoint"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://world/world_portal.tscn" id="5_portal"]
 [ext_resource type="Script" path="res://world/world_camera_bounds.gd" id="6_bounds"]
 [ext_resource type="PackedScene" path="res://actors/npcs/world_npc.tscn" id="7_npc"]
+[ext_resource type="Script" path="res://world/study_spot.gd" id="90_study"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(1280, 20)
@@ -144,3 +145,19 @@ position = Vector2(125, 590)
 target_scene = "res://scenes/world/kame_island.tscn"
 target_spawn = Vector2(700, 390)
 interaction_label = "Travel to Kame House"
+
+[node name="LibraryStudy" type="Area2D" parent="."]
+position = Vector2(352, 206)
+script = ExtResource("90_study")
+place_name = "West City Library"
+action_label = "Read"
+kind = "books"
+
+[node name="UniversityStudy" type="Area2D" parent="."]
+position = Vector2(1010, 560)
+script = ExtResource("90_study")
+place_name = "West City University"
+action_label = "Attend class"
+kind = "board"
+xp_multiplier = 1.25
+footprint = Vector2(34, 8)

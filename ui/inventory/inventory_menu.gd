@@ -236,6 +236,8 @@ func refresh() -> void:
 
 	var bag := _equipment.get_equipped_data(EquipmentComponent.SLOT_BAG)
 	_bag_title.text = "BAG  -  %s" % (bag.display_name if bag != null else "No bag")
+	if _inventory.get_bonus_capacity() > 0:
+		_bag_title.text += "  +%d STR" % _inventory.get_bonus_capacity()
 	var used := _inventory.get_used_slots()
 	_bag_count.text = "%d/%d" % [used, capacity]
 	_bag_count.add_theme_color_override(
@@ -455,7 +457,7 @@ func _build() -> void:
 
 	_grid = Control.new()
 	_grid.position = BAG_ORIGIN
-	_grid.size = Vector2(BAG_COLUMNS * (CELL + CELL_GAP), 3 * (CELL + CELL_GAP))
+	_grid.size = Vector2(BAG_COLUMNS * (CELL + CELL_GAP), 4 * (CELL + CELL_GAP))
 	_grid.draw.connect(_draw_grid)
 	_panel.add_child(_grid)
 
@@ -466,13 +468,13 @@ func _build() -> void:
 	_panel.add_child(_doll)
 
 	_item_name = _make_label("", COLOR_TEXT)
-	_item_name.position = Vector2(8, 110)
+	_item_name.position = Vector2(8, 134)
 	_item_name.size = Vector2(206, 12)
 	_panel.add_child(_item_name)
 
 	_description = _make_label("", COLOR_DIM)
-	_description.position = Vector2(8, 124)
-	_description.size = Vector2(206, 64)
+	_description.position = Vector2(8, 148)
+	_description.size = Vector2(206, 46)
 	_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_panel.add_child(_description)
 

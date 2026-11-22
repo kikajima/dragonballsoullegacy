@@ -78,6 +78,8 @@ var _flurry_hits_left: int = 0
 var _flurry_bonus_hits_added: int = 0
 var _flurry_tick_left: float = 0.0
 var _damage_multiplier: float = 1.0
+# Wisdom shortens special cooldowns (set by the owner; 1.0 = data value).
+var cooldown_multiplier: float = 1.0
 var _lunge_active: bool = false
 var _flurry_hits_done: int = 0
 var _spin_time: float = 0.0
@@ -1072,7 +1074,7 @@ func _finish_cast(start_cooldown: bool) -> void:
 		if start_cooldown:
 			loadout_component.start_cooldown(
 				_active_data.ability_id,
-				_active_data.cooldown
+				_active_data.cooldown * maxf(cooldown_multiplier, 0.0)
 			)
 
 	if is_instance_valid(_active_beam):

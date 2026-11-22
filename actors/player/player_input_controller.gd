@@ -56,3 +56,9 @@ func is_toggle_flight_pressed() -> bool:
 
 func is_toggle_aura_pressed() -> bool:
 	return InputMap.has_action("toggle_aura") and Input.is_action_just_pressed("toggle_aura")
+
+func is_meditate_pressed() -> bool:
+	return InputMap.has_action("meditate") and Input.is_action_just_pressed("meditate")
+
+func is_analyze_pressed() -> bool:
+	return InputMap.has_action("analyze") and Input.is_action_just_pressed("analyze")

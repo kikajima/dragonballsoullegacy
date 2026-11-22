@@ -10,6 +10,9 @@
 [ext_resource type="PackedScene" path="res://ui/dialogue/dialogue_box.tscn" id="8_dialogue"]
 [ext_resource type="PackedScene" path="res://ui/pause/pause_menu.tscn" id="9_pause"]
 [ext_resource type="Script" path="res://ui/inventory/inventory_menu.gd" id="40_inventory_menu"]
+[ext_resource type="Script" path="res://ui/status/status_menu.gd" id="41_status_menu"]
+[ext_resource type="Script" path="res://ui/analyze/analyze_panel.gd" id="42_analyze_panel"]
+[ext_resource type="Script" path="res://ui/hud/ki_sense_overlay.gd" id="43_ki_sense"]
 [ext_resource type="PackedScene" path="res://ui/quest/quest_tracker.tscn" id="10_quest_tracker"]
 [ext_resource type="PackedScene" path="res://ui/notifications/notification_feed.tscn" id="11_notifications"]
 [ext_resource type="Script" uid="uid://cw8snjwbe5uu0" path="res://core/game_session.gd" id="12_session"]
@@ -89,6 +92,9 @@ position = Vector2(480, 405)
 
 [node name="UIContainer" type="CanvasLayer" parent="." unique_id=1844151348]
 
+[node name="KiSenseOverlay" type="Control" parent="UIContainer"]
+script = ExtResource("43_ki_sense")
+
 [node name="CombatHUD" parent="UIContainer" unique_id=1467309137 instance=ExtResource("3_hud")]
 
 [node name="SpecialStatusHUD" parent="UIContainer" unique_id=1462303197 instance=ExtResource("25_special_status")]
@@ -133,6 +139,12 @@ anchors_preset = 0
 
 [node name="InventoryMenu" type="Control" parent="UIContainer"]
 script = ExtResource("40_inventory_menu")
+
+[node name="AnalyzePanel" type="Control" parent="UIContainer"]
+script = ExtResource("42_analyze_panel")
+
+[node name="StatusMenu" type="Control" parent="UIContainer"]
+script = ExtResource("41_status_menu")
 
 [node name="TransitionLayer" type="CanvasLayer" parent="." unique_id=277396951]
 layer = 100

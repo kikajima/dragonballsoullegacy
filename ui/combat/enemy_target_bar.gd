@@ -9,6 +9,7 @@ extends Control
 @onready var health_text: Label = $Panel/HealthBar/HealthText
 
 var _health: HealthComponent
+var _target: Node
 var _time_left: float = 0.0
 var _visibility_tween: Tween
 
@@ -60,6 +61,7 @@ func _on_target_changed(target: Node) -> void:
 		_health.health_changed.disconnect(_on_health_changed)
 
 	_health = health
+	_target = target
 	_health.health_changed.connect(_on_health_changed)
 
 	var display_name: String = String(target.name)
@@ -98,14 +100,21 @@ func _on_health_changed(
 
 	health_bar.max_value = float(safe_max)
 	health_bar.value = float(safe_current)
-	health_text.text = "%d / %d" % [
-		safe_current,
-		safe_max,
-	]
+	health_text.text = health_text_for(_target, _health)
 	_time_left = visible_duration
 
 	if current_health <= 0:
 		_time_left = minf(_time_left, 0.8)
+
+# How much the bar's text reveals depends on Analyze (T) and Intelligence:
+# unknown until analyzed, then as precise as the analysis was.
+static func health_text_for(target: Node, health: HealthComponent) -> String:
+	if target == null or health == null:
+		return "?? / ??"
+	var tier := int(target.get_meta(&"analyzed_tier", -1)) if is_instance_valid(target) else -1
+	if tier < 0:
+		return "?? / ??"
+	return AnalyzePanel.health_reading(health, tier)
 
 func _tier_color(tier_name: String) -> Color:
 	var normalized: String = tier_name.to_lower()

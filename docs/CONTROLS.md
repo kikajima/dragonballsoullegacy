@@ -19,6 +19,15 @@ Mapeamento atual do protótipo.
 | Interagir | E |
 | Usar Senzu Bean rápido | Q |
 | Pausar | Esc |
+| Dash | Tocar Espaço |
+| Equipar / guardar espada | F |
+| Inventário | Tab |
+| Voar / pousar | V |
+| Voo rápido | Segurar Espaço voando |
+| Aura liga / desliga | G |
+| Meditar (treina Sabedoria) | M |
+| Tela de status | C |
+| Analisar alvo próximo | T |
 
 ## Combate atual
 
@@ -87,3 +96,7 @@ O protótipo atual libera todas as técnicas para Goku, independentemente do per
 - Técnicas como Kamehameha e Special Beam Cannon ficam ativas enquanto O estiver pressionado.
 - Spirit Bomb, Big Bang Attack, Masenko Ha, Scatter Shot e os golpes melee carregáveis usam **segurar O → soltar O**.
 - A HUD de técnicas mostra quando a habilidade está em carga, sustentada ou em cooldown.
+
+## Status
+
+Força, Agilidade, Vigor, Sabedoria e Inteligência treinam pelo uso. Detalhes em `docs/STATS.md`.

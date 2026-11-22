@@ -14,10 +14,11 @@ func _process(delta: float) -> void:
 		training_floor.modulate = Color.WHITE
 		return
 
-	_pulse_time += delta * _training.gravity_multiplier * 0.35
+	_pulse_time += delta * (1.0 + log(_training.gravity_multiplier) / log(10.0)) * 1.2
 	var pulse: float = 0.88 + sin(_pulse_time) * 0.08
+	# Log scale: 10x is a quarter of the way to 10,000x.
 	var gravity_tint: float = clampf(
-		(_training.gravity_multiplier - 1.0) / 9.0,
+		log(_training.gravity_multiplier) / log(TrainingManager.MAX_GRAVITY),
 		0.0,
 		1.0
 	)

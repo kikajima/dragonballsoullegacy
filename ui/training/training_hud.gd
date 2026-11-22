@@ -76,9 +76,9 @@ func _refresh() -> void:
 		floor(float(_training.total_training_xp) / 100.0)
 	)
 
-	title_label.text = "%s  |  %.0fx GRAVITY" % [
+	title_label.text = "%s  |  %s GRAVITY" % [
 		mode_text,
-		_training.gravity_multiplier,
+		TrainingManager.format_gravity(_training.gravity_multiplier),
 	]
 	info_label.text = "RANK %d  +%d XP  COMBO %d  BEST %d" % [
 		training_rank,
@@ -87,3 +87,5 @@ func _refresh() -> void:
 		_training.best_combo,
 	]
 	prompt_label.text = _prompt
+	if _training.is_overloaded():
+		prompt_label.text = "OVERLOADED: body limit %s" % TrainingManager.format_gravity(_training.get_body_limit())

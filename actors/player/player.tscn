@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=3]
+[gd_scene load_steps=42 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://actors/player/player_input_controller.gd" id="2_input"]
@@ -35,6 +35,7 @@
 [ext_resource type="Script" path="res://components/equipment/sword_sheath_visual.gd" id="33_sheath"]
 [ext_resource type="Script" path="res://components/flight/flight_component.gd" id="34_flight"]
 [ext_resource type="Script" path="res://components/aura/power_aura_component.gd" id="35_aura"]
+[ext_resource type="Script" path="res://components/stats/character_stats_component.gd" id="36_stats"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(10, 8)
@@ -186,6 +187,9 @@ inventory_component_path = NodePath("../InventoryComponent")
 
 [node name="FlightComponent" type="Node" parent="Components"]
 script = ExtResource("34_flight")
+
+[node name="CharacterStats" type="Node" parent="Components"]
+script = ExtResource("36_stats")
 
 [node name="AbilityLoadoutComponent" type="Node" parent="Components"]
 script = ExtResource("20_abilities")

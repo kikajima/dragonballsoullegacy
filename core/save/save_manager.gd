@@ -142,6 +142,7 @@ func _serialize_player(player: Node) -> Dictionary:
 		"inventory": {},
 		"equipment": {},
 		"aura": {},
+		"stats": {},
 		"abilities": {},
 		"wallet": {},
 		"transformations": {},
@@ -198,6 +199,10 @@ func _serialize_player(player: Node) -> Dictionary:
 	var aura := player.get_node_or_null("Visuals/PowerAura") as PowerAuraComponent
 	if aura != null:
 		result["aura"] = aura.serialize_state()
+
+	var stats := player.get_node_or_null("Components/CharacterStats") as CharacterStatsComponent
+	if stats != null:
+		result["stats"] = stats.serialize_state()
 
 	var abilities := player.get_node_or_null(
 		"Components/AbilityLoadoutComponent"
@@ -329,6 +334,13 @@ func _load_player(player: Node, data: Dictionary) -> void:
 	var aura_value: Variant = data.get("aura", {})
 	if aura != null:
 		aura.load_state(aura_value as Dictionary if aura_value is Dictionary else {})
+
+	# After health (the saved max HP already includes the Vigor bonus) and
+	# the inventory (Strength sets extra bag spaces).
+	var stats := player.get_node_or_null("Components/CharacterStats") as CharacterStatsComponent
+	var stats_value: Variant = data.get("stats", {})
+	if stats != null:
+		stats.load_state(stats_value as Dictionary if stats_value is Dictionary else {})
 
 	var abilities := player.get_node_or_null(
 		"Components/AbilityLoadoutComponent"

@@ -430,6 +430,7 @@ func _start_ranged_attack() -> void:
 			ki_blast_component.get_cast_state()
 		)
 		_play_current_animation()
+		_announce_attack(&"ki_blast")
 
 func _process_ranged_attack(delta: float) -> void:
 	if not is_instance_valid(_target):
@@ -536,6 +537,7 @@ func _start_attack() -> void:
 	if melee_combat_component.start_attack(_current_facing):
 		state_machine.change_state(melee_combat_component.get_attack_state())
 		_play_current_animation()
+		_announce_attack(&"melee")
 
 func _melee_range_for_direction(to_target: Vector2) -> float:
 	if absf(to_target.x) > absf(to_target.y):
@@ -734,6 +736,23 @@ func _spawn_loot_deferred(drop_position: Vector2) -> void:
 
 func get_display_name() -> String:
 	return display_name
+
+# The player may read the attack coming (Intelligence).
+func _announce_attack(kind: StringName) -> void:
+	var player := get_tree().get_first_node_in_group("player")
+	if player != null and player.has_method("on_enemy_attack_started"):
+		player.on_enemy_attack_started(self, kind)
+
+# Rough power reading used by Analyze and ki sense.
+func get_power_level() -> int:
+	return maxi(
+		roundi(
+			float(health_component.max_health) * 0.6
+			+ float(melee_combat_component.damage) * 8.0
+			* maxf(difficulty_scale, 0.25)
+		),
+		1
+	)
 
 func get_intelligence_tier_name() -> String:
 	return enemy_rank

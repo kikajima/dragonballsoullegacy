@@ -17,7 +17,7 @@ func get_interaction_label() -> String:
 	if training == null:
 		return "Start Sparring Partner"
 
-	return "Spar %.0fx Gravity" % training.gravity_multiplier
+	return "Spar %s Gravity" % TrainingManager.format_gravity(training.gravity_multiplier)
 
 func interact(_actor: Node) -> void:
 	if is_instance_valid(_partner):

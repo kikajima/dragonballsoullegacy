@@ -12,6 +12,11 @@ const STATE_SWORD_EQUIP: StringName = &"sword_equip"
 const STATE_FLY_HOVER: StringName = &"fly_hover"
 const STATE_FLY: StringName = &"fly"
 const STATE_FLY_FAST: StringName = &"fly_fast"
+# Focus activities: still, trained over time, cancelled by any action.
+const STATE_MEDITATE: StringName = &"meditate"
+const STATE_STUDY: StringName = &"study"
+# Analyze (T) reaches beings within this distance.
+const ANALYZE_RANGE := 180.0
 
 @export_range(1.0, 3.0, 0.05)
 var run_speed_scale: float = 1.333333
@@ -44,6 +49,7 @@ var kick_move_speed_scale: float = 0.70
 @onready var sword_sheath: SwordSheathVisual = $Visuals/SwordSheath
 @onready var flight_component: FlightComponent = $Components/FlightComponent
 @onready var power_aura: PowerAuraComponent = $Visuals/PowerAura
+@onready var character_stats: CharacterStatsComponent = $Components/CharacterStats
 @onready var ability_loadout_component: AbilityLoadoutComponent = $Components/AbilityLoadoutComponent
 @onready var consumable_component: ConsumableComponent = $Components/ConsumableComponent
 @onready var combo_tracker_component: ComboTrackerComponent = $Components/ComboTrackerComponent
@@ -64,6 +70,10 @@ var _flash_tween: Tween
 var _respawning: bool = false
 var _ki_quest_second_accumulator: float = 0.0
 var _equip_pose_left: float = 0.0
+# Current focus activity (STATE_MEDITATE / STATE_STUDY) and its study spot.
+var _focus: StringName = &""
+var _study_spot: Node
+var _blink_tween: Tween
 
 func _ready() -> void:
 	_spawn_position = global_position
@@ -86,6 +96,11 @@ func _ready() -> void:
 	flight_component.flight_changed.connect(_on_flight_changed)
 	flight_component.landing_blocked.connect(_notify.bind("Can't land here"))
 	power_aura.aura_changed.connect(_on_aura_changed)
+	character_stats.stats_changed.connect(_refresh_transformation_state)
+	character_stats.stat_leveled_up.connect(_on_stat_leveled_up)
+	melee_combat_component.attack_hitbox.hit_confirmed.connect(_on_melee_hit_for_training)
+	ki_blast_component.projectile_fired.connect(_on_ki_blast_fired)
+	special_attack_component.cast_started.connect(_on_special_cast_started)
 	_refresh_transformation_state()
 	_refresh_equipment_state()
 
@@ -110,6 +125,13 @@ func _physics_process(delta: float) -> void:
 	if _equip_pose_left > 0.0:
 		_process_equip_pose(delta)
 		return
+
+	if _focus != &"":
+		if _process_focus(move_intent, delta):
+			return
+
+	if input_controller.is_analyze_pressed():
+		analyze_nearest()
 
 	facing_component.update_from_direction(move_intent)
 
@@ -152,6 +174,12 @@ func _physics_process(delta: float) -> void:
 
 	if input_controller.is_toggle_flight_pressed():
 		toggle_flight()
+
+	if input_controller.is_meditate_pressed():
+		if start_meditation():
+			# Not _process_focus: this same M press would cancel it.
+			animation_controller.update_visual(_focus, facing_component.current_facing, delta)
+			return
 
 	if input_controller.is_toggle_weapon_pressed():
 		toggle_weapon()
@@ -222,6 +250,7 @@ func _physics_process(delta: float) -> void:
 	)
 	if state_machine.is_state(STATE_FLY_FAST):
 		_drain_fast_flight_ki(delta)
+	_train_movement(delta)
 	animation_controller.update_visual(
 		state_machine.current_state,
 		facing_component.current_facing,
@@ -301,6 +330,7 @@ func _get_locomotion_speed_scale() -> float:
 
 	return (
 		base_scale
+		* character_stats.move_speed_multiplier()
 		* transformation_component.get_movement_multiplier()
 		* _get_training_movement_multiplier()
 	)
@@ -530,6 +560,8 @@ func _process_hurt(delta: float) -> void:
 		state_machine.change_state(STATE_IDLE)
 
 func modify_incoming_damage(damage: int, source_position: Vector2) -> int:
+	if _try_evade():
+		return 0
 	return guard_component.resolve_damage(
 		damage,
 		global_position,
@@ -558,6 +590,7 @@ func register_combat_hit(target: Node, damage: int) -> void:
 		)
 
 func _on_hit_received(_damage: int, source_position: Vector2) -> void:
+	stop_focus()
 	if guard_component.was_last_hit_blocked():
 		hit_stop_component.trigger()
 		return
@@ -614,14 +647,18 @@ func _refresh_transformation_state() -> void:
 	var damage_multiplier: float = (
 		transformation_component.get_damage_multiplier()
 	)
+	# Strength drives melee, Wisdom drives ki techniques.
 	melee_combat_component.set_damage_multiplier(
-		damage_multiplier
+		damage_multiplier * character_stats.melee_damage_multiplier()
 	)
 	ki_blast_component.set_damage_multiplier(
-		damage_multiplier
+		damage_multiplier * character_stats.magic_damage_multiplier()
 	)
 	special_attack_component.set_damage_multiplier(
-		damage_multiplier
+		damage_multiplier * character_stats.magic_damage_multiplier()
+	)
+	special_attack_component.cooldown_multiplier = (
+		character_stats.special_cooldown_multiplier()
 	)
 
 	var definition := transformation_component.get_definition(
@@ -677,6 +714,7 @@ func reset_runtime_after_load() -> void:
 	_hurt_time_left = 0.0
 	_ki_quest_second_accumulator = 0.0
 	charge_aura.visible = false
+	stop_focus()
 	flight_component.land_immediately()
 	if _flash_tween != null and _flash_tween.is_valid():
 		_flash_tween.kill()
@@ -699,6 +737,7 @@ func _reset_after_defeat() -> void:
 	ki_blast_component.cancel_cast()
 	special_attack_component.cancel_cast()
 	transformation_component.end_transformation()
+	stop_focus()
 	flight_component.land_immediately()
 	knockback_component.stop(self)
 	guard_component.set_guarding(false)
@@ -891,3 +930,233 @@ func _notify(message: String) -> void:
 	var feed := get_tree().get_first_node_in_group("notification_feed")
 	if feed != null and feed.has_method("push_message"):
 		feed.push_message(message)
+
+
+# --- Character stats ----------------------------------------------------------
+
+func get_stats() -> CharacterStatsComponent:
+	return character_stats
+
+func is_meditating() -> bool:
+	return _focus == STATE_MEDITATE
+
+func is_studying() -> bool:
+	return _focus == STATE_STUDY
+
+# Punches, kicks and sword cuts that connect train Strength.
+func _on_melee_hit_for_training(_target: Node, damage: int) -> void:
+	if damage > 0:
+		character_stats.add_xp(CharacterStatsComponent.STRENGTH, character_stats.xp_melee_hit)
+
+func _on_ki_blast_fired(_facing: StringName, _variant: int) -> void:
+	character_stats.add_xp(CharacterStatsComponent.WISDOM, character_stats.xp_ki_blast)
+
+# Ki techniques train Wisdom in proportion to the ki they cost.
+func _on_special_cast_started(ability_id: StringName) -> void:
+	for data in special_attack_component.abilities:
+		if data != null and data.ability_id == ability_id:
+			character_stats.add_xp(
+				CharacterStatsComponent.WISDOM,
+				maxf(data.ki_cost, 4.0) * character_stats.xp_special_per_ki
+			)
+			return
+
+# Running and fast flight train Agility (only while actually moving).
+func _train_movement(delta: float) -> void:
+	if velocity.length() < 1.0:
+		return
+	if state_machine.is_state(STATE_RUN):
+		character_stats.add_xp(CharacterStatsComponent.AGILITY, character_stats.xp_run_per_second * delta)
+	elif state_machine.is_state(STATE_FLY_FAST):
+		character_stats.add_xp(CharacterStatsComponent.AGILITY, character_stats.xp_fast_flight_per_second * delta)
+
+func _on_stat_leveled_up(stat: StringName, new_level: int) -> void:
+	_notify("%s Lv %d" % [CharacterStatsComponent.stat_name(stat), new_level])
+	var feedback := get_tree().get_first_node_in_group("combat_feedback") as CombatFeedbackManager
+	if feedback != null and is_inside_tree():
+		feedback.spawn_floating_text(
+			"%s UP" % CharacterStatsComponent.stat_name(stat).to_upper(),
+			global_position + Vector2(0, -30),
+			Color(1.0, 0.85, 0.35)
+		)
+
+# Agility: a dodged hit does no damage. The fighter blinks out and back in
+# on the same spot (zanzoken), showing they were simply too fast.
+func _try_evade() -> bool:
+	if (
+		_respawning
+		or health_component.is_dead()
+		or _focus != &""
+		or status_effect_component.has_status(&"stun")
+		or state_machine.is_state(STATE_HURT)
+		or guard_component.is_guarding()
+	):
+		return false
+	if randf() >= character_stats.dodge_chance():
+		return false
+	character_stats.add_xp(CharacterStatsComponent.AGILITY, character_stats.xp_evade)
+	play_evade_blink()
+	return true
+
+func play_evade_blink() -> void:
+	var visuals := $Visuals as Node2D
+	_spawn_evade_afterimage()
+	if _blink_tween != null and _blink_tween.is_valid():
+		_blink_tween.kill()
+	visuals.modulate.a = 1.0
+	_blink_tween = create_tween()
+	_blink_tween.tween_property(visuals, "modulate:a", 0.0, 0.03)
+	_blink_tween.tween_interval(0.07)
+	_blink_tween.tween_property(visuals, "modulate:a", 1.0, 0.02)
+	_blink_tween.tween_property(visuals, "modulate:a", 0.25, 0.03)
+	_blink_tween.tween_property(visuals, "modulate:a", 1.0, 0.03)
+	var feedback := get_tree().get_first_node_in_group("combat_feedback") as CombatFeedbackManager
+	if feedback != null:
+		feedback.spawn_floating_text("DODGE", global_position + Vector2(0, -26), Color(0.6, 0.95, 1.0))
+
+func _spawn_evade_afterimage() -> void:
+	var sprite := animation_controller.sprite
+	if sprite == null or sprite.sprite_frames == null or not sprite.sprite_frames.has_animation(sprite.animation):
+		return
+	var texture := sprite.sprite_frames.get_frame_texture(sprite.animation, sprite.frame)
+	if texture == null:
+		return
+	var ghost := Sprite2D.new()
+	ghost.name = "EvadeAfterimage"
+	ghost.texture = texture
+	ghost.flip_h = sprite.flip_h
+	ghost.top_level = true
+	ghost.z_as_relative = false
+	ghost.z_index = z_index
+	ghost.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	ghost.modulate = Color(1, 1, 1, 0.75)
+	add_child(ghost)
+	ghost.global_position = sprite.global_position
+	var tween := ghost.create_tween()
+	tween.tween_property(ghost, "modulate:a", 0.0, 0.22)
+	tween.tween_callback(ghost.queue_free)
+
+# --- Focus: meditation (M) and study ------------------------------------------
+
+func start_meditation() -> bool:
+	if _focus == STATE_MEDITATE:
+		stop_focus()
+		return false
+	if flight_component.is_flying:
+		_notify("Land to meditate")
+		return false
+	_begin_focus(STATE_MEDITATE)
+	_notify("Meditating (M or move to stop)")
+	return true
+
+# Called by a StudySpot. Returns false when the player can't study now.
+func start_study(spot: Node) -> bool:
+	if flight_component.is_flying:
+		_notify("Land to study")
+		return false
+	_study_spot = spot
+	_begin_focus(STATE_STUDY)
+	return true
+
+func stop_focus() -> void:
+	if _focus == &"":
+		return
+	var previous := _focus
+	_focus = &""
+	_study_spot = null
+	if is_inside_tree() and state_machine.is_state(previous):
+		state_machine.change_state(STATE_IDLE)
+
+func _begin_focus(kind: StringName) -> void:
+	_focus = kind
+	movement_component.stop(self)
+	velocity = Vector2.ZERO
+	charge_aura.visible = false
+	guard_component.set_guarding(false)
+	state_machine.change_state(kind)
+
+# Returns true while the focus keeps the player busy this frame.
+func _process_focus(move_intent: Vector2, delta: float) -> bool:
+	var cancel := (
+		not move_intent.is_zero_approx()
+		or input_controller.is_attack_pressed()
+		or input_controller.is_kick_pressed()
+		or input_controller.is_ki_blast_pressed()
+		or input_controller.is_special_attack_pressed()
+		or input_controller.is_block_pressed()
+		or input_controller.is_charge_ki_pressed()
+		or input_controller.is_toggle_flight_pressed()
+		or (_focus == STATE_MEDITATE and input_controller.is_meditate_pressed())
+		or (_focus == STATE_STUDY and input_controller.is_interact_pressed())
+		or (_focus == STATE_STUDY and not is_instance_valid(_study_spot))
+	)
+	if cancel:
+		stop_focus()
+		return false
+	if input_controller.is_analyze_pressed():
+		analyze_nearest()
+	movement_component.stop(self)
+	state_machine.change_state(_focus)
+	if _focus == STATE_MEDITATE:
+		character_stats.add_xp(CharacterStatsComponent.WISDOM, character_stats.xp_meditation_per_second * delta)
+		ki_component.restore(ki_charge_per_second * 0.35 * delta)
+	elif _focus == STATE_STUDY:
+		var rate: float = 1.0
+		if _study_spot != null and "xp_multiplier" in _study_spot:
+			rate = float(_study_spot.get("xp_multiplier"))
+		character_stats.add_xp(CharacterStatsComponent.INTELLIGENCE, character_stats.xp_study_per_second * rate * delta)
+	animation_controller.update_visual(_focus, facing_component.current_facing, delta)
+	return true
+
+# --- Analyze (T) ------------------------------------------------------------------
+
+# Reads the closest being in range; how much is revealed depends on
+# Intelligence (CharacterStatsComponent.analyze_tier).
+func analyze_nearest() -> Node2D:
+	var target := find_analyze_target()
+	if target == null:
+		_notify("Nothing to analyze nearby")
+		return null
+	var tier := character_stats.analyze_tier()
+	target.set_meta(&"analyzed_tier", maxi(int(target.get_meta(&"analyzed_tier", -1)), tier))
+	var panel := get_tree().get_first_node_in_group("analyze_panel")
+	if panel != null and panel.has_method("show_analysis"):
+		panel.show_analysis(target, tier)
+	return target
+
+func find_analyze_target() -> Node2D:
+	var best: Node2D = null
+	var best_score := INF
+	var facing_vector := _facing_vector(facing_component.current_facing)
+	for group in [&"enemy", &"npc"]:
+		for node in get_tree().get_nodes_in_group(group):
+			var being := node as Node2D
+			if being == null or being == self or not being.is_inside_tree():
+				continue
+			var offset := being.global_position - global_position
+			var distance := offset.length()
+			if distance > ANALYZE_RANGE:
+				continue
+			var health := being.get_node_or_null("Components/HealthComponent") as HealthComponent
+			if health != null and health.is_dead():
+				continue
+			# Prefer fighters, then what the player is facing.
+			var score := distance - 40.0 * offset.normalized().dot(facing_vector)
+			if group == &"npc":
+				score += 120.0
+			if score < best_score:
+				best_score = score
+				best = being
+	return best
+
+# Intelligence: a chance to see an enemy attack coming ("!" over it).
+func on_enemy_attack_started(enemy: Node2D, _kind: StringName) -> void:
+	if enemy == null or not is_instance_valid(enemy) or health_component.is_dead():
+		return
+	if enemy.global_position.distance_to(global_position) > 260.0:
+		return
+	if randf() >= character_stats.attack_read_chance():
+		return
+	var feedback := get_tree().get_first_node_in_group("combat_feedback") as CombatFeedbackManager
+	if feedback != null:
+		feedback.spawn_floating_text("!", enemy.global_position + Vector2(0, -34), Color(1.0, 0.9, 0.25))
