@@ -101,6 +101,7 @@ func _ready() -> void:
 	melee_combat_component.attack_hitbox.hit_confirmed.connect(_on_melee_hit_for_training)
 	ki_blast_component.projectile_fired.connect(_on_ki_blast_fired)
 	special_attack_component.cast_started.connect(_on_special_cast_started)
+	guard_component.hit_blocked.connect(_on_hit_blocked)
 	_refresh_transformation_state()
 	_refresh_equipment_state()
 
@@ -568,12 +569,17 @@ func _process_hurt(delta: float) -> void:
 func modify_incoming_damage(damage: int, source_position: Vector2) -> int:
 	if _try_evade():
 		return 0
-	return guard_component.resolve_damage(
+	var resolved := guard_component.resolve_damage(
 		damage,
 		global_position,
 		source_position,
 		facing_component.current_facing
 	)
+	# Worn armour takes a flat amount off every hit, never the whole hit.
+	var defense := equipment_component.get_total_defense()
+	if defense > 0 and resolved > 1:
+		resolved = maxi(resolved - defense, 1)
+	return resolved
 
 func _on_attack_hit_confirmed(target: Node, damage: int) -> void:
 	hit_stop_component.trigger()
@@ -868,9 +874,8 @@ func _on_equipment_changed(slot: StringName, item_id: StringName) -> void:
 		_flash(Color(1.0, 1.0, 0.85))
 
 func _refresh_equipment_state() -> void:
-	var weapon := equipment_component.get_weapon_data()
 	melee_combat_component.set_weapon_damage_bonus(
-		weapon.melee_damage_bonus if weapon != null else 0
+		equipment_component.get_total_melee_bonus()
 	)
 	sword_sheath.equipped = has_sword_equipped()
 
@@ -954,6 +959,8 @@ func _drain_fast_flight_ki(delta: float) -> void:
 
 func _on_flight_changed(flying: bool) -> void:
 	_notify("Flying" if flying else "Landed")
+	if flying:
+		_advance_quest_objective(&"fly")
 
 func _on_aura_changed(enabled: bool, color_id: StringName) -> void:
 	if not is_inside_tree():
@@ -991,9 +998,17 @@ func is_studying() -> bool:
 func _on_melee_hit_for_training(_target: Node, damage: int) -> void:
 	if damage > 0:
 		character_stats.add_xp(CharacterStatsComponent.STRENGTH, character_stats.xp_melee_hit)
+		# Tutorial objectives: "hit:punch", "hit:kick", "hit:sword".
+		_advance_quest_objective(
+			StringName("hit:%s" % melee_combat_component.get_attack_kind())
+		)
 
 func _on_ki_blast_fired(_facing: StringName, _variant: int) -> void:
 	character_stats.add_xp(CharacterStatsComponent.WISDOM, character_stats.xp_ki_blast)
+	_advance_quest_objective(&"ki_blast")
+
+func _on_hit_blocked(_original: int, _reduced: int) -> void:
+	_advance_quest_objective(&"block")
 
 # Ki techniques train Wisdom in proportion to the ki they cost.
 func _on_special_cast_started(ability_id: StringName) -> void:

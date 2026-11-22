@@ -9,11 +9,16 @@ const DMI_SPRITE_SHEET_SCRIPT = preload(
 @export_file("*.dmi") var dmi_path: String
 @export_multiline var dialogue_text: String = ""
 @export var interaction_label: String = ""
+# Quest id of this NPC ("bulma", "piccolo"...): quests offered, reported
+# here or "talk:<npc_id>" objectives (QuestTalk).
+@export var npc_id: StringName = &""
 
 @onready var sprite: Sprite2D = $Sprite2D
 
 func _ready() -> void:
 	_load_sprite(&"down")
+	if npc_id != &"":
+		NpcQuestMarker.attach(self, npc_id)
 
 func get_display_name() -> String:
 	return display_name
@@ -27,16 +32,10 @@ func interact(actor: Node) -> void:
 	if actor is Node2D:
 		_face_actor(actor as Node2D)
 
-	var dialogue := get_tree().get_first_node_in_group(
-		"dialogue_ui"
-	) as DialogueBox
-	if dialogue == null:
-		return
-
-	var lines := dialogue_text.split("|", false)
+	var lines: Array = Array(dialogue_text.split("|", false))
 	if lines.is_empty():
 		lines = ["The road ahead is quiet."]
-	dialogue.show_dialogue(lines, display_name)
+	QuestTalk.talk(self, npc_id, display_name, lines)
 
 func _face_actor(actor: Node2D) -> void:
 	var direction := actor.global_position - global_position

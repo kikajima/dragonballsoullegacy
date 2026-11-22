@@ -92,6 +92,9 @@ func open() -> void:
 	visible = true
 	get_tree().paused = true
 	refresh()
+	var quests := get_tree().get_first_node_in_group("quest_manager") as QuestManager
+	if quests != null:
+		quests.advance_objective(&"open_inventory")
 
 func close() -> void:
 	visible = false

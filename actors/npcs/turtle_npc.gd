@@ -12,6 +12,7 @@ const DMI_PATH := (
 
 func _ready() -> void:
 	_apply_facing(&"down")
+	NpcQuestMarker.attach(self, &"turtle", 26.0)
 
 func get_interaction_label() -> String:
 	return "Talk to Turtle"
@@ -20,20 +21,11 @@ func interact(actor: Node) -> void:
 	if actor is Node2D:
 		_face_actor(actor as Node2D)
 
-	var dialogue := get_tree().get_first_node_in_group(
-		"dialogue_ui"
-	) as DialogueBox
-	if dialogue == null:
-		return
-
-	dialogue.show_dialogue(
-		[
-			"The sea is peaceful today.",
-			"Master Roshi may act carefree, but his training is serious.",
-			"Rest inside Kame House whenever you need to recover."
-		],
-		"Turtle"
-	)
+	QuestTalk.talk(self, &"turtle", "Turtle", [
+		"The sea is peaceful today.",
+		"Master Roshi may act carefree, but his training is serious.",
+		"Rest inside Kame House whenever you need to recover.",
+	])
 
 func _face_actor(actor: Node2D) -> void:
 	var direction: Vector2 = actor.global_position - global_position

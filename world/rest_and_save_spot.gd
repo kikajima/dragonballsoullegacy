@@ -22,6 +22,10 @@ func interact(actor: Node) -> void:
 	if ki != null:
 		ki.restore_full()
 
+	var quests := get_tree().get_first_node_in_group("quest_manager") as QuestManager
+	if quests != null:
+		quests.advance_objective(&"rest")
+
 	var save_manager := get_tree().get_first_node_in_group(
 		"save_manager"
 	) as SaveManager

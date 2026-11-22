@@ -237,6 +237,7 @@ position = Vector2(318, 360)
 [node name="Krillin" parent="." instance=ExtResource("11_npc")]
 position = Vector2(720, 360)
 display_name = "Krillin"
+npc_id = &"krillin"
 dmi_path = "res://assets/vendor/hu2/Icons/Characters/Krillin.dmi"
 dialogue_text = "Roshi says this island is the best place to build fundamentals.|I will keep watch while you train with the sparring fighter.|Come back when your basics are ready for a real journey."
 
@@ -251,6 +252,7 @@ joint_mode = 1
 position = Vector2(610, 368)
 dmi_sprite_path = "res://assets/vendor/hu2/Icons/Characters/Goku.dmi"
 display_name = "Goku (Sparring)"
+enemy_id = &"sparring_goku"
 enemy_rank = "Uncommon"
 difficulty_scale = 0.82
 reward_scale = 0.94
@@ -280,7 +282,7 @@ monitorable = true
 script = ExtResource("12_info")
 interaction_label = "Read Training Guide"
 speaker = "Island Training Guide"
-text = "START HERE: Talk to Master Roshi and follow his training.|MOVEMENT: WASD moves, SPACE runs. J punches and I kicks.|KI: K fires basic Ki Blasts. Hold L to recover Ki.|SPECIALS: R changes the selected technique. O uses it; some techniques can be charged."
+text = "START HERE: Talk to Master Roshi and follow his training.|MOVEMENT: WASD moves, SPACE runs. J punches and I kicks.|KI: K fires basic Ki Blasts. Hold L to recover Ki.|SPECIALS: R changes the selected technique. O uses it; some techniques can be charged.|BLOCK: hold Shift. Q eats a Senzu Bean, Tab opens your bag.|JOURNAL: press N to see your quests, the sagas and the Dragon Balls."
 
 [node name="Sign" type="Polygon2D" parent="BeachGuide"]
 polygon = PackedVector2Array(-17, -13, 17, -13, 17, 13, -17, 13)
