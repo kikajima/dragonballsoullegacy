@@ -198,7 +198,11 @@ func _spawn_trail_tile(at: Vector2, facing: StringName) -> void:
 	tile.texture = dmi.get_frame_texture(state, facing, frame)
 	tile.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	tile.global_position = at
-	tile.z_index = -1
+	# top_level also drops the parent's draw order, so a relative z would put
+	# the trail under the floor of maps whose ground is drawn at z >= 0. Pin
+	# it just behind the flyer instead (flyers sit above all scenery).
+	tile.z_as_relative = false
+	tile.z_index = _trail_z()
 	tile.modulate = get_color_entry(color_id)["tint"]
 	tile.modulate.a = trail_alpha
 	tile.add_to_group("aura_trail")
@@ -206,6 +210,18 @@ func _spawn_trail_tile(at: Vector2, facing: StringName) -> void:
 	var tween := tile.create_tween()
 	tween.tween_property(tile, "modulate:a", 0.0, trail_lifetime)
 	tween.tween_callback(tile.queue_free)
+
+func _trail_z() -> int:
+	var z := 0
+	var node: Node = self
+	while node is CanvasItem:
+		var item := node as CanvasItem
+		z += item.z_index
+		if not item.z_as_relative:
+			break
+		node = node.get_parent()
+	# Behind the body (PowerAura itself sits at -2 under the sprite).
+	return clampi(z - 1, RenderingServer.CANVAS_ITEM_Z_MIN, RenderingServer.CANVAS_ITEM_Z_MAX)
 
 func _apply_color_to_charge_aura() -> void:
 	if _player == null:

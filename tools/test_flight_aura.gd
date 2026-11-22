@@ -167,6 +167,13 @@ func _case_trail() -> void:
 	if not trails.is_empty():
 		var tile := trails[-1] as Sprite2D
 		_expect("trail: aura colour", tile.texture != null, "")
+		# Regression: a relative z on a top_level tile drew the trail under
+		# the floor of West City, Rocky Wastes and the training chamber.
+		_expect(
+			"trail: drawn just behind the flyer, above every floor",
+			not tile.z_as_relative and tile.z_index >= player.z_index - 3 and tile.z_index < player.z_index,
+			"tile z %d (relative %s) vs player z %d" % [tile.z_index, tile.z_as_relative, player.z_index]
+		)
 		_expect("trail: behind the flyer", tile.global_position.x < player.global_position.x, "%s vs %s" % [tile.global_position, player.global_position])
 		_expect("trail: at body height", absf(tile.global_position.y - (player.global_position.y + aura.position.y)) <= 3.0, "%s" % tile.global_position)
 		var xs: Array = []
