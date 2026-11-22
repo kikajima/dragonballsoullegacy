@@ -23,3 +23,6 @@
 
 # Local sprite-generator exports.
 /generated/sprites/
+
+# Python bytecode from the tools.
+__pycache__/

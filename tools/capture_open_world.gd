@@ -38,6 +38,17 @@ func run() -> void:
 	await _shot(Vector2(4000, 3000), "wastes_south.png")
 	await _shot(Vector2(3200, 600), "snow.png")
 	await _shot(Vector2(4710, 2000), "river.png")
+	# Shores: a cliff (land north of the water) and a grass shore.
+	var earth := get_first_node_in_group("open_world") as OpenWorld
+	if earth == null:
+		earth = game.get_node("WorldContainer").get_child(0) as OpenWorld
+	var cliffs := 0
+	for y in range(20, 130, 3):
+		for x in range(10, 200, 3):
+			if cliffs < 3 and earth.terrain.is_cliff_cell(Vector2i(x, y)) and earth.terrain.is_cliff_cell(Vector2i(x + 3, y)):
+				await _shot(Vector2(x * 32, y * 32), "cliff_%d.png" % cliffs)
+				cliffs += 1
+				break
 
 	var camera := player.get_node("Camera2D") as Camera2D
 	camera.limit_left = -100000

@@ -136,6 +136,7 @@ def noise(scale, seed):
 
 
 ROUGH = noise(9, 1) * 0.5 + noise(4, 2) * 0.35 + noise(2, 3) * 0.15
+BEACHES = noise(14, 11) * 0.8 + noise(5, 12) * 0.2
 
 
 def shape(points, rough=0.38, blur=1.6):
@@ -184,7 +185,14 @@ def build():
     near = np.asarray(Image.fromarray((land * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(5))) > 0
     img[near & ~land] = SHALLOW
     img[land] = GRASS
-    coast = land & ~(np.asarray(Image.fromarray((land * 255).astype(np.uint8)).filter(ImageFilter.MinFilter(3))) > 0)
+    edge = land & ~(np.asarray(Image.fromarray((land * 255).astype(np.uint8)).filter(ImageFilter.MinFilter(3))) > 0)
+    # Like the HU2 Earth, most coasts are grass meeting the water (fuzz, or
+    # a cliff where the land is north of the water); beaches come in
+    # stretches, and every small island is a beach island.
+    small = np.zeros_like(land)
+    for cx, cy, rx, ry in ISLETS:
+        small |= ellipse(cx, cy, rx + 2, ry + 2)
+    coast = edge & ((BEACHES > 0.15) | small)
     img[coast] = SAND
 
     def paint(mask, colour):
