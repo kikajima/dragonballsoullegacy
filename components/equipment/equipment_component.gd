@@ -107,6 +107,24 @@ func get_equipped_data(slot: StringName) -> ItemData:
 func is_equipped(item_id: StringName) -> bool:
 	return item_id != &"" and _slots.values().has(String(item_id))
 
+# Melee damage added by everything worn (weapon, armbands...).
+func get_total_melee_bonus() -> int:
+	var total := 0
+	for slot in SLOTS:
+		var data := get_equipped_data(slot)
+		if data != null:
+			total += data.melee_damage_bonus
+	return total
+
+# Damage taken off every hit by everything worn.
+func get_total_defense() -> int:
+	var total := 0
+	for slot in SLOTS:
+		var data := get_equipped_data(slot)
+		if data != null:
+			total += data.defense_bonus
+	return total
+
 func get_weapon_data() -> ItemData:
 	return get_equipped_data(SLOT_WEAPON)
 

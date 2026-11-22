@@ -19,10 +19,22 @@ extends Resource
 # Bags (equipment_slot "bag"): total bag spaces while this bag is worn. With
 # no bag the character carries InventoryComponent.BASE_CAPACITY spaces.
 @export_range(0, 99, 1) var bag_capacity: int = 0
+# Damage taken is reduced by the summed defense of everything worn.
+@export var defense_bonus: int = 0
 @export var icon: Texture2D
+# Icon read from a HU2 .dmi state when `icon` is empty (see ItemCatalog).
+@export var icon_dmi: String = ""
+@export var icon_state: String = ""
+# "material", "food", "gear", "key"... Shown in shops and the crafting menu.
+@export var category: StringName = &""
+# Shop price; 0 means "sell_value x 2".
+@export var buy_price: int = 0
 
 func is_equipment() -> bool:
 	return equipment_slot != &""
+
+func get_buy_price() -> int:
+	return buy_price if buy_price > 0 else maxi(sell_value * 2, 1)
 
 func is_bag() -> bool:
 	return equipment_slot == &"bag" and bag_capacity > 0

@@ -126,7 +126,7 @@ func _show_collection_feedback(collected_amount: int) -> void:
 		text_value = "+%d ZENI" % collected_amount
 		text_color = Color(1.0, 0.86, 0.28, 1.0)
 	else:
-		var item_name: String = String(item_id).replace("_", " ").capitalize()
+		var item_name: String = ItemCatalog.get_display_name(item_id)
 		text_value = "+%d %s" % [collected_amount, item_name]
 		text_color = Color(0.48, 1.0, 0.58, 1.0)
 
@@ -188,3 +188,16 @@ func _refresh_visual() -> void:
 	else:
 		label.text = "+"
 		$Visual/Diamond.modulate = Color(0.45, 1.0, 0.55, 1.0)
+		# Items with an icon show it instead of the generic diamond.
+		var data := ItemCatalog.get_item(item_id)
+		var icon_sprite := visual.get_node_or_null("Icon") as Sprite2D
+		if data != null and data.icon != null:
+			if icon_sprite == null:
+				icon_sprite = Sprite2D.new()
+				icon_sprite.name = "Icon"
+				visual.add_child(icon_sprite)
+			icon_sprite.texture = data.icon
+			$Visual/Diamond.visible = false
+			label.visible = false
+		elif icon_sprite != null:
+			icon_sprite.queue_free()
